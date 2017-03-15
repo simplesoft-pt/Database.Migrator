@@ -1,6 +1,6 @@
 ﻿{
     "version": "0.1.0",
-    "title": "SimpleSoft.Database.Migrator",
+    "title": "SimpleSoft.Database.Migrator.Abstractions",
     "description": "Support for simple database migrations.",
     "authors": [ "João Simões" ],
     "copyright": "Copyright © 2017 João Simões",
@@ -24,7 +24,7 @@
     },
 
     "dependencies": {
-        "SimpleSoft.Database.Migrator.Abstractions": { "target": "project" }
+
     },
 
     "frameworks": {
@@ -32,7 +32,9 @@
 
         },
         "netstandard1.6": {
-
+            "dependencies": {
+                "NETStandard.Library": "1.6.0"
+            }
         }
     }
 }
