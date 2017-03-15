@@ -24,12 +24,16 @@
     },
 
     "dependencies": {
+        "Microsoft.Extensions.DependencyInjection": "1.0.0",
+        "Microsoft.Extensions.Logging": "1.0.0",
         "SimpleSoft.Database.Migrator.Abstractions": { "target": "project" }
     },
 
     "frameworks": {
         "net4.5.1": {
-
+            "frameworkAssemblies": {
+                "System.Runtime": { "type": "build" } 
+            }
         },
         "netstandard1.6": {
 
