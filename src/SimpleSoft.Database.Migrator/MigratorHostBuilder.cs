@@ -124,7 +124,29 @@ namespace SimpleSoft.Database.Migrator
         /// <inheritdoc />
         public IMigratorHost Build()
         {
-            throw new NotImplementedException();
+            var loggerFactory = _loggerFactory;
+
+            foreach (var handler in _loggingConfigurationHandlers)
+                handler(loggerFactory);
+
+            var logger = loggerFactory.CreateLogger<MigratorHostBuilder>();
+            
+            var serviceCollection = new ServiceCollection()
+                .AddSingleton(loggerFactory)
+                .AddLogging();
+
+            logger.LogDebug(
+                "Running a total of {total} the service configuration handler",
+                _serviceConfigurationHandlers.Count);
+            foreach (var handler in _serviceConfigurationHandlers)
+                handler(serviceCollection, loggerFactory);
+
+            var serviceProvider = ServiceProviderBuilder(serviceCollection, loggerFactory);
+
+            foreach (var handler in _configurationHandlers)
+                handler(serviceProvider, loggerFactory);
+
+            return new MigratorHost(serviceProvider, loggerFactory.CreateLogger<MigratorHost>());
         }
 
         #endregion
