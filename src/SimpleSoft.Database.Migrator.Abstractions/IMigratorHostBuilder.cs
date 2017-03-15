@@ -29,9 +29,9 @@ namespace SimpleSoft.Database.Migrator
         /// Configures services in the <see cref="IServiceProvider"/> to
         /// be used by the <see cref="IMigratorHost"/> to build.
         /// </summary>
-        /// <param name="configureServiceProvider">The configuration handler</param>
+        /// <param name="configure">The configuration handler</param>
         /// <returns>The <see cref="IMigratorHostBuilder"/></returns>
-        IMigratorHostBuilder Configure(Action<IServiceProvider> configureServiceProvider);
+        IMigratorHostBuilder Configure(Action<IServiceProvider, ILoggerFactory> configure);
 
         /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
