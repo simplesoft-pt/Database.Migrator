@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -10,45 +11,57 @@ namespace SimpleSoft.Database.Migrator
     public interface IMigratorHostBuilder
     {
         /// <summary>
-        /// Uses the given handler to configure the <see cref="ILoggerFactory"/>
-        /// used by the <see cref="IMigratorHost"/> to build.
+        /// Collection of handlers used to configure the <see cref="ILoggerFactory"/>.
         /// </summary>
-        /// <param name="configureLogging">The configuration handler</param>
-        /// <returns>The <see cref="IMigratorHostBuilder"/></returns>
-        IMigratorHostBuilder ConfigureLogging(Action<ILoggerFactory> configureLogging);
+        IReadOnlyCollection<Action<ILoggerFactory>> LoggingConfigurationHandlers { get; }
 
         /// <summary>
-        /// Uses the given handler to add services to the <see cref="IServiceCollection"/>
-        /// used by the <see cref="IMigratorHost"/> to build.
+        /// Collection of handlers used to configure the <see cref="IServiceCollection"/>.
         /// </summary>
-        /// <param name="configureServices">The configuration handler</param>
-        /// <returns>The <see cref="IMigratorHostBuilder"/></returns>
-        IMigratorHostBuilder ConfigureServices(Action<IServiceCollection> configureServices);
+        IReadOnlyCollection<Action<IServiceCollection, ILoggerFactory>> ServiceConfigurationHandlers { get; }
 
         /// <summary>
-        /// Configures services in the <see cref="IServiceProvider"/> to
-        /// be used by the <see cref="IMigratorHost"/> to build.
+        /// Collection of handlers used to configure the services registered 
+        /// into the <see cref="IServiceProvider"/>.
         /// </summary>
-        /// <param name="configure">The configuration handler</param>
-        /// <returns>The <see cref="IMigratorHostBuilder"/></returns>
-        IMigratorHostBuilder Configure(Action<IServiceProvider, ILoggerFactory> configure);
+        IReadOnlyCollection<Action<IServiceProvider, ILoggerFactory>> ConfigurationHandlers { get; }
+
+        /// <summary>
+        /// Builder function for the <see cref="IServiceProvider"/>.
+        /// </summary>
+        Func<IServiceCollection, ILoggerFactory, IServiceProvider> ServiceProviderBuilder { get; }
+
+        /// <summary>
+        /// Adds the handler to the <see cref="LoggingConfigurationHandlers"/> collection.
+        /// </summary>
+        /// <param name="handler">The handler to add</param>
+        void AddLoggingConfigurator(Action<ILoggerFactory> handler);
+
+        /// <summary>
+        /// Adds the handler to the <see cref="ServiceConfigurationHandlers"/> collection.
+        /// </summary>
+        /// <param name="handler">The handler to add</param>
+        void AddServiceConfigurator(Action<IServiceCollection, ILoggerFactory> handler);
+
+        /// <summary>
+        /// Adds the handler to the <see cref="ConfigurationHandlers"/> collection.
+        /// </summary>
+        /// <param name="handler">The handler to add</param>
+        void AddConfigurator(Action<IServiceProvider, ILoggerFactory> handler);
 
         /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
         /// will be used by the <see cref="IMigratorHost"/> to build.
         /// </summary>
         /// <param name="buildServiceProvider">The builder function</param>
-        /// <returns>The <see cref="IMigratorHostBuilder"/></returns>
-        IMigratorHostBuilder UseServiceProvider(Func<IServiceCollection, IServiceProvider> buildServiceProvider);
+        void SetServiceProviderBuilder(Func<IServiceCollection, ILoggerFactory, IServiceProvider> buildServiceProvider);
 
         /// <summary>
         /// Assigns the given <see cref="ILoggerFactory"/> to be used
-        /// by the <see cref="IMigratorHost"/>. If an handler was specified by <see cref="ConfigureLogging"/>,
-        /// it will be invoked with this instance as a parameter.
+        /// by the <see cref="IMigratorHost"/>.
         /// </summary>
         /// <param name="loggerFactory">The logger factory to use</param>
-        /// <returns>The <see cref="IMigratorHostBuilder"/></returns>
-        IMigratorHostBuilder UseLoggerFactory(ILoggerFactory loggerFactory);
+        void SetLoggerFactory(ILoggerFactory loggerFactory);
 
         /// <summary>
         /// Builds an instance of <see cref="IMigratorHost"/> to run migrations.

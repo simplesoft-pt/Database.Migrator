@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -10,11 +11,10 @@ namespace SimpleSoft.Database.Migrator
     public class MigratorHostBuilder : IMigratorHostBuilder, IDisposable
     {
         private ILoggerFactory _loggerFactory;
-        private Action<ILoggerFactory> _configureLogging;
-        private Action<IServiceCollection> _configureServices;
-        private Action<IServiceProvider, ILoggerFactory> _configure;
-        private Func<IServiceCollection, IServiceProvider> _buildServiceProvider;
         private bool _disposed;
+        private readonly List<Action<ILoggerFactory>> _loggingConfigurationHandlers;
+        private readonly List<Action<IServiceCollection, ILoggerFactory>> _serviceConfigurationHandlers;
+        private readonly List<Action<IServiceProvider, ILoggerFactory>> _configurationHandlers;
 
         /// <summary>
         /// Creates a new instance
@@ -22,6 +22,11 @@ namespace SimpleSoft.Database.Migrator
         public MigratorHostBuilder()
         {
             _loggerFactory = new LoggerFactory();
+
+            _loggingConfigurationHandlers = new List<Action<ILoggerFactory>>();
+            _serviceConfigurationHandlers = new List<Action<IServiceCollection, ILoggerFactory>>();
+            _configurationHandlers = new List<Action<IServiceProvider, ILoggerFactory>>();
+            ServiceProviderBuilder = (services, factory) => services.BuildServiceProvider();
         }
 
         /// <inheritdoc />
@@ -30,83 +35,7 @@ namespace SimpleSoft.Database.Migrator
             Dispose(false);
         }
 
-        /// <inheritdoc />
-        public IMigratorHostBuilder ConfigureLogging(Action<ILoggerFactory> configureLogging)
-        {
-            if (configureLogging == null)
-                throw new ArgumentNullException(nameof(configureLogging));
-
-            _configureLogging = configureLogging;
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IMigratorHostBuilder ConfigureServices(Action<IServiceCollection> configureServices)
-        {
-            if (configureServices == null)
-                throw new ArgumentNullException(nameof(configureServices));
-
-            _configureServices = configureServices;
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IMigratorHostBuilder Configure(Action<IServiceProvider, ILoggerFactory> configure)
-        {
-            if (configure == null)
-                throw new ArgumentNullException(nameof(configure));
-
-            _configure = configure;
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IMigratorHostBuilder UseServiceProvider(Func<IServiceCollection, IServiceProvider> buildServiceProvider)
-        {
-            if (buildServiceProvider == null)
-                throw new ArgumentNullException(nameof(buildServiceProvider));
-
-            _buildServiceProvider = buildServiceProvider;
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IMigratorHostBuilder UseLoggerFactory(ILoggerFactory loggerFactory)
-        {
-            if (loggerFactory == null)
-                throw new ArgumentNullException(nameof(loggerFactory));
-
-            _loggerFactory = loggerFactory;
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IMigratorHost Build()
-        {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(MigratorHostBuilder));
-
-            _configureLogging?.Invoke(_loggerFactory);
-
-            var logger = _loggerFactory.CreateLogger<MigratorHostBuilder>();
-
-            logger.LogDebug("Configuring the service collection");
-
-            var serviceCollection =
-                new ServiceCollection()
-                    .AddSingleton(_loggerFactory)
-                    .AddLogging();
-            _configureServices?.Invoke(serviceCollection);
-
-            var serviceProvider =
-                _buildServiceProvider == null
-                    ? serviceCollection.BuildServiceProvider()
-                    : _buildServiceProvider(serviceCollection);
-
-            _configure?.Invoke(serviceProvider, _loggerFactory);
-
-            return new MigratorHost(serviceProvider, _loggerFactory.CreateLogger<MigratorHost>());
-        }
+        #region IDisposable
 
         /// <inheritdoc />
         public void Dispose()
@@ -128,12 +57,76 @@ namespace SimpleSoft.Database.Migrator
                 _loggerFactory?.Dispose();
 
             _loggerFactory = null;
-            _configureLogging = null;
-            _configureServices = null;
-            _configure = null;
-            _buildServiceProvider = null;
+            _loggingConfigurationHandlers.Clear();
+            _serviceConfigurationHandlers.Clear();
+            _configurationHandlers.Clear();
+            ServiceProviderBuilder = null;
 
             _disposed = true;
         }
+
+        #endregion
+
+        #region Implementation of IMigratorHostBuilder
+
+        /// <inheritdoc />
+        public IReadOnlyCollection<Action<ILoggerFactory>> LoggingConfigurationHandlers => _loggingConfigurationHandlers;
+
+        /// <inheritdoc />
+        public IReadOnlyCollection<Action<IServiceCollection, ILoggerFactory>> ServiceConfigurationHandlers => _serviceConfigurationHandlers;
+
+        /// <inheritdoc />
+        public IReadOnlyCollection<Action<IServiceProvider, ILoggerFactory>> ConfigurationHandlers => _configurationHandlers;
+
+        /// <inheritdoc />
+        public Func<IServiceCollection, ILoggerFactory, IServiceProvider> ServiceProviderBuilder { get; private set; }
+
+        /// <inheritdoc />
+        public void AddLoggingConfigurator(Action<ILoggerFactory> handler)
+        {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+            
+            _loggingConfigurationHandlers.Add(handler);
+        }
+
+        /// <inheritdoc />
+        public void AddServiceConfigurator(Action<IServiceCollection, ILoggerFactory> handler)
+        {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
+            _serviceConfigurationHandlers.Add(handler);
+        }
+
+        /// <inheritdoc />
+        public void AddConfigurator(Action<IServiceProvider, ILoggerFactory> handler)
+        {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
+            _configurationHandlers.Add(handler);
+        }
+
+        /// <inheritdoc />
+        public void SetServiceProviderBuilder(Func<IServiceCollection, ILoggerFactory, IServiceProvider> buildServiceProvider)
+        {
+            if (buildServiceProvider == null) throw new ArgumentNullException(nameof(buildServiceProvider));
+
+            ServiceProviderBuilder = buildServiceProvider;
+        }
+
+        /// <inheritdoc />
+        public void SetLoggerFactory(ILoggerFactory loggerFactory)
+        {
+            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
+
+            _loggerFactory = loggerFactory;
+        }
+
+        /// <inheritdoc />
+        public IMigratorHost Build()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }
