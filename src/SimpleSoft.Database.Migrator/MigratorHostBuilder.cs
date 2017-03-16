@@ -151,9 +151,7 @@ namespace SimpleSoft.Database.Migrator
             var serviceProvider = ServiceProviderBuilder(serviceCollection, loggerFactory);
 
             if (_configurationHandlers.Count == 0)
-            {
                 logger.LogWarning("Configuration handlers collection is empty. Default configurations will be used...");
-            }
             else
             {
                 logger.LogDebug(
