@@ -9,6 +9,45 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public static class MigratorHostBuilderExtensions
     {
+        #region ConfigureServices
+
+        /// <summary>
+        /// Adds the handler to the <see cref="IMigratorHostBuilder.ServiceConfigurationHandlers"/> collection.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="handler">The handler to add</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder ConfigureServices<TBuilder>(this TBuilder builder, Action<IServiceCollection, ILoggerFactory> handler)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            builder.AddServiceConfigurator(handler);
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds the handler to the <see cref="IMigratorHostBuilder.ServiceConfigurationHandlers"/> collection.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="handler">The handler to add</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder ConfigureServices<TBuilder>(this TBuilder builder, Action<IServiceCollection> handler)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
+            builder.AddServiceConfigurator((services, factory) => handler(services));
+            return builder;
+        }
+
+        #endregion
+
         #region Configure
 
         /// <summary>
@@ -42,10 +81,7 @@ namespace SimpleSoft.Database.Migrator
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (handler == null) throw new ArgumentNullException(nameof(handler));
 
-            builder.AddConfigurator((provider, factory) =>
-            {
-                handler(provider);
-            });
+            builder.AddConfigurator((provider, factory) => handler(provider));
             return builder;
         }
 
