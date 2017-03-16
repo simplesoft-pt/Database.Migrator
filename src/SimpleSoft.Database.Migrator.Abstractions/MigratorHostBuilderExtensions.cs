@@ -9,6 +9,23 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public static class MigratorHostBuilderExtensions
     {
+        /// <summary>
+        /// Adds the handler to the <see cref="IMigratorHostBuilder.LoggingConfigurationHandlers"/> collection.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="handler">The handler to add</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder ConfigureLogging<TBuilder>(this TBuilder builder, Action<ILoggerFactory> handler)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            builder.AddLoggingConfigurator(handler);
+            return builder;
+        }
+
         #region ConfigureServices
 
         /// <summary>
