@@ -131,20 +131,37 @@ namespace SimpleSoft.Database.Migrator
 
             var logger = loggerFactory.CreateLogger<MigratorHostBuilder>();
             
+            logger.LogDebug("Configuring core services");
             var serviceCollection = new ServiceCollection()
                 .AddSingleton(loggerFactory)
                 .AddLogging();
 
-            logger.LogDebug(
-                "Running a total of {total} the service configuration handler",
-                _serviceConfigurationHandlers.Count);
-            foreach (var handler in _serviceConfigurationHandlers)
-                handler(serviceCollection, loggerFactory);
+            if (_serviceConfigurationHandlers.Count == 0)
+                logger.LogWarning("Service configuration handlers collection is empty. Host will only have access to core services...");
+            else
+            {
+                logger.LogDebug(
+                    "Configuring the host services using a total of {total} handlers",
+                    _serviceConfigurationHandlers.Count);
+                foreach (var handler in _serviceConfigurationHandlers)
+                    handler(serviceCollection, loggerFactory);
+            }
 
+            logger.LogDebug("Building services provider");
             var serviceProvider = ServiceProviderBuilder(serviceCollection, loggerFactory);
 
-            foreach (var handler in _configurationHandlers)
-                handler(serviceProvider, loggerFactory);
+            if (_configurationHandlers.Count == 0)
+            {
+                logger.LogWarning("Configuration handlers collection is empty. Default configurations will be used...");
+            }
+            else
+            {
+                logger.LogDebug(
+                    "Configuring the host using a total of {total} handlers",
+                    _configurationHandlers.Count);
+                foreach (var handler in _configurationHandlers)
+                    handler(serviceProvider, loggerFactory);
+            }
 
             return new MigratorHost(serviceProvider, loggerFactory.CreateLogger<MigratorHost>());
         }
