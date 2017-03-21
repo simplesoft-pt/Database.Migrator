@@ -39,6 +39,7 @@ namespace SimpleSoft.Database.Migrator
         private readonly List<Action<ILoggerFactory>> _loggingConfigurationHandlers;
         private readonly List<Action<IServiceCollection, ILoggerFactory>> _serviceConfigurationHandlers;
         private readonly List<Action<IServiceProvider, ILoggerFactory>> _configurationHandlers;
+        private Func<IServiceCollection, ILoggerFactory, IServiceProvider> _serviceProviderBuilder;
 
         /// <summary>
         /// Creates a new instance
@@ -103,7 +104,15 @@ namespace SimpleSoft.Database.Migrator
         public IReadOnlyCollection<Action<IServiceProvider, ILoggerFactory>> ConfigurationHandlers => _configurationHandlers;
 
         /// <inheritdoc />
-        public Func<IServiceCollection, ILoggerFactory, IServiceProvider> ServiceProviderBuilder { get; private set; }
+        public Func<IServiceCollection, ILoggerFactory, IServiceProvider> ServiceProviderBuilder
+        {
+            get { return _serviceProviderBuilder; }
+            private set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(value));
+                _serviceProviderBuilder = value;
+            }
+        }
 
         /// <inheritdoc />
         public void AddLoggingConfigurator(Action<ILoggerFactory> handler)
