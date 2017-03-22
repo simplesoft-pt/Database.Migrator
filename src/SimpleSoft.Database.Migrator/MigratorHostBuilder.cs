@@ -85,7 +85,7 @@ namespace SimpleSoft.Database.Migrator
             _loggingConfigurationHandlers.Clear();
             _serviceConfigurationHandlers.Clear();
             _configurationHandlers.Clear();
-            ServiceProviderBuilder = null;
+            _serviceProviderBuilder = null;
 
             _disposed = true;
         }
