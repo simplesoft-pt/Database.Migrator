@@ -157,6 +157,9 @@ namespace SimpleSoft.Database.Migrator
         /// <inheritdoc />
         public IMigratorHost Build()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(MigratorHostBuilder));
+
             var loggerFactory = _loggerFactory;
 
             foreach (var handler in _loggingConfigurationHandlers)
