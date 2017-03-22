@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace SimpleSoft.Database.Migrator.Tests
@@ -65,6 +67,20 @@ namespace SimpleSoft.Database.Migrator.Tests
         }
 
         [Fact]
+        public void GivenAHostBuilderWhenUsingNullFactoryThenArgumentNullExceptionMustBeThrown()
+        {
+            using (var builder = new MigratorHostBuilder())
+            {
+                var ex = Assert.Throws<ArgumentNullException>(() =>
+                {
+                    builder.SetLoggerFactory(null);
+                });
+
+                Assert.NotNull(ex);
+            }
+        }
+
+        [Fact]
         public void GivenAHostBuilderWhenAddingLoggingConfiguratorsThenAllHandlersMustBeRun()
         {
             var runCount = 0;
@@ -106,6 +122,76 @@ namespace SimpleSoft.Database.Migrator.Tests
 
                 Assert.NotEmpty(builder.LoggingConfigurationHandlers);
                 Assert.Equal(2, builder.LoggingConfigurationHandlers.Count);
+                Assert.Equal(2, runCount);
+            }
+        }
+
+        #endregion
+
+        #region ServiceCollection
+
+        [Fact]
+        public void GivenAHostBuilderWhenAddingServiceConfiguratorThenParametersMustNotBeNull()
+        {
+            IServiceCollection services = null;
+            ILoggerFactory factory = null;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddServiceConfigurator((s, f) =>
+                {
+                    services = s;
+                    factory = f;
+                });
+                builder.Build();
+
+                Assert.NotNull(services);
+                Assert.NotNull(factory);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenAddingServiceConfiguratorsThenAllHandlersMustBeRun()
+        {
+            var runCount = 0;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddServiceConfigurator((s, f) =>
+                {
+                    ++runCount;
+                });
+                builder.AddServiceConfigurator((s, f) =>
+                {
+                    ++runCount;
+                });
+                builder.Build();
+
+                Assert.NotEmpty(builder.ServiceConfigurationHandlers);
+                Assert.Equal(2, builder.ServiceConfigurationHandlers.Count);
+                Assert.Equal(2, runCount);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenConfiguringServicesThenAllHandlersMustBeRun()
+        {
+            var runCount = 0;
+
+            using (var builder = new MigratorHostBuilder()
+                .ConfigureServices((s,f) =>
+                {
+                    ++runCount;
+                })
+                .ConfigureServices(s =>
+                {
+                    ++runCount;
+                }))
+            {
+                builder.Build();
+
+                Assert.NotEmpty(builder.ServiceConfigurationHandlers);
+                Assert.Equal(2, builder.ServiceConfigurationHandlers.Count);
                 Assert.Equal(2, runCount);
             }
         }
