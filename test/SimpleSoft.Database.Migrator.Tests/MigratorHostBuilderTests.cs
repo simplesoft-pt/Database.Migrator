@@ -197,5 +197,68 @@ namespace SimpleSoft.Database.Migrator.Tests
         }
 
         #endregion
+
+        #region ServiceProvider
+
+        [Fact]
+        public void GivenAHostBuilderWhenBuildingServiceProviderThenParametersMustNotBeNull()
+        {
+            IServiceCollection services = null;
+            ILoggerFactory factory = null;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.SetServiceProviderBuilder((s, f) =>
+                {
+                    services = s;
+                    factory = f;
+
+                    return s.BuildServiceProvider();
+                });
+                builder.Build();
+
+                Assert.NotNull(services);
+                Assert.NotNull(factory);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenUsingServiceProviderThenParametersMustNotBeNull()
+        {
+            IServiceCollection services = null;
+            ILoggerFactory factory = null;
+
+            using (var builder = new MigratorHostBuilder()
+                .UseServiceProvider((s, f) =>
+                {
+                    services = s;
+                    factory = f;
+
+                    return s.BuildServiceProvider();
+                }))
+            {
+                builder.Build();
+
+                Assert.NotNull(services);
+                Assert.NotNull(factory);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenPassingNullServiceProviderBuilderThenArgumentNullExceptionMustBeThrown()
+        {
+            using (var builder = new MigratorHostBuilder())
+            {
+                var ex = Assert.Throws<ArgumentNullException>(() =>
+                {
+                    builder.SetServiceProviderBuilder(null);
+                    builder.Build();
+                });
+
+                Assert.NotNull(ex);
+            }
+        }
+
+        #endregion
     }
 }
