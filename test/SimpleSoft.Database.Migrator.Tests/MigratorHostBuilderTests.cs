@@ -260,5 +260,23 @@ namespace SimpleSoft.Database.Migrator.Tests
         }
 
         #endregion
+
+        #region Dispose
+
+        [Fact]
+        public void GivenAHostBuilderWhenBuildingAfterDisposedThenObjectDisposedExceptionMustBeThrown()
+        {
+            var builder = new MigratorHostBuilder();
+            builder.Dispose();
+
+            var ex = Assert.Throws<ObjectDisposedException>(() =>
+            {
+                builder.Build();
+            });
+
+            Assert.NotNull(ex);
+        }
+
+        #endregion
     }
 }
