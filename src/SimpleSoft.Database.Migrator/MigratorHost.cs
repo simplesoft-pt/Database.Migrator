@@ -32,24 +32,31 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public class MigratorHost : IMigratorHost
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<MigratorHost> _logger;
-
         /// <summary>
         /// Creates a new instance
         /// </summary>
         /// <param name="serviceProvider">The service provider</param>
-        /// <param name="logger">The logger instance</param>
+        /// <param name="loggerFactory">The logger factory instance</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public MigratorHost(IServiceProvider serviceProvider, ILogger<MigratorHost> logger)
+        public MigratorHost(IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
+            if (loggerFactory == null)
+                throw new ArgumentNullException(nameof(loggerFactory));
 
-            _serviceProvider = serviceProvider;
-            _logger = logger;
+            ServiceProvider = serviceProvider;
+            LoggerFactory = loggerFactory;
         }
+
+        #region Implementation of IMigratorHost
+
+        /// <inheritdoc />
+        public IServiceProvider ServiceProvider { get; }
+
+        /// <inheritdoc />
+        public ILoggerFactory LoggerFactory { get; }
+
+        #endregion
     }
 }
