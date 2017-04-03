@@ -1,5 +1,5 @@
 ﻿{
-    "version": "0.1.0",
+    "version": "0.0.0-alpha01",
     "title": "SimpleSoft.Database.Migrator.Abstractions",
     "description": "Support for simple database migrations.",
     "authors": [ "João Simões" ],
