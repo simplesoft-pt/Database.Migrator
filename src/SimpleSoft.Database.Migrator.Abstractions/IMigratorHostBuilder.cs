@@ -88,6 +88,20 @@ namespace SimpleSoft.Database.Migrator
         void SetLoggerFactory(ILoggerFactory loggerFactory);
 
         /// <summary>
+        /// Gets the setting value from the configuration.
+        /// </summary>
+        /// <param name="key">The settings key</param>
+        /// <returns>The setting value or null if not found</returns>
+        string GetSetting(string key);
+
+        /// <summary>
+        /// Sets the setting value into the configuration.
+        /// </summary>
+        /// <param name="key">The setting key</param>
+        /// <param name="value">The setting value</param>
+        void SetSetting(string key, string value);
+
+        /// <summary>
         /// Builds an instance of <see cref="IMigratorHost"/> to run migrations.
         /// </summary>
         /// <returns>The <see cref="IMigratorHost"/> instance</returns>

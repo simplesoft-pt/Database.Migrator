@@ -40,6 +40,7 @@ namespace SimpleSoft.Database.Migrator
         private readonly List<Action<IServiceCollection, ILoggerFactory>> _serviceConfigurationHandlers;
         private readonly List<Action<IServiceProvider, ILoggerFactory>> _configurationHandlers;
         private Func<IServiceCollection, ILoggerFactory, IServiceProvider> _serviceProviderBuilder;
+        private readonly Dictionary<string, string> _settings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Creates a new instance
@@ -86,6 +87,7 @@ namespace SimpleSoft.Database.Migrator
             _serviceConfigurationHandlers.Clear();
             _configurationHandlers.Clear();
             _serviceProviderBuilder = null;
+            _settings.Clear();
 
             _disposed = true;
         }
@@ -152,6 +154,28 @@ namespace SimpleSoft.Database.Migrator
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
 
             _loggerFactory = loggerFactory;
+        }
+
+        /// <inheritdoc />
+        public string GetSetting(string key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Value cannot be whitespace.", nameof(key));
+
+            return _settings[key];
+        }
+
+        /// <inheritdoc />
+        public void SetSetting(string key, string value)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Value cannot be whitespace.", nameof(key));
+
+            _settings[key] = value;
         }
 
         /// <inheritdoc />
