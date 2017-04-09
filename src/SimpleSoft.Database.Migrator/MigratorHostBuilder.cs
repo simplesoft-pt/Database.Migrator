@@ -35,7 +35,7 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public class MigratorHostBuilder : IMigratorHostBuilder, IDisposable
     {
-        private IConfiguration _configuration;
+        private IConfigurationRoot _configuration;
         private ILoggerFactory _loggerFactory;
         private bool _disposed;
         private readonly List<Action<IConfiguration>> _configurationHandlers;
