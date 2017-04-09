@@ -53,8 +53,8 @@ namespace SimpleSoft.Database.Migrator
                 .AddEnvironmentVariables("DATABASE_MIGRATOR_")
                 .Build();
 
-            if (string.IsNullOrWhiteSpace(GetSetting(MigratorHostDefaults.EnvironmentKey)))
-                SetSetting(MigratorHostDefaults.EnvironmentKey, MigratorHostDefaults.DefaultEnvironment);
+            if (string.IsNullOrWhiteSpace(this.GetEnvironment()))
+                this.UseEnvironment(MigratorHostDefaults.DefaultEnvironment);
 
             _loggerFactory = new LoggerFactory();
 
