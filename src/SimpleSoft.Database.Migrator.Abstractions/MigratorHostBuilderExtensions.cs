@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -322,5 +323,103 @@ namespace SimpleSoft.Database.Migrator
             });
             return builder;
         }
+
+        #region Settings
+
+        /// <summary>
+        /// Assigns all the given settings to the host builder.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="settings">The settings to set</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder UseSettings<TBuilder>(
+            this TBuilder builder, IEnumerable<KeyValuePair<string, string>> settings)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+
+            foreach (var setting in settings)
+                builder.SetSetting(setting.Key, setting.Value);
+            return builder;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="MigratorHostDefaults.EnvironmentKey"/> to the given value.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="environmentName">The environment name</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder UseEnvironment<TBuilder>(this TBuilder builder, string environmentName)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (environmentName == null)
+                throw new ArgumentNullException(nameof(environmentName));
+            if (string.IsNullOrWhiteSpace(environmentName))
+                throw new ArgumentException("Value cannot be whitespace.", nameof(environmentName));
+
+            builder.SetSetting(MigratorHostDefaults.EnvironmentKey, environmentName);
+            return builder;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="MigratorHostDefaults.EnvironmentKey"/> value.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static string GetEnvironment<TBuilder>(this TBuilder builder)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            return builder.GetSetting(MigratorHostDefaults.EnvironmentKey);
+        }
+
+        /// <summary>
+        /// Sets the <see cref="MigratorHostDefaults.ContentRootKey"/> to the given value.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="contentRootPath">The environment name</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder UseContentRoot<TBuilder>(this TBuilder builder, string contentRootPath)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (contentRootPath == null)
+                throw new ArgumentNullException(nameof(contentRootPath));
+            if (string.IsNullOrWhiteSpace(contentRootPath))
+                throw new ArgumentException("Value cannot be whitespace.", nameof(contentRootPath));
+
+            builder.SetSetting(MigratorHostDefaults.ContentRootKey, contentRootPath);
+            return builder;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="MigratorHostDefaults.ContentRootKey"/> value.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static string GetContentRoot<TBuilder>(this TBuilder builder)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            return builder.GetSetting(MigratorHostDefaults.ContentRootKey);
+        }
+
+        #endregion
     }
 }
