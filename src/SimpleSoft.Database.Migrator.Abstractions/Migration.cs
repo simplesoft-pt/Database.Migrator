@@ -38,4 +38,16 @@ namespace SimpleSoft.Database.Migrator
             return Task.FromResult(true);
         }
     }
+
+    /// <summary>
+    /// Represents a migration
+    /// </summary>
+    public abstract class Migration: Migration<IMigrationContext>, IMigration
+    {
+        /// <inheritdoc />
+        protected Migration(IMigrationContext context) : base(context)
+        {
+
+        }
+    }
 }
