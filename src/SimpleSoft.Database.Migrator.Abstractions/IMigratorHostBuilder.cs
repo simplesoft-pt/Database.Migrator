@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -35,50 +36,61 @@ namespace SimpleSoft.Database.Migrator
     public interface IMigratorHostBuilder
     {
         /// <summary>
+        /// Collection of handlers used to configure the <see cref="IConfiguration"/>.
+        /// </summary>
+        IReadOnlyCollection<Action<IConfiguration>> ConfigurationHandlers { get; }
+
+        /// <summary>
         /// Collection of handlers used to configure the <see cref="ILoggerFactory"/>.
         /// </summary>
-        IReadOnlyCollection<Action<ILoggerFactory>> LoggingConfigurationHandlers { get; }
+        IReadOnlyCollection<Action<ILoggerFactory, IConfiguration>> LoggingConfigurationHandlers { get; }
 
         /// <summary>
         /// Collection of handlers used to configure the <see cref="IServiceCollection"/>.
         /// </summary>
-        IReadOnlyCollection<Action<IServiceCollection, ILoggerFactory>> ServiceConfigurationHandlers { get; }
+        IReadOnlyCollection<Action<IServiceCollection, ILoggerFactory, IConfiguration>> ServiceConfigurationHandlers { get; }
 
         /// <summary>
         /// Collection of handlers used to configure the services registered 
         /// into the <see cref="IServiceProvider"/>.
         /// </summary>
-        IReadOnlyCollection<Action<IServiceProvider, ILoggerFactory>> ConfigurationHandlers { get; }
+        IReadOnlyCollection<Action<IServiceProvider, ILoggerFactory, IConfiguration>> ConfigureHandlers { get; }
 
         /// <summary>
         /// Builder function for the <see cref="IServiceProvider"/>.
         /// </summary>
-        Func<IServiceCollection, ILoggerFactory, IServiceProvider> ServiceProviderBuilder { get; }
-
-        /// <summary>
-        /// Adds the handler to the <see cref="LoggingConfigurationHandlers"/> collection.
-        /// </summary>
-        /// <param name="handler">The handler to add</param>
-        void AddLoggingConfigurator(Action<ILoggerFactory> handler);
-
-        /// <summary>
-        /// Adds the handler to the <see cref="ServiceConfigurationHandlers"/> collection.
-        /// </summary>
-        /// <param name="handler">The handler to add</param>
-        void AddServiceConfigurator(Action<IServiceCollection, ILoggerFactory> handler);
+        Func<IServiceCollection, ILoggerFactory, IConfiguration, IServiceProvider> ServiceProviderBuilder { get; }
 
         /// <summary>
         /// Adds the handler to the <see cref="ConfigurationHandlers"/> collection.
         /// </summary>
         /// <param name="handler">The handler to add</param>
-        void AddConfigurator(Action<IServiceProvider, ILoggerFactory> handler);
+        void AddConfigurationConfigurator(Action<IConfiguration> handler);
+
+        /// <summary>
+        /// Adds the handler to the <see cref="LoggingConfigurationHandlers"/> collection.
+        /// </summary>
+        /// <param name="handler">The handler to add</param>
+        void AddLoggingConfigurator(Action<ILoggerFactory, IConfiguration> handler);
+
+        /// <summary>
+        /// Adds the handler to the <see cref="ServiceConfigurationHandlers"/> collection.
+        /// </summary>
+        /// <param name="handler">The handler to add</param>
+        void AddServiceConfigurator(Action<IServiceCollection, ILoggerFactory, IConfiguration> handler);
+
+        /// <summary>
+        /// Adds the handler to the <see cref="ConfigureHandlers"/> collection.
+        /// </summary>
+        /// <param name="handler">The handler to add</param>
+        void AddConfigurator(Action<IServiceProvider, ILoggerFactory, IConfiguration> handler);
 
         /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
         /// will be used by the <see cref="IMigratorHost"/> to build.
         /// </summary>
         /// <param name="buildServiceProvider">The builder function</param>
-        void SetServiceProviderBuilder(Func<IServiceCollection, ILoggerFactory, IServiceProvider> buildServiceProvider);
+        void SetServiceProviderBuilder(Func<IServiceCollection, ILoggerFactory, IConfiguration, IServiceProvider> buildServiceProvider);
 
         /// <summary>
         /// Assigns the given <see cref="ILoggerFactory"/> to be used
@@ -86,20 +98,6 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         /// <param name="loggerFactory">The logger factory to use</param>
         void SetLoggerFactory(ILoggerFactory loggerFactory);
-
-        /// <summary>
-        /// Gets the setting value from the configuration.
-        /// </summary>
-        /// <param name="key">The settings key</param>
-        /// <returns>The setting value or null if not found</returns>
-        string GetSetting(string key);
-
-        /// <summary>
-        /// Sets the setting value into the configuration.
-        /// </summary>
-        /// <param name="key">The setting key</param>
-        /// <param name="value">The setting value</param>
-        void SetSetting(string key, string value);
 
         /// <summary>
         /// Builds an instance of <see cref="IMigratorHost"/> to run migrations.

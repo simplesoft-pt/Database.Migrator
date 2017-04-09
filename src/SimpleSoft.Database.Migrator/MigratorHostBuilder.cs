@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -34,25 +35,30 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public class MigratorHostBuilder : IMigratorHostBuilder, IDisposable
     {
+        private IConfiguration _configuration;
         private ILoggerFactory _loggerFactory;
         private bool _disposed;
-        private readonly List<Action<ILoggerFactory>> _loggingConfigurationHandlers;
-        private readonly List<Action<IServiceCollection, ILoggerFactory>> _serviceConfigurationHandlers;
-        private readonly List<Action<IServiceProvider, ILoggerFactory>> _configurationHandlers;
-        private Func<IServiceCollection, ILoggerFactory, IServiceProvider> _serviceProviderBuilder;
-        private readonly Dictionary<string, string> _settings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly List<Action<IConfiguration>> _configurationHandlers;
+        private readonly List<Action<ILoggerFactory, IConfiguration>> _loggingConfigurationHandlers;
+        private readonly List<Action<IServiceCollection, ILoggerFactory, IConfiguration>> _serviceConfigurationHandlers;
+        private readonly List<Action<IServiceProvider, ILoggerFactory, IConfiguration>> _configureHandlers;
+        private Func<IServiceCollection, ILoggerFactory, IConfiguration, IServiceProvider> _serviceProviderBuilder;
 
         /// <summary>
         /// Creates a new instance
         /// </summary>
         public MigratorHostBuilder()
         {
+            _configuration = new ConfigurationBuilder()
+                .AddEnvironmentVariables("DATABASE_MIGRATOR_")
+                .Build();
             _loggerFactory = new LoggerFactory();
 
-            _loggingConfigurationHandlers = new List<Action<ILoggerFactory>>();
-            _serviceConfigurationHandlers = new List<Action<IServiceCollection, ILoggerFactory>>();
-            _configurationHandlers = new List<Action<IServiceProvider, ILoggerFactory>>();
-            ServiceProviderBuilder = (services, factory) => services.BuildServiceProvider();
+            _configurationHandlers = new List<Action<IConfiguration>>();
+            _loggingConfigurationHandlers = new List<Action<ILoggerFactory, IConfiguration>>();
+            _serviceConfigurationHandlers = new List<Action<IServiceCollection, ILoggerFactory, IConfiguration>>();
+            _configureHandlers = new List<Action<IServiceProvider, ILoggerFactory, IConfiguration>>();
+            ServiceProviderBuilder = (services, factory, config) => services.BuildServiceProvider();
         }
 
         /// <inheritdoc />
@@ -82,12 +88,13 @@ namespace SimpleSoft.Database.Migrator
             if (disposing)
                 _loggerFactory?.Dispose();
 
+            _configuration = null;
             _loggerFactory = null;
+            _configurationHandlers.Clear();
             _loggingConfigurationHandlers.Clear();
             _serviceConfigurationHandlers.Clear();
-            _configurationHandlers.Clear();
+            _configureHandlers.Clear();
             _serviceProviderBuilder = null;
-            _settings.Clear();
 
             _disposed = true;
         }
@@ -97,16 +104,19 @@ namespace SimpleSoft.Database.Migrator
         #region Implementation of IMigratorHostBuilder
 
         /// <inheritdoc />
-        public IReadOnlyCollection<Action<ILoggerFactory>> LoggingConfigurationHandlers => _loggingConfigurationHandlers;
+        public IReadOnlyCollection<Action<IConfiguration>> ConfigurationHandlers => _configurationHandlers;
 
         /// <inheritdoc />
-        public IReadOnlyCollection<Action<IServiceCollection, ILoggerFactory>> ServiceConfigurationHandlers => _serviceConfigurationHandlers;
+        public IReadOnlyCollection<Action<ILoggerFactory, IConfiguration>> LoggingConfigurationHandlers => _loggingConfigurationHandlers;
 
         /// <inheritdoc />
-        public IReadOnlyCollection<Action<IServiceProvider, ILoggerFactory>> ConfigurationHandlers => _configurationHandlers;
+        public IReadOnlyCollection<Action<IServiceCollection, ILoggerFactory, IConfiguration>> ServiceConfigurationHandlers => _serviceConfigurationHandlers;
 
         /// <inheritdoc />
-        public Func<IServiceCollection, ILoggerFactory, IServiceProvider> ServiceProviderBuilder
+        public IReadOnlyCollection<Action<IServiceProvider, ILoggerFactory, IConfiguration>> ConfigureHandlers => _configureHandlers;
+
+        /// <inheritdoc />
+        public Func<IServiceCollection, ILoggerFactory, IConfiguration, IServiceProvider> ServiceProviderBuilder
         {
             get { return _serviceProviderBuilder; }
             private set
@@ -117,23 +127,7 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
-        public void AddLoggingConfigurator(Action<ILoggerFactory> handler)
-        {
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-            
-            _loggingConfigurationHandlers.Add(handler);
-        }
-
-        /// <inheritdoc />
-        public void AddServiceConfigurator(Action<IServiceCollection, ILoggerFactory> handler)
-        {
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-
-            _serviceConfigurationHandlers.Add(handler);
-        }
-
-        /// <inheritdoc />
-        public void AddConfigurator(Action<IServiceProvider, ILoggerFactory> handler)
+        public void AddConfigurationConfigurator(Action<IConfiguration> handler)
         {
             if (handler == null) throw new ArgumentNullException(nameof(handler));
 
@@ -141,7 +135,31 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
-        public void SetServiceProviderBuilder(Func<IServiceCollection, ILoggerFactory, IServiceProvider> buildServiceProvider)
+        public void AddLoggingConfigurator(Action<ILoggerFactory, IConfiguration> handler)
+        {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+            
+            _loggingConfigurationHandlers.Add(handler);
+        }
+
+        /// <inheritdoc />
+        public void AddServiceConfigurator(Action<IServiceCollection, ILoggerFactory, IConfiguration> handler)
+        {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
+            _serviceConfigurationHandlers.Add(handler);
+        }
+
+        /// <inheritdoc />
+        public void AddConfigurator(Action<IServiceProvider, ILoggerFactory, IConfiguration> handler)
+        {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
+            _configureHandlers.Add(handler);
+        }
+
+        /// <inheritdoc />
+        public void SetServiceProviderBuilder(Func<IServiceCollection, ILoggerFactory, IConfiguration, IServiceProvider> buildServiceProvider)
         {
             if (buildServiceProvider == null) throw new ArgumentNullException(nameof(buildServiceProvider));
 
@@ -157,42 +175,24 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
-        public string GetSetting(string key)
-        {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentException("Value cannot be whitespace.", nameof(key));
-
-            return _settings[key];
-        }
-
-        /// <inheritdoc />
-        public void SetSetting(string key, string value)
-        {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentException("Value cannot be whitespace.", nameof(key));
-
-            _settings[key] = value;
-        }
-
-        /// <inheritdoc />
         public IMigratorHost Build()
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(MigratorHostBuilder));
 
-            var loggerFactory = _loggerFactory;
+            var configuration = _configuration;
+            foreach (var handler in _configurationHandlers)
+                handler(configuration);
 
+            var loggerFactory = _loggerFactory;
             foreach (var handler in _loggingConfigurationHandlers)
-                handler(loggerFactory);
+                handler(loggerFactory, configuration);
 
             var logger = loggerFactory.CreateLogger<MigratorHostBuilder>();
             
             logger.LogDebug("Configuring core services");
             var serviceCollection = new ServiceCollection()
+                .AddSingleton(configuration)
                 .AddSingleton(loggerFactory)
                 .AddLogging();
 
@@ -204,21 +204,21 @@ namespace SimpleSoft.Database.Migrator
                     "Configuring the host services using a total of {total} handlers",
                     _serviceConfigurationHandlers.Count);
                 foreach (var handler in _serviceConfigurationHandlers)
-                    handler(serviceCollection, loggerFactory);
+                    handler(serviceCollection, loggerFactory, configuration);
             }
 
             logger.LogDebug("Building services provider");
-            var serviceProvider = ServiceProviderBuilder(serviceCollection, loggerFactory);
+            var serviceProvider = ServiceProviderBuilder(serviceCollection, loggerFactory, configuration);
 
-            if (_configurationHandlers.Count == 0)
+            if (_configureHandlers.Count == 0)
                 logger.LogWarning("Configuration handlers collection is empty. Default configurations will be used...");
             else
             {
                 logger.LogDebug(
                     "Configuring the host using a total of {total} handlers",
-                    _configurationHandlers.Count);
-                foreach (var handler in _configurationHandlers)
-                    handler(serviceProvider, loggerFactory);
+                    _configureHandlers.Count);
+                foreach (var handler in _configureHandlers)
+                    handler(serviceProvider, loggerFactory, configuration);
             }
 
             return new MigratorHost(serviceProvider, loggerFactory);

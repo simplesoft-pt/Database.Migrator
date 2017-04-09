@@ -16,7 +16,7 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.AddLoggingConfigurator(f =>
+                builder.AddLoggingConfigurator((f, cfg) =>
                 {
                     factory = f;
                 });
@@ -35,7 +35,7 @@ namespace SimpleSoft.Database.Migrator.Tests
             using (var builder = new MigratorHostBuilder())
             {
                 builder.SetLoggerFactory(originalFactory);
-                builder.AddLoggingConfigurator(f =>
+                builder.AddLoggingConfigurator((f, cfg) =>
                 {
                     builderFactory = f;
                 });
@@ -55,7 +55,7 @@ namespace SimpleSoft.Database.Migrator.Tests
             using (var builder = new MigratorHostBuilder()
                 .UseLoggerFactory(originalFactory))
             {
-                builder.AddLoggingConfigurator(f =>
+                builder.AddLoggingConfigurator((f, cfg) =>
                 {
                     builderFactory = f;
                 });
@@ -87,11 +87,11 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.AddLoggingConfigurator(f =>
+                builder.AddLoggingConfigurator((f, cfg) =>
                 {
                     ++runCount;
                 });
-                builder.AddLoggingConfigurator(f =>
+                builder.AddLoggingConfigurator((f, cfg) =>
                 {
                     ++runCount;
                 });
@@ -138,7 +138,7 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.AddServiceConfigurator((s, f) =>
+                builder.AddServiceConfigurator((s, f, cfg) =>
                 {
                     services = s;
                     factory = f;
@@ -157,11 +157,11 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.AddServiceConfigurator((s, f) =>
+                builder.AddServiceConfigurator((s, f, cfg) =>
                 {
                     ++runCount;
                 });
-                builder.AddServiceConfigurator((s, f) =>
+                builder.AddServiceConfigurator((s, f, cfg) =>
                 {
                     ++runCount;
                 });
@@ -208,7 +208,7 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.SetServiceProviderBuilder((s, f) =>
+                builder.SetServiceProviderBuilder((s, f, cfg) =>
                 {
                     services = s;
                     factory = f;
