@@ -300,5 +300,27 @@ namespace SimpleSoft.Database.Migrator
             builder.SetLoggerFactory(loggerFactory);
             return builder;
         }
+
+        /// <summary>
+        /// Appends all the given configuration entries into the one used by the migrator builder.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="configuration">The configuration to append</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder UseConfiguration<TBuilder>(this TBuilder builder, IConfiguration configuration)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+
+            builder.AddConfigurationConfigurator(config =>
+            {
+                foreach (var values in configuration.AsEnumerable())
+                    config[values.Key] = values.Value;
+            });
+            return builder;
+        }
     }
 }
