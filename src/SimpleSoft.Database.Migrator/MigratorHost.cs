@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator
@@ -32,31 +33,30 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public class MigratorHost : IMigratorHost
     {
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IConfiguration _configuration;
+
         /// <summary>
         /// Creates a new instance
         /// </summary>
         /// <param name="serviceProvider">The service provider</param>
         /// <param name="loggerFactory">The logger factory instance</param>
+        /// <param name="configuration">The configuration to use</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public MigratorHost(IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
+        public MigratorHost(
+            IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IConfiguration configuration)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
             if (loggerFactory == null)
                 throw new ArgumentNullException(nameof(loggerFactory));
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
 
-            ServiceProvider = serviceProvider;
-            LoggerFactory = loggerFactory;
+            _serviceProvider = serviceProvider;
+            _loggerFactory = loggerFactory;
+            _configuration = configuration;
         }
-
-        #region Implementation of IMigratorHost
-
-        /// <inheritdoc />
-        public IServiceProvider ServiceProvider { get; }
-
-        /// <inheritdoc />
-        public ILoggerFactory LoggerFactory { get; }
-
-        #endregion
     }
 }

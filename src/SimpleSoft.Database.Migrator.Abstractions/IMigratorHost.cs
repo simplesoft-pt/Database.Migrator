@@ -22,9 +22,6 @@
 // SOFTWARE.
 #endregion
 
-using System;
-using Microsoft.Extensions.Logging;
-
 namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
@@ -32,14 +29,6 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public interface IMigratorHost
     {
-        /// <summary>
-        /// The service provider used
-        /// </summary>
-        IServiceProvider ServiceProvider { get; }
 
-        /// <summary>
-        /// The logger factory used
-        /// </summary>
-        ILoggerFactory LoggerFactory { get; }
     }
 }

@@ -247,7 +247,7 @@ namespace SimpleSoft.Database.Migrator
                     handler(serviceProvider, loggerFactory, configuration);
             }
 
-            return new MigratorHost(serviceProvider, loggerFactory);
+            return new MigratorHost(serviceProvider, loggerFactory, configuration);
         }
 
         #endregion
