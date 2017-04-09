@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -205,5 +206,47 @@ namespace SimpleSoft.Database.Migrator
             builder.SetLoggerFactory(loggerFactory);
             return builder;
         }
+
+        #region UseSetting
+
+        /// <summary>
+        /// Assigns the collection of settings to the <see cref="IMigratorHostBuilder"/> instance.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="key">The setting key</param>
+        /// <param name="value">The setting value</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder UseSetting<TBuilder>(this TBuilder builder, string key, string value)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            builder.SetSetting(key, value);
+            return builder;
+        }
+
+        /// <summary>
+        /// Assigns the collection of settings to the <see cref="IMigratorHostBuilder"/> instance.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="settings">The settings collection to use</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder UseSetting<TBuilder>(this TBuilder builder, IEnumerable<KeyValuePair<string, string>> settings)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+
+            foreach (var setting in settings)
+                builder.SetSetting(setting.Key, setting.Value);
+
+            return builder;
+        }
+
+        #endregion
     }
 }

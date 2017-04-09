@@ -168,7 +168,7 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
-        public void UseSetting(string key, string value)
+        public void SetSetting(string key, string value)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
