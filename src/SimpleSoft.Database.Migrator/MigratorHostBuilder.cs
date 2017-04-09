@@ -52,6 +52,10 @@ namespace SimpleSoft.Database.Migrator
             _configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables("DATABASE_MIGRATOR_")
                 .Build();
+
+            if (string.IsNullOrWhiteSpace(GetSetting(MigratorHostDefaults.EnvironmentKey)))
+                SetSetting(MigratorHostDefaults.EnvironmentKey, MigratorHostDefaults.DefaultEnvironment);
+
             _loggerFactory = new LoggerFactory();
 
             _configurationHandlers = new List<Action<IConfiguration>>();
@@ -172,6 +176,28 @@ namespace SimpleSoft.Database.Migrator
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
 
             _loggerFactory = loggerFactory;
+        }
+
+        /// <inheritdoc />
+        public string GetSetting(string key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Value cannot be whitespace.", nameof(key));
+
+            return _configuration[key];
+        }
+
+        /// <inheritdoc />
+        public void SetSetting(string key, string value)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Value cannot be whitespace.", nameof(key));
+
+            _configuration[key] = value;
         }
 
         /// <inheritdoc />
