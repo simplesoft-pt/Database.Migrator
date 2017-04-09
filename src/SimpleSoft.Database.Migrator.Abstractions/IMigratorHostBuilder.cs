@@ -99,7 +99,7 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         /// <param name="key">The setting key</param>
         /// <param name="value">The setting value</param>
-        void SetSetting(string key, string value);
+        void UseSetting(string key, string value);
 
         /// <summary>
         /// Builds an instance of <see cref="IMigratorHost"/> to run migrations.
