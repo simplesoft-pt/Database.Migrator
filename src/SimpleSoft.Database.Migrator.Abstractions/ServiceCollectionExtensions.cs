@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SimpleSoft.Database.Migrator
@@ -91,20 +92,6 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <summary>
-        /// Registers an <see cref="IMigration"/> type to the services collection. 
-        /// </summary>
-        /// <typeparam name="TMigration">The migration type</typeparam>
-        /// <param name="services">The service collection</param>
-        /// <returns>The service collection after registration</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static IServiceCollection AddMigration<TMigration>(this IServiceCollection services)
-            where TMigration : class, IMigration
-        {
-            return services.AddMigration<TMigration, IMigrationContext>()
-                .AddScoped<IMigration, TMigration>();
-        }
-
-        /// <summary>
         /// Registers an <see cref="IMigration{TContext}"/> type to the services collection. 
         /// </summary>
         /// <typeparam name="TMigration">The migration type</typeparam>
@@ -124,22 +111,6 @@ namespace SimpleSoft.Database.Migrator
             services.AddScoped(k => migration);
             services.AddScoped<IMigration<TContext>>(k => migration);
             return services;
-        }
-
-        /// <summary>
-        /// Registers an <see cref="IMigration"/> type to the services collection. 
-        /// </summary>
-        /// <typeparam name="TMigration">The migration type</typeparam>
-        /// <param name="services">The service collection</param>
-        /// <param name="migration">The migration instance</param>
-        /// <returns>The service collection after registration</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static IServiceCollection AddMigration<TMigration>(
-            this IServiceCollection services, TMigration migration)
-            where TMigration : class, IMigration
-        {
-            return services.AddMigration<TMigration, IMigrationContext>(migration)
-                .AddScoped<IMigration>(k => migration);
         }
 
         /// <summary>
@@ -164,20 +135,55 @@ namespace SimpleSoft.Database.Migrator
             return services;
         }
 
+        #endregion
+
+        #region ScanMigrations
+
         /// <summary>
-        /// Registers an <see cref="IMigration{TContext}"/> type to the services collection. 
+        /// Registers all <see cref="IMigration{TContext}"/> found in the given assembly.
         /// </summary>
-        /// <typeparam name="TMigration">The migration type</typeparam>
         /// <param name="services">The service collection</param>
-        /// <param name="builder">The migration builder</param>
+        /// <param name="assembly">The assembly to scan</param>
         /// <returns>The service collection after registration</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static IServiceCollection AddMigration<TMigration>(
-            this IServiceCollection services, Func<IServiceProvider, TMigration> builder)
-            where TMigration : class, IMigration
+        public static IServiceCollection ScanMigrations(this IServiceCollection services, Assembly assembly)
         {
-            return services.AddMigration<TMigration, IMigrationContext>(builder)
-                .AddScoped<IMigration>(builder);
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+            
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Registers all <see cref="IMigration{TContext}"/> found in the given assemblies.
+        /// </summary>
+        /// <param name="services">The service collection</param>
+        /// <param name="assemblies">The assemblies to scan</param>
+        /// <returns>The service collection after registration</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IServiceCollection ScanMigrations(this IServiceCollection services, params Assembly[] assemblies)
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
+
+            foreach (var assembly in assemblies)
+                services.ScanMigrations(assembly);
+
+            return services;
+        }
+
+        /// <summary>
+        /// Registers all <see cref="IMigration{TContext}"/> found in the assembly of the given type.
+        /// </summary>
+        /// <typeparam name="T">The type to use</typeparam>
+        /// <param name="services">The service collection</param>
+        /// <returns>The service collection after registration</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IServiceCollection ScanMigrations<T>(this IServiceCollection services)
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+
+            return services.ScanMigrations(typeof(T).GetTypeInfo().Assembly);
         }
 
         #endregion
