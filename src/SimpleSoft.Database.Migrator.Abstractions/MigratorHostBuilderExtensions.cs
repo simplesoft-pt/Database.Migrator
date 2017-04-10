@@ -209,7 +209,7 @@ namespace SimpleSoft.Database.Migrator
 
         /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
-        /// will be used by the <see cref="IMigratorHost"/> to build.
+        /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
         /// <param name="builder">The builder instance</param>
@@ -227,7 +227,7 @@ namespace SimpleSoft.Database.Migrator
 
         /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
-        /// will be used by the <see cref="IMigratorHost"/> to build.
+        /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
         /// <param name="builder">The builder instance</param>
@@ -246,7 +246,7 @@ namespace SimpleSoft.Database.Migrator
 
         /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
-        /// will be used by the <see cref="IMigratorHost"/> to build.
+        /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
         /// <param name="builder">The builder instance</param>
@@ -265,7 +265,7 @@ namespace SimpleSoft.Database.Migrator
 
         /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
-        /// will be used by the <see cref="IMigratorHost"/> to build.
+        /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
         /// <param name="builder">The builder instance</param>
@@ -286,7 +286,7 @@ namespace SimpleSoft.Database.Migrator
 
         /// <summary>
         /// Assigns the given <see cref="ILoggerFactory"/> to be used
-        /// by the <see cref="IMigratorHost"/>.
+        /// by the <see cref="IMigratorHost{TContext}"/>.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
         /// <param name="builder">The builder instance</param>

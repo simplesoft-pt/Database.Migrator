@@ -31,7 +31,7 @@ using Microsoft.Extensions.Logging;
 namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
-    /// The <see cref="IMigratorHost"/> builder
+    /// The <see cref="IMigratorHost{TContext}"/> builder
     /// </summary>
     public class MigratorHostBuilder : IMigratorHostBuilder, IDisposable
     {
@@ -201,7 +201,8 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
-        public IMigratorHost Build()
+        public IMigratorHost<TContext> Build<TContext>() 
+            where TContext : IMigrationContext
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(MigratorHostBuilder));
@@ -247,7 +248,7 @@ namespace SimpleSoft.Database.Migrator
                     handler(serviceProvider, loggerFactory, configuration);
             }
 
-            return new MigratorHost(serviceProvider, loggerFactory, configuration);
+            return new MigratorHost<TContext>(serviceProvider, loggerFactory, configuration);
         }
 
         #endregion

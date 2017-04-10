@@ -22,13 +22,18 @@
 // SOFTWARE.
 #endregion
 
+using System;
+
 namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// Represents a configured migrator host
     /// </summary>
-    public interface IMigratorHost
+    public interface IMigratorHost<TContext> where TContext : IMigrationContext
     {
-
+        /// <summary>
+        /// The context type
+        /// </summary>
+        Type ContextType { get; }
     }
 }

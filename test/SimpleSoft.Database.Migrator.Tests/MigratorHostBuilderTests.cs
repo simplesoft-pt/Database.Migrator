@@ -20,7 +20,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 {
                     factory = f;
                 });
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotNull(factory);
             }
@@ -39,7 +39,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 {
                     builderFactory = f;
                 });
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotNull(builderFactory);
                 Assert.Same(originalFactory, builderFactory);
@@ -59,7 +59,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 {
                     builderFactory = f;
                 });
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotNull(builderFactory);
                 Assert.Same(originalFactory, builderFactory);
@@ -95,7 +95,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 {
                     ++runCount;
                 });
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotEmpty(builder.LoggingConfigurationHandlers);
                 Assert.Equal(2, builder.LoggingConfigurationHandlers.Count);
@@ -118,7 +118,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                     ++runCount;
                 }))
             {
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotEmpty(builder.LoggingConfigurationHandlers);
                 Assert.Equal(2, builder.LoggingConfigurationHandlers.Count);
@@ -143,7 +143,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                     services = s;
                     factory = f;
                 });
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotNull(services);
                 Assert.NotNull(factory);
@@ -165,7 +165,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 {
                     ++runCount;
                 });
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotEmpty(builder.ServiceConfigurationHandlers);
                 Assert.Equal(2, builder.ServiceConfigurationHandlers.Count);
@@ -188,7 +188,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                     ++runCount;
                 }))
             {
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotEmpty(builder.ServiceConfigurationHandlers);
                 Assert.Equal(2, builder.ServiceConfigurationHandlers.Count);
@@ -215,7 +215,7 @@ namespace SimpleSoft.Database.Migrator.Tests
 
                     return s.BuildServiceProvider();
                 });
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotNull(services);
                 Assert.NotNull(factory);
@@ -237,7 +237,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                     return s.BuildServiceProvider();
                 }))
             {
-                builder.Build();
+                builder.Build<IMigrationContext>();
 
                 Assert.NotNull(services);
                 Assert.NotNull(factory);
@@ -252,7 +252,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 var ex = Assert.Throws<ArgumentNullException>(() =>
                 {
                     builder.SetServiceProviderBuilder(null);
-                    builder.Build();
+                    builder.Build<IMigrationContext>();
                 });
 
                 Assert.NotNull(ex);
@@ -271,7 +271,7 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             var ex = Assert.Throws<ObjectDisposedException>(() =>
             {
-                builder.Build();
+                builder.Build<IMigrationContext>();
             });
 
             Assert.NotNull(ex);

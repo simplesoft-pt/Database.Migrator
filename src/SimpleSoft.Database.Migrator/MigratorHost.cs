@@ -31,7 +31,7 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Represents a configured migrator host
     /// </summary>
-    public class MigratorHost : IMigratorHost
+    public class MigratorHost<TContext> : IMigratorHost<TContext> where TContext : IMigrationContext
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILoggerFactory _loggerFactory;
@@ -54,9 +54,18 @@ namespace SimpleSoft.Database.Migrator
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
+            ContextType = typeof(TContext);
+
             _serviceProvider = serviceProvider;
             _loggerFactory = loggerFactory;
             _configuration = configuration;
         }
+
+        #region Implementation of IMigratorHost<TContext>
+
+        /// <inheritdoc />
+        public Type ContextType { get; }
+
+        #endregion
     }
 }
