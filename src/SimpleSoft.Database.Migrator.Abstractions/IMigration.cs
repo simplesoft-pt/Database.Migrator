@@ -29,12 +29,4 @@ namespace SimpleSoft.Database.Migrator
         /// <returns>A task to be awaited</returns>
         Task RollbackAsync(CancellationToken ct);
     }
-
-    /// <summary>
-    /// Represents a migration
-    /// </summary>
-    public interface IMigration : IMigration<IMigrationContext>
-    {
-        
-    }
 }

@@ -51,15 +51,15 @@ namespace SimpleSoft.Database.Migrator
         IReadOnlyCollection<Action<IServiceCollection, ILoggerFactory, IConfiguration>> ServiceConfigurationHandlers { get; }
 
         /// <summary>
+        /// Builder function for the <see cref="IServiceProvider"/>.
+        /// </summary>
+        Func<IServiceCollection, ILoggerFactory, IConfiguration, IServiceProvider> ServiceProviderBuilder { get; }
+
+        /// <summary>
         /// Collection of handlers used to configure the services registered 
         /// into the <see cref="IServiceProvider"/>.
         /// </summary>
         IReadOnlyCollection<Action<IServiceProvider, ILoggerFactory, IConfiguration>> ConfigureHandlers { get; }
-
-        /// <summary>
-        /// Builder function for the <see cref="IServiceProvider"/>.
-        /// </summary>
-        Func<IServiceCollection, ILoggerFactory, IConfiguration, IServiceProvider> ServiceProviderBuilder { get; }
 
         /// <summary>
         /// Adds the handler to the <see cref="ConfigurationHandlers"/> collection.
