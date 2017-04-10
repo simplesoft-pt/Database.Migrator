@@ -29,7 +29,7 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Represents a configured migrator host
     /// </summary>
-    public interface IMigratorHost<TContext> where TContext : IMigrationContext
+    public interface IMigratorHost<out TContext> where TContext : IMigrationContext
     {
         /// <summary>
         /// The context type

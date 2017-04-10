@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -248,7 +250,20 @@ namespace SimpleSoft.Database.Migrator
                     handler(serviceProvider, loggerFactory, configuration);
             }
 
-            return new MigratorHost<TContext>(serviceProvider, loggerFactory, configuration);
+            var migrationInterfaceType = typeof(IMigration<TContext>).GetTypeInfo();
+
+            return new MigratorHost<TContext>(
+                serviceProvider, loggerFactory, configuration,
+                serviceProvider.GetRequiredService<IMigrationManager<TContext>>(),
+                serviceCollection.Where(e =>
+                    {
+                        if (migrationInterfaceType.IsAssignableFrom(e.ImplementationType))
+                        {
+                            return true;
+                        }
+                        return false;
+                    })
+                    .Select(e => e.ImplementationType));
         }
 
         #endregion

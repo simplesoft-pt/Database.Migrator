@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -36,6 +38,8 @@ namespace SimpleSoft.Database.Migrator
         private readonly IServiceProvider _serviceProvider;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IConfiguration _configuration;
+        private readonly IMigrationManager<TContext> _manager;
+        private readonly List<Type> _migrationsAscendingByName;
 
         /// <summary>
         /// Creates a new instance
@@ -43,9 +47,12 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="serviceProvider">The service provider</param>
         /// <param name="loggerFactory">The logger factory instance</param>
         /// <param name="configuration">The configuration to use</param>
+        /// <param name="manager">The migration manager</param>
+        /// <param name="migrations">The migrations found</param>
         /// <exception cref="ArgumentNullException"></exception>
         public MigratorHost(
-            IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IConfiguration configuration)
+            IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IConfiguration configuration, 
+            IMigrationManager<TContext> manager, IEnumerable<Type> migrations)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -53,12 +60,18 @@ namespace SimpleSoft.Database.Migrator
                 throw new ArgumentNullException(nameof(loggerFactory));
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
+            if (manager == null)
+                throw new ArgumentNullException(nameof(manager));
+            if (migrations == null)
+                throw new ArgumentNullException(nameof(migrations));
 
             ContextType = typeof(TContext);
 
             _serviceProvider = serviceProvider;
             _loggerFactory = loggerFactory;
             _configuration = configuration;
+            _manager = manager;
+            _migrationsAscendingByName = migrations.OrderBy(e => e.Name).ToList();
         }
 
         #region Implementation of IMigratorHost<TContext>
