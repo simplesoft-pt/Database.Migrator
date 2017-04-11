@@ -29,9 +29,13 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="configuration">The configuration instance</param>
         /// <param name="environment">The environment value</param>
         /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public static void Environment(this IConfiguration configuration, string environment)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            if (environment == null) throw new ArgumentNullException(nameof(environment));
+            if (string.IsNullOrWhiteSpace(environment))
+                throw new ArgumentException("Value cannot be whitespace.", nameof(environment));
 
             configuration[MigratorHostDefaults.EnvironmentKey] = environment;
         }
@@ -57,13 +61,13 @@ namespace SimpleSoft.Database.Migrator
         /// Sets the content root value into the given configuration
         /// </summary>
         /// <param name="configuration">The configuration instance</param>
-        /// <param name="environment">The environment value</param>
+        /// <param name="contentRoot">The content root value</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public static void ContentRoot(this IConfiguration configuration, string environment)
+        public static void ContentRoot(this IConfiguration configuration, string contentRoot)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
-            configuration[MigratorHostDefaults.ContentRootKey] = environment;
+            configuration[MigratorHostDefaults.ContentRootKey] = contentRoot;
         }
 
         #endregion
