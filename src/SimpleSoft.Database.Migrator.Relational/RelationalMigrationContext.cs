@@ -6,8 +6,10 @@ namespace SimpleSoft.Database.Migrator.Relational
     /// <summary>
     /// The relational migration context
     /// </summary>
-    public abstract class RelationalMigrationContext : MigrationContext, IRelationalMigrationContext
+    public abstract class RelationalMigrationContext : MigrationContext, IRelationalMigrationContext, IDisposable
     {
+        private bool _disposed;
+
         /// <summary>
         /// Creates a new instance.
         /// </summary>
@@ -19,10 +21,40 @@ namespace SimpleSoft.Database.Migrator.Relational
             Connection = connection;
         }
 
-        #region Implementation of IRelationalMigrationContext
+        /// <inheritdoc />
+        ~RelationalMigrationContext()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// The database connection
+        /// </summary>
+        public IDbConnection Connection { get; private set; }
+
+        #region IDisposable
 
         /// <inheritdoc />
-        public IDbConnection Connection { get; }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Invoked when disposing the instance.
+        /// </summary>
+        /// <param name="disposing">True if disposing, otherwise false</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if(_disposed) return;
+
+            if (disposing)
+                Connection?.Dispose();
+
+            Connection = null;
+            _disposed = true;
+        }
 
         #endregion
     }
@@ -34,6 +66,8 @@ namespace SimpleSoft.Database.Migrator.Relational
     public class RelationalMigrationContext<TOptions> : MigrationContext<TOptions>, IRelationalMigrationContext<TOptions>
         where TOptions : MigrationOptions
     {
+        private bool _disposed;
+
         /// <summary>
         /// Creates a new instance
         /// </summary>
@@ -47,10 +81,40 @@ namespace SimpleSoft.Database.Migrator.Relational
             Connection = connection;
         }
 
-        #region Implementation of IRelationalMigrationContext
+        /// <inheritdoc />
+        ~RelationalMigrationContext()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// The database connection
+        /// </summary>
+        public IDbConnection Connection { get; private set; }
+
+        #region IDisposable
 
         /// <inheritdoc />
-        public IDbConnection Connection { get; }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Invoked when disposing the instance.
+        /// </summary>
+        /// <param name="disposing">True if disposing, otherwise false</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+                Connection?.Dispose();
+
+            Connection = null;
+            _disposed = true;
+        }
 
         #endregion
     }

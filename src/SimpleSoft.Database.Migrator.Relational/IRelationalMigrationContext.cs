@@ -17,9 +17,6 @@ namespace SimpleSoft.Database.Migrator.Relational
     /// </summary>
     public interface IRelationalMigrationContext : IMigrationContext
     {
-        /// <summary>
-        /// The database connection
-        /// </summary>
-        IDbConnection Connection { get; }
+
     }
 }
