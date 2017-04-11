@@ -29,6 +29,26 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <summary>
+        /// Registers a <see cref="IMigrationContext{TOptions}"/> type to the services collection. 
+        /// </summary>
+        /// <typeparam name="TContext">The context type</typeparam>
+        /// <typeparam name="TOptions">The context options</typeparam>
+        /// <param name="services">The service collection</param>
+        /// <returns>The service collection after registration</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IServiceCollection AddMigrationContext<TContext, TOptions>(this IServiceCollection services)
+            where TContext : class, IMigrationContext<TOptions>
+            where TOptions : MigrationOptions
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+
+            services.AddScoped<TContext>();
+            services.AddScoped<IMigrationContext<TOptions>, TContext>();
+            services.AddScoped<IMigrationContext, TContext>();
+            return services;
+        }
+
+        /// <summary>
         /// Registers a <see cref="IMigrationContext"/> type to the services collection. 
         /// </summary>
         /// <typeparam name="TContext">The context type</typeparam>
@@ -49,6 +69,29 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <summary>
+        /// Registers a <see cref="IMigrationContext{TOptions}"/> type to the services collection. 
+        /// </summary>
+        /// <typeparam name="TContext">The context type</typeparam>
+        /// <typeparam name="TOptions">The context options</typeparam>
+        /// <param name="services">The service collection</param>
+        /// <param name="context">The migration context instance</param>
+        /// <returns>The service collection after registration</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IServiceCollection AddMigrationContext<TContext, TOptions>(
+            this IServiceCollection services, TContext context)
+            where TContext : class, IMigrationContext<TOptions>
+            where TOptions : MigrationOptions
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            services.AddScoped(k => context);
+            services.AddScoped<IMigrationContext<TOptions>, TContext>(k => context);
+            services.AddScoped<IMigrationContext, TContext>(k => context);
+            return services;
+        }
+
+        /// <summary>
         /// Registers a <see cref="IMigrationContext"/> type to the services collection. 
         /// </summary>
         /// <typeparam name="TContext">The context type</typeparam>
@@ -59,6 +102,28 @@ namespace SimpleSoft.Database.Migrator
         public static IServiceCollection AddMigrationContext<TContext>(
             this IServiceCollection services, Func<IServiceProvider, TContext> builder)
             where TContext : class, IMigrationContext
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            services.AddScoped(builder);
+            services.AddScoped<IMigrationContext, TContext>(builder);
+            return services;
+        }
+
+        /// <summary>
+        /// Registers a <see cref="IMigrationContext{TOptions}"/> type to the services collection. 
+        /// </summary>
+        /// <typeparam name="TContext">The context type</typeparam>
+        /// <typeparam name="TOptions">The context options</typeparam>
+        /// <param name="services">The service collection</param>
+        /// <param name="builder">The migration context builder</param>
+        /// <returns>The service collection after registration</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IServiceCollection AddMigrationContext<TContext, TOptions>(
+            this IServiceCollection services, Func<IServiceProvider, TContext> builder)
+            where TContext : class, IMigrationContext<TOptions>
+            where TOptions : MigrationOptions
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (builder == null) throw new ArgumentNullException(nameof(builder));
