@@ -146,7 +146,7 @@ namespace SimpleSoft.Database.Migrator
         /// <returns>The service collection after registration</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public static IServiceCollection AddMigration<TMigration, TContext>(this IServiceCollection services)
-            where TMigration : class, IMigration<TContext> 
+            where TMigration : class, IMigration<TContext>
             where TContext : IMigrationContext
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
@@ -167,7 +167,7 @@ namespace SimpleSoft.Database.Migrator
         /// <exception cref="ArgumentNullException"></exception>
         public static IServiceCollection AddMigration<TMigration, TContext>(
             this IServiceCollection services, TMigration migration)
-            where TMigration : class, IMigration<TContext> 
+            where TMigration : class, IMigration<TContext>
             where TContext : IMigrationContext
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
@@ -188,8 +188,8 @@ namespace SimpleSoft.Database.Migrator
         /// <returns>The service collection after registration</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public static IServiceCollection AddMigration<TMigration, TContext>(
-            this IServiceCollection services, Func<IServiceProvider,TMigration> builder)
-            where TMigration : class, IMigration<TContext> 
+            this IServiceCollection services, Func<IServiceProvider, TMigration> builder)
+            where TMigration : class, IMigration<TContext>
             where TContext : IMigrationContext
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
@@ -215,7 +215,7 @@ namespace SimpleSoft.Database.Migrator
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (assembly == null) throw new ArgumentNullException(nameof(assembly));
-            
+
             throw new NotImplementedException();
         }
 
@@ -249,6 +249,73 @@ namespace SimpleSoft.Database.Migrator
             if (services == null) throw new ArgumentNullException(nameof(services));
 
             return services.ScanMigrations(typeof(T).GetTypeInfo().Assembly);
+        }
+
+        #endregion
+
+        #region AddMigrationManager
+
+        /// <summary>
+        /// Registers a <see cref="IMigrationManager{TContext}"/> type to the services collection. 
+        /// </summary>
+        /// <typeparam name="TManager">The manager type</typeparam>
+        /// <typeparam name="TContext">The context type</typeparam>
+        /// <param name="services">The service collection</param>
+        /// <returns>The service collection after registration</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IServiceCollection AddMigrationManager<TManager, TContext>(this IServiceCollection services)
+            where TManager : class, IMigrationManager<TContext>
+            where TContext : class, IMigrationContext
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+
+            services.AddScoped<TManager>();
+            services.AddScoped<IMigrationManager<TContext>, TManager>();
+            return services;
+        }
+
+        /// <summary>
+        /// Registers a <see cref="IMigrationManager{TContext}"/> type to the services collection. 
+        /// </summary>
+        /// <typeparam name="TManager">The manager type</typeparam>
+        /// <typeparam name="TContext">The context type</typeparam>
+        /// <param name="services">The service collection</param>
+        /// <param name="manager">The manager instance</param>
+        /// <returns>The service collection after registration</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IServiceCollection AddMigrationManager<TManager, TContext>(
+            this IServiceCollection services, TManager manager)
+            where TManager : class, IMigrationManager<TContext>
+            where TContext : class, IMigrationContext
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (manager == null) throw new ArgumentNullException(nameof(manager));
+
+            services.AddScoped(k => manager);
+            services.AddScoped<IMigrationManager<TContext>>(k => manager);
+            return services;
+        }
+
+        /// <summary>
+        /// Registers a <see cref="IMigrationManager{TContext}"/> type to the services collection. 
+        /// </summary>
+        /// <typeparam name="TManager">The manager type</typeparam>
+        /// <typeparam name="TContext">The context type</typeparam>
+        /// <param name="services">The service collection</param>
+        /// <param name="builder">The manager builder</param>
+        /// <returns>The service collection after registration</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IServiceCollection AddMigrationManager<TManager, TContext>(
+            this IServiceCollection services, Func<IServiceProvider, TManager> builder)
+            where TManager : class, IMigrationManager<TContext>
+            where TContext : class, IMigrationContext
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            services.AddScoped(builder);
+            services.AddScoped<IMigrationManager<TContext>>(builder);
+            return services;
         }
 
         #endregion
