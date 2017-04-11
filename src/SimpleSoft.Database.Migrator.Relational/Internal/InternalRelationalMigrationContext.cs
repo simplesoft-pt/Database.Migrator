@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator.Relational.Internal
 {
@@ -10,11 +11,16 @@ namespace SimpleSoft.Database.Migrator.Relational.Internal
     {
         private static readonly Task CompletedTask = Task.FromResult(true);
 
+        private readonly ILogger _logger;
         private bool _disposed;
 
-        public InternalRelationalMigrationContext(DbConnection connection)
+        public InternalRelationalMigrationContext(DbConnection connection, ILogger logger)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
+
+            _logger = logger;
+
             Connection = connection;
         }
 
