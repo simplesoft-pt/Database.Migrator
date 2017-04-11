@@ -252,18 +252,29 @@ namespace SimpleSoft.Database.Migrator
 
             var migrationInterfaceType = typeof(IMigration<TContext>).GetTypeInfo();
 
+            var migrationImplTypes = new List<Type>(serviceCollection.Count);
+            migrationImplTypes.AddRange(
+                serviceCollection.Where(e => migrationInterfaceType.IsAssignableFrom(e.ImplementationType))
+                    .Select(e => e.ImplementationType));
+
+            if (migrationImplTypes.Count == 0)
+            {
+                if (logger.IsEnabled(LogLevel.Warning))
+                    logger.LogWarning(
+                        "No migrations were found for the context '{contextType}'", typeof(TContext).Name);
+            }
+            else
+            {
+                if (logger.IsEnabled(LogLevel.Debug))
+                    logger.LogDebug(
+                        "A total of {totalMigrations} were found for the context '{contextType}'",
+                        migrationImplTypes.Count, typeof(TContext).Name);
+            }
+
             return new MigratorHost<TContext>(
                 serviceProvider, loggerFactory, configuration,
                 serviceProvider.GetRequiredService<IMigrationManager<TContext>>(),
-                serviceCollection.Where(e =>
-                    {
-                        if (migrationInterfaceType.IsAssignableFrom(e.ImplementationType))
-                        {
-                            return true;
-                        }
-                        return false;
-                    })
-                    .Select(e => e.ImplementationType));
+                migrationImplTypes);
         }
 
         #endregion
