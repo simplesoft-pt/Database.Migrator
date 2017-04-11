@@ -14,11 +14,11 @@ namespace SimpleSoft.Database.Migrator
         TContext Context { get; }
 
         /// <summary>
-        /// Ensures the database has support for migrations
+        /// Prepares the database for migrations support
         /// </summary>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        Task EnsureDatabaseSupportAsync(CancellationToken ct);
+        Task PrepareDatabaseAsync(CancellationToken ct);
 
             /// <summary>
         /// Adds the given migration information to the database.
