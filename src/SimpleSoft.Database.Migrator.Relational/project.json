@@ -28,9 +28,15 @@
     },
 
     "frameworks": {
-        "net4.5.1": {},
+        "net4.5.1": {
+            "frameworkAssemblies": {
+                "System.Data": { "type": "build" }
+            }
+        },
         "netstandard1.6": {
-
+            "dependencies": {
+                "System.Data.Common": "4.1.0"
+            }
         }
     }
 }
