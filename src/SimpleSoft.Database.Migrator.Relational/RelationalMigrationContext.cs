@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Data;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
+using SimpleSoft.Database.Migrator.Relational.Internal;
 
 namespace SimpleSoft.Database.Migrator.Relational
 {
@@ -8,7 +12,7 @@ namespace SimpleSoft.Database.Migrator.Relational
     /// </summary>
     public abstract class RelationalMigrationContext : MigrationContext, IRelationalMigrationContext, IDisposable
     {
-        private bool _disposed;
+        private readonly InternalRelationalMigrationContext _internalContext;
 
         /// <summary>
         /// Creates a new instance.
@@ -17,41 +21,50 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <exception cref="ArgumentNullException"></exception>
         protected RelationalMigrationContext(DbConnection connection)
         {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
-            Connection = connection;
+            _internalContext = new InternalRelationalMigrationContext(connection);
         }
 
         /// <inheritdoc />
-        ~RelationalMigrationContext()
+        public DbConnection Connection => _internalContext.Connection;
+
+        /// <inheritdoc />
+        public IDbTransaction Transaction => _internalContext.Transaction;
+
+        /// <inheritdoc />
+        public IsolationLevel IsolationLevel
         {
-            Dispose(false);
+            get { return _internalContext.IsolationLevel; }
+            set { _internalContext.IsolationLevel = value; }
         }
-
-        /// <inheritdoc />
-        public DbConnection Connection { get; private set; }
 
         #region IDisposable
 
         /// <inheritdoc />
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            _internalContext.Dispose();
         }
 
-        /// <summary>
-        /// Invoked when disposing the instance.
-        /// </summary>
-        /// <param name="disposing">True if disposing, otherwise false</param>
-        protected virtual void Dispose(bool disposing)
+        #endregion
+
+        #region Overrides of MigrationContext
+
+        /// <inheritdoc />
+        public override async Task PrepareAsync(CancellationToken ct)
         {
-            if(_disposed) return;
+            await _internalContext.PrepareAsync(ct).ConfigureAwait(false);
+        }
 
-            if (disposing)
-                Connection?.Dispose();
+        /// <inheritdoc />
+        public override async Task PersistAsync(CancellationToken ct)
+        {
+            await _internalContext.PersistAsync(ct).ConfigureAwait(false);
+        }
 
-            Connection = null;
-            _disposed = true;
+        /// <inheritdoc />
+        public override async Task RollbackAsync(CancellationToken ct)
+        {
+            await _internalContext.RollbackAsync(ct).ConfigureAwait(false);
         }
 
         #endregion
@@ -64,7 +77,7 @@ namespace SimpleSoft.Database.Migrator.Relational
     public class RelationalMigrationContext<TOptions> : MigrationContext<TOptions>, IRelationalMigrationContext<TOptions>
         where TOptions : MigrationOptions
     {
-        private bool _disposed;
+        private readonly InternalRelationalMigrationContext _internalContext;
 
         /// <summary>
         /// Creates a new instance
@@ -74,42 +87,52 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <exception cref="ArgumentNullException"></exception>
         public RelationalMigrationContext(DbConnection connection, TOptions options) : base(options)
         {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
-
-            Connection = connection;
+            _internalContext = new InternalRelationalMigrationContext(connection);
         }
 
         /// <inheritdoc />
-        ~RelationalMigrationContext()
+        public DbConnection Connection => _internalContext.Connection;
+
+        /// <inheritdoc />
+        public IDbTransaction Transaction => _internalContext.Transaction;
+
+        /// <summary>
+        /// Isolation level
+        /// </summary>
+        public IsolationLevel IsolationLevel
         {
-            Dispose(false);
+            get { return _internalContext.IsolationLevel; }
+            set { _internalContext.IsolationLevel = value; }
         }
-
-        /// <inheritdoc />
-        public DbConnection Connection { get; private set; }
 
         #region IDisposable
 
         /// <inheritdoc />
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            _internalContext.Dispose();
         }
 
-        /// <summary>
-        /// Invoked when disposing the instance.
-        /// </summary>
-        /// <param name="disposing">True if disposing, otherwise false</param>
-        protected virtual void Dispose(bool disposing)
+        #endregion
+
+        #region Overrides of MigrationContext
+
+        /// <inheritdoc />
+        public override async Task PrepareAsync(CancellationToken ct)
         {
-            if (_disposed) return;
+            await _internalContext.PrepareAsync(ct).ConfigureAwait(false);
+        }
 
-            if (disposing)
-                Connection?.Dispose();
+        /// <inheritdoc />
+        public override async Task PersistAsync(CancellationToken ct)
+        {
+            await _internalContext.PersistAsync(ct).ConfigureAwait(false);
+        }
 
-            Connection = null;
-            _disposed = true;
+        /// <inheritdoc />
+        public override async Task RollbackAsync(CancellationToken ct)
+        {
+            await _internalContext.RollbackAsync(ct).ConfigureAwait(false);
         }
 
         #endregion

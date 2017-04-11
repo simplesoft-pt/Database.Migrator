@@ -24,6 +24,7 @@
     },
 
     "dependencies": {
+        "Dapper.StrongName": "1.50.2",
         "SimpleSoft.Database.Migrator.Abstractions": { "target": "project" }
     },
 

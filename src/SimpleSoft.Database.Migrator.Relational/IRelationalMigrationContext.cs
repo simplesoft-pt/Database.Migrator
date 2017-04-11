@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System.Data;
+using System.Data.Common;
 
 namespace SimpleSoft.Database.Migrator.Relational
 {
@@ -21,5 +22,15 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// The database connection
         /// </summary>
         DbConnection Connection { get; }
+
+        /// <summary>
+        /// The current transaction or null
+        /// </summary>
+        IDbTransaction Transaction { get; }
+
+        /// <summary>
+        /// Isolation level
+        /// </summary>
+        IsolationLevel IsolationLevel { get; }
     }
 }
