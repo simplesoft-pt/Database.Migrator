@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data;
+using System.Data.Common;
 
 namespace SimpleSoft.Database.Migrator.Relational
 {
@@ -15,7 +15,7 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// </summary>
         /// <param name="connection">The connection to use</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected RelationalMigrationContext(IDbConnection connection)
+        protected RelationalMigrationContext(DbConnection connection)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
             Connection = connection;
@@ -27,10 +27,8 @@ namespace SimpleSoft.Database.Migrator.Relational
             Dispose(false);
         }
 
-        /// <summary>
-        /// The database connection
-        /// </summary>
-        public IDbConnection Connection { get; private set; }
+        /// <inheritdoc />
+        public DbConnection Connection { get; private set; }
 
         #region IDisposable
 
@@ -74,7 +72,7 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <param name="connection">The connection to use</param>
         /// <param name="options">The context options</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public RelationalMigrationContext(IDbConnection connection, TOptions options) : base(options)
+        public RelationalMigrationContext(DbConnection connection, TOptions options) : base(options)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
 
@@ -87,10 +85,8 @@ namespace SimpleSoft.Database.Migrator.Relational
             Dispose(false);
         }
 
-        /// <summary>
-        /// The database connection
-        /// </summary>
-        public IDbConnection Connection { get; private set; }
+        /// <inheritdoc />
+        public DbConnection Connection { get; private set; }
 
         #region IDisposable
 

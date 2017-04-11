@@ -1,4 +1,4 @@
-﻿using System.Data;
+﻿using System.Data.Common;
 
 namespace SimpleSoft.Database.Migrator.Relational
 {
@@ -17,6 +17,9 @@ namespace SimpleSoft.Database.Migrator.Relational
     /// </summary>
     public interface IRelationalMigrationContext : IMigrationContext
     {
-
+        /// <summary>
+        /// The database connection
+        /// </summary>
+        DbConnection Connection { get; }
     }
 }
