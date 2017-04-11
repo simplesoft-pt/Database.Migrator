@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -35,49 +34,58 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public class MigratorHost<TContext> : IMigratorHost<TContext> where TContext : IMigrationContext
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ILoggerFactory _loggerFactory;
         private readonly IConfiguration _configuration;
-        private readonly IMigrationManager<TContext> _manager;
-        private readonly List<Type> _migrationsAscendingByName;
+        private readonly ILogger<MigratorHost<TContext>> _logger;
+        private readonly SortedDictionary<string, Type> _migrations;
 
         /// <summary>
         /// Creates a new instance
         /// </summary>
         /// <param name="serviceProvider">The service provider</param>
-        /// <param name="loggerFactory">The logger factory instance</param>
         /// <param name="configuration">The configuration to use</param>
         /// <param name="manager">The migration manager</param>
         /// <param name="migrations">The migrations found</param>
+        /// <param name="logger">The logger to be used</param>
         /// <exception cref="ArgumentNullException"></exception>
         public MigratorHost(
-            IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IConfiguration configuration, 
-            IMigrationManager<TContext> manager, IEnumerable<Type> migrations)
+            IServiceProvider serviceProvider, IConfiguration configuration, IMigrationManager<TContext> manager, 
+            IEnumerable<Type> migrations, ILogger<MigratorHost<TContext>> logger)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
-            if (loggerFactory == null)
-                throw new ArgumentNullException(nameof(loggerFactory));
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
             if (manager == null)
                 throw new ArgumentNullException(nameof(manager));
             if (migrations == null)
                 throw new ArgumentNullException(nameof(migrations));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
+            _configuration = configuration;
+            _logger = logger;
+            _migrations = new SortedDictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+            foreach (var migration in migrations)
+                _migrations.Add(migration.Name, migration);
 
             ContextType = typeof(TContext);
-
-            _serviceProvider = serviceProvider;
-            _loggerFactory = loggerFactory;
-            _configuration = configuration;
-            _manager = manager;
-            _migrationsAscendingByName = migrations.OrderBy(e => e.Name).ToList();
+            ServiceProvider = serviceProvider;
+            Manager = manager;
         }
 
         #region Implementation of IMigratorHost<TContext>
 
         /// <inheritdoc />
         public Type ContextType { get; }
+
+        /// <inheritdoc />
+        public IServiceProvider ServiceProvider { get; }
+
+        /// <inheritdoc />
+        public IMigrationManager<TContext> Manager { get; }
+
+        /// <inheritdoc />
+        public IEnumerable<string> Migrations => _migrations.Keys;
 
         #endregion
     }

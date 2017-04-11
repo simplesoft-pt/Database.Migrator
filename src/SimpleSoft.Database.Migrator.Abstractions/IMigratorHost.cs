@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -35,5 +36,20 @@ namespace SimpleSoft.Database.Migrator
         /// The context type
         /// </summary>
         Type ContextType { get; }
+
+        /// <summary>
+        /// The service provider used
+        /// </summary>
+        IServiceProvider ServiceProvider { get; }
+
+        /// <summary>
+        /// The migration manager
+        /// </summary>
+        IMigrationManager<TContext> Manager { get; }
+
+        /// <summary>
+        /// The migrations identifiers, sorted ascending
+        /// </summary>
+        IEnumerable<string> Migrations { get; }
     }
 }

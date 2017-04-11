@@ -267,14 +267,14 @@ namespace SimpleSoft.Database.Migrator
             {
                 if (logger.IsEnabled(LogLevel.Debug))
                     logger.LogDebug(
-                        "A total of {totalMigrations} were found for the context '{contextType}'",
+                        "A total of {totalMigrations} migrations were found for the context '{contextType}'",
                         migrationImplTypes.Count, typeof(TContext).Name);
             }
 
             return new MigratorHost<TContext>(
-                serviceProvider, loggerFactory, configuration,
+                serviceProvider, configuration,
                 serviceProvider.GetRequiredService<IMigrationManager<TContext>>(),
-                migrationImplTypes);
+                migrationImplTypes, loggerFactory.CreateLogger<MigratorHost<TContext>>());
         }
 
         #endregion
