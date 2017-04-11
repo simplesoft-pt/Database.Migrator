@@ -47,6 +47,12 @@ namespace SimpleSoft.Database.Migrator
             return Task.FromResult(true);
         }
 
+        /// <inheritdoc />
+        public virtual Task RollbackAsync(CancellationToken ct)
+        {
+            return Task.FromResult(true);
+        }
+
         #endregion
     }
 
