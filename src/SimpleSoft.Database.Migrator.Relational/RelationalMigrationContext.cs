@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -21,13 +20,13 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <param name="connection">The connection to use</param>
         /// <param name="logger">The logger to use</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected RelationalMigrationContext(DbConnection connection, ILogger<RelationalMigrationContext> logger)
+        protected RelationalMigrationContext(IDbConnection connection, ILogger<RelationalMigrationContext> logger)
         {
             _internalContext = new InternalRelationalMigrationContext(connection, logger);
         }
 
         /// <inheritdoc />
-        public DbConnection Connection => _internalContext.Connection;
+        public IDbConnection Connection => _internalContext.Connection;
 
         /// <inheritdoc />
         public IDbTransaction Transaction => _internalContext.Transaction;
@@ -88,14 +87,14 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <param name="options">The context options</param>
         /// <param name="logger">The logger to use</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public RelationalMigrationContext(DbConnection connection, TOptions options, ILogger<RelationalMigrationContext<TOptions>> logger) 
+        public RelationalMigrationContext(IDbConnection connection, TOptions options, ILogger<RelationalMigrationContext<TOptions>> logger) 
             : base(options)
         {
             _internalContext = new InternalRelationalMigrationContext(connection, logger);
         }
 
         /// <inheritdoc />
-        public DbConnection Connection => _internalContext.Connection;
+        public IDbConnection Connection => _internalContext.Connection;
 
         /// <inheritdoc />
         public IDbTransaction Transaction => _internalContext.Transaction;

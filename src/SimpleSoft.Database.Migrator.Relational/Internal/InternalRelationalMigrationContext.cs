@@ -14,7 +14,7 @@ namespace SimpleSoft.Database.Migrator.Relational.Internal
         private readonly ILogger _logger;
         private bool _disposed;
 
-        public InternalRelationalMigrationContext(DbConnection connection, ILogger logger)
+        public InternalRelationalMigrationContext(IDbConnection connection, ILogger logger)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
             if (logger == null) throw new ArgumentNullException(nameof(logger));
@@ -30,7 +30,7 @@ namespace SimpleSoft.Database.Migrator.Relational.Internal
             Dispose(false);
         }
         
-        public DbConnection Connection { get; private set; }
+        public IDbConnection Connection { get; private set; }
         
         public IDbTransaction Transaction { get; private set; }
 
@@ -70,7 +70,11 @@ namespace SimpleSoft.Database.Migrator.Relational.Internal
         {
             FailIfDisposed();
 
-            await Connection.OpenAsync(ct);
+            var dbConnection = Connection as DbConnection;
+            if (dbConnection == null)
+                Connection.Open();
+            else
+                await dbConnection.OpenAsync(ct);
 
             Transaction = Connection.BeginTransaction(IsolationLevel);
         }
