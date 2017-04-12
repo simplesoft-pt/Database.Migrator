@@ -38,7 +38,7 @@ namespace SimpleSoft.Database.Migrator
         TContext Context { get; }
 
         /// <summary>
-        /// Prepares the database for migrations support
+        /// Prepares the database for migrations support.
         /// </summary>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
@@ -50,8 +50,8 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="migrationId">The migration identifier</param>
         /// <param name="className">The migration class name</param>
         /// <param name="ct">The cancellation token</param>
-        /// <returns>A task to be awaited for the result</returns>
-        Task<bool> AddMigrationAsync(string migrationId, string className, CancellationToken ct);
+        /// <returns>A task to be awaited</returns>
+        Task AddMigrationAsync(string migrationId, string className, CancellationToken ct);
 
         /// <summary>
         /// Gets the most recent migration identifier from the database 
@@ -62,12 +62,11 @@ namespace SimpleSoft.Database.Migrator
         Task<string> GetMostRecentMigrationIdAsync(CancellationToken ct);
 
         /// <summary>
-        /// Removes a migration from the database indicating success if
-        /// the migration was found.
+        /// Removes the most recent migration from the database indicating success if
+        /// the any migration was found.
         /// </summary>
-        /// <param name="migrationId">The migration identifier</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited for the result</returns>
-        Task<bool> RemoveMigrationAsync(string migrationId, CancellationToken ct);
+        Task<bool> RemoveMostRecentMigrationAsync(CancellationToken ct);
     }
 }
