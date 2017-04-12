@@ -14,8 +14,7 @@ namespace SimpleSoft.Database.Migrator.Relational
     public abstract class RelationalMigrationContext : MigrationContext, IRelationalMigrationContext, IDisposable
     {
         private static readonly Task CompletedTask = Task.FromResult(true);
-
-        private readonly ILogger<RelationalMigrationContext> _logger;
+        
         private bool _disposed;
 
         /// <summary>
@@ -26,11 +25,11 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <exception cref="ArgumentNullException"></exception>
         protected RelationalMigrationContext(IDbConnection connection, ILogger<RelationalMigrationContext> logger)
         {
-            _logger = logger;
             if (connection == null) throw new ArgumentNullException(nameof(connection));
             if (logger == null) throw new ArgumentNullException(nameof(logger));
 
             Connection = connection;
+            Logger = logger;
         }
 
         /// <inheritdoc />
@@ -38,6 +37,11 @@ namespace SimpleSoft.Database.Migrator.Relational
         {
             Dispose(false);
         }
+
+        /// <summary>
+        /// The logger used by this instance
+        /// </summary>
+        protected ILogger<RelationalMigrationContext> Logger { get; }
 
         /// <inheritdoc />
         public IDbConnection Connection { get; private set; }
@@ -137,9 +141,15 @@ namespace SimpleSoft.Database.Migrator.Relational
                 throw new ObjectDisposedException(nameof(RelationalMigrationContext));
         }
 
-        private void LogQuery(string query, IDbTransaction transaction, int commandTimeout)
+        /// <summary>
+        /// Logs the given query information
+        /// </summary>
+        /// <param name="query">The query to log</param>
+        /// <param name="transaction">The transaction currently used</param>
+        /// <param name="commandTimeout">The command timeout</param>
+        protected void LogQuery(string query, IDbTransaction transaction, int commandTimeout)
         {
-            _logger.LogDebug(@"
+            Logger.LogDebug(@"
 Executing sql statement in database.
     Is in transaction? {isInTransaction}
     Command Timeout: {commandTimeout}
@@ -149,7 +159,14 @@ SQL to execute:
                 transaction != null, commandTimeout, query);
         }
 
-        private void AssertCommandParameters(
+        /// <summary>
+        /// Asserts the given parameters to the ones to be used by the command.
+        /// </summary>
+        /// <param name="transaction">The transaction to assert</param>
+        /// <param name="commandTimeout">The command timeout to assert</param>
+        /// <param name="tx">The given transaction of, if null, the currently set to <see cref="Transaction"/></param>
+        /// <param name="timeout">The given command timeout or, if null, the timeout from <see cref="Connection"/></param>
+        protected void AssertCommandParameters(
             IDbTransaction transaction, int? commandTimeout, out IDbTransaction tx, out int timeout)
         {
             tx = transaction ?? Transaction;
