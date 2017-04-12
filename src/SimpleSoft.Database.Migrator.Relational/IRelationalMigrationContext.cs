@@ -25,7 +25,7 @@
 using System.Data;
 using System.Threading.Tasks;
 
-namespace SimpleSoft.Database.Migrator.Relational
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// The relational migration context

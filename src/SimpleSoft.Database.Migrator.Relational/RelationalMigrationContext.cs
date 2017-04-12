@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Relational
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// The relational migration context

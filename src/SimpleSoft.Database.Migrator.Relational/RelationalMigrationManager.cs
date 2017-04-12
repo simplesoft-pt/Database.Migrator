@@ -25,7 +25,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Relational
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// Manages migration states
