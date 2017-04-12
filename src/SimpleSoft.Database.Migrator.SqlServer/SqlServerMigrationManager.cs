@@ -49,9 +49,9 @@ namespace SimpleSoft.Database.Migrator
         protected override async Task<bool> MigrationsHistoryExistAsync(CancellationToken ct)
         {
             var tableId = await Context.QuerySingleAsync<long?>(
-                    "SELECT OBJECT_ID(@tableName, 'U') as TableId", new
+                    "SELECT OBJECT_ID(@TableName, 'U') as TableId", new
                     {
-                        tableName = MigrationsHistoryTableName
+                        TableName = MigrationsHistoryTableName
                     })
                 .ConfigureAwait(false);
             return tableId.HasValue;
