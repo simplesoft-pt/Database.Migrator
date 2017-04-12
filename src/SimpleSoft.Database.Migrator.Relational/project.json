@@ -19,8 +19,8 @@
     },
     "buildOptions": {
         "xmlDoc": true,
-        "optimize": true //,
-        //"keyFile": "../../tools/SimpleSoft.Database.snk"
+        "optimize": true,
+        "keyFile": "../../tools/SimpleSoft.Database.snk"
     },
 
     "dependencies": {
