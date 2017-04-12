@@ -159,6 +159,24 @@ namespace SimpleSoft.Database.Migrator
 
         #endregion
 
+        #region ExecuteAsync
+
+        /// <inheritdoc />
+        public async Task<int> ExecuteAsync(
+            string sql, object param = null, IDbTransaction transaction = null,
+            int? commandTimeout = default(int?), CommandType? commandType = default(CommandType?))
+        {
+            int timeout;
+            AssertCommandParameters(
+                transaction, commandTimeout, out transaction, out timeout);
+
+            LogQuery(sql, transaction, timeout);
+
+            return await Connection.ExecuteAsync(sql, param, transaction, timeout, commandType);
+        }
+
+        #endregion
+
         private void FailIfDisposed()
         {
             if (_disposed)

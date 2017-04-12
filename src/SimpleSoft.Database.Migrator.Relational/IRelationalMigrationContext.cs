@@ -64,6 +64,23 @@ namespace SimpleSoft.Database.Migrator
             int? commandTimeout = null, CommandType? commandType = null);
 
         #endregion
+
+        #region ExecuteAsync
+
+        /// <summary>
+        /// Executes the command into the database
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="transaction"></param>
+        /// <param name="commandTimeout"></param>
+        /// <param name="commandType"></param>
+        /// <returns></returns>
+        Task<int> ExecuteAsync(
+            string sql, object param = null, IDbTransaction transaction = null,
+            int? commandTimeout = default(int?), CommandType? commandType = default(CommandType?));
+
+        #endregion
     }
 
     /// <summary>
