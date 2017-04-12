@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using Microsoft.Extensions.Logging;
-using SimpleSoft.Database.Migrator.Relational.Internal;
 
 namespace SimpleSoft.Database.Migrator.Relational
 {
@@ -12,7 +13,10 @@ namespace SimpleSoft.Database.Migrator.Relational
     /// </summary>
     public abstract class RelationalMigrationContext : MigrationContext, IRelationalMigrationContext, IDisposable
     {
-        private readonly InternalRelationalMigrationContext _internalContext;
+        private static readonly Task CompletedTask = Task.FromResult(true);
+
+        private readonly ILogger<RelationalMigrationContext> _logger;
+        private bool _disposed;
 
         /// <summary>
         /// Creates a new instance.
@@ -22,28 +26,51 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <exception cref="ArgumentNullException"></exception>
         protected RelationalMigrationContext(IDbConnection connection, ILogger<RelationalMigrationContext> logger)
         {
-            _internalContext = new InternalRelationalMigrationContext(connection, logger);
+            _logger = logger;
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
+
+            Connection = connection;
         }
 
         /// <inheritdoc />
-        public IDbConnection Connection => _internalContext.Connection;
-
-        /// <inheritdoc />
-        public IDbTransaction Transaction => _internalContext.Transaction;
-
-        /// <inheritdoc />
-        public IsolationLevel DefaultIsolationLevel
+        ~RelationalMigrationContext()
         {
-            get { return _internalContext.DefaultIsolationLevel; }
-            set { _internalContext.DefaultIsolationLevel = value; }
+            Dispose(false);
         }
+
+        /// <inheritdoc />
+        public IDbConnection Connection { get; private set; }
+
+        /// <inheritdoc />
+        public IDbTransaction Transaction { get; private set; }
+
+        /// <inheritdoc />
+        public IsolationLevel DefaultIsolationLevel { get; set; } = IsolationLevel.ReadCommitted;
 
         #region IDisposable
 
         /// <inheritdoc />
         public void Dispose()
         {
-            _internalContext.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+            {
+                Transaction.Dispose();
+                Connection.Dispose();
+            }
+
+            Transaction = null;
+            Connection = null;
+
+            _disposed = true;
         }
 
         #endregion
@@ -53,33 +80,90 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <inheritdoc />
         public override async Task PrepareAsync(CancellationToken ct)
         {
-            await _internalContext.PrepareAsync(ct).ConfigureAwait(false);
+            FailIfDisposed();
+
+            var dbConnection = Connection as DbConnection;
+            if (dbConnection == null)
+                Connection.Open();
+            else
+                await dbConnection.OpenAsync(ct).ConfigureAwait(false);
+
+            Transaction = Connection.BeginTransaction(DefaultIsolationLevel);
         }
 
         /// <inheritdoc />
-        public override async Task PersistAsync(CancellationToken ct)
+        public override Task PersistAsync(CancellationToken ct)
         {
-            await _internalContext.PersistAsync(ct).ConfigureAwait(false);
+            FailIfDisposed();
+
+            Transaction.Commit();
+
+            return CompletedTask;
         }
 
         /// <inheritdoc />
-        public override async Task RollbackAsync(CancellationToken ct)
+        public override Task RollbackAsync(CancellationToken ct)
         {
-            await _internalContext.RollbackAsync(ct).ConfigureAwait(false);
+            FailIfDisposed();
+
+            Transaction.Rollback();
+
+            return CompletedTask;
         }
 
         #endregion
+
+        #region QuerySingleAsync
+
+        /// <inheritdoc />
+        public async Task<T> QuerySingleAsync<T>(
+            string sql, object param = null, IDbTransaction transaction = null,
+            int? commandTimeout = null, CommandType? commandType = null)
+        {
+            int timeout;
+            AssertCommandParameters(
+                transaction, commandTimeout, out transaction, out timeout);
+
+            LogQuery(sql, transaction, timeout);
+
+            return await Connection.QuerySingleAsync<T>(sql, param, transaction, timeout, commandType);
+        }
+
+        #endregion
+
+        private void FailIfDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(RelationalMigrationContext));
+        }
+
+        private void LogQuery(string query, IDbTransaction transaction, int commandTimeout)
+        {
+            _logger.LogDebug(@"
+Executing sql statement in database.
+    Is in transaction? {isInTransaction}
+    Command Timeout: {commandTimeout}
+
+SQL to execute:
+{sqlStatement}",
+                transaction != null, commandTimeout, query);
+        }
+
+        private void AssertCommandParameters(
+            IDbTransaction transaction, int? commandTimeout, out IDbTransaction tx, out int timeout)
+        {
+            tx = transaction ?? Transaction;
+            timeout = commandTimeout ?? Connection.ConnectionTimeout;
+        }
     }
 
     /// <summary>
     /// The relational migration context
     /// </summary>
     /// <typeparam name="TOptions">The migration options</typeparam>
-    public class RelationalMigrationContext<TOptions> : MigrationContext<TOptions>, IRelationalMigrationContext<TOptions>
+    public class RelationalMigrationContext<TOptions> : RelationalMigrationContext, IRelationalMigrationContext<TOptions>
         where TOptions : MigrationOptions
     {
-        private readonly InternalRelationalMigrationContext _internalContext;
-
         /// <summary>
         /// Creates a new instance
         /// </summary>
@@ -87,56 +171,18 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <param name="options">The context options</param>
         /// <param name="logger">The logger to use</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public RelationalMigrationContext(IDbConnection connection, TOptions options, ILogger<RelationalMigrationContext<TOptions>> logger) 
-            : base(options)
+        public RelationalMigrationContext(TOptions options, IDbConnection connection, ILogger<RelationalMigrationContext<TOptions>> logger) 
+            : base(connection, logger)
         {
-            _internalContext = new InternalRelationalMigrationContext(connection, logger);
+            if (options == null) throw new ArgumentNullException(nameof(options));
+
+            Options = options;
         }
 
-        /// <inheritdoc />
-        public IDbConnection Connection => _internalContext.Connection;
+        #region Implementation of IMigrationContext<out TOptions>
 
         /// <inheritdoc />
-        public IDbTransaction Transaction => _internalContext.Transaction;
-
-        /// <summary>
-        /// Isolation level
-        /// </summary>
-        public IsolationLevel DefaultIsolationLevel
-        {
-            get { return _internalContext.DefaultIsolationLevel; }
-            set { _internalContext.DefaultIsolationLevel = value; }
-        }
-
-        #region IDisposable
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            _internalContext.Dispose();
-        }
-
-        #endregion
-
-        #region Overrides of MigrationContext
-
-        /// <inheritdoc />
-        public override async Task PrepareAsync(CancellationToken ct)
-        {
-            await _internalContext.PrepareAsync(ct).ConfigureAwait(false);
-        }
-
-        /// <inheritdoc />
-        public override async Task PersistAsync(CancellationToken ct)
-        {
-            await _internalContext.PersistAsync(ct).ConfigureAwait(false);
-        }
-
-        /// <inheritdoc />
-        public override async Task RollbackAsync(CancellationToken ct)
-        {
-            await _internalContext.RollbackAsync(ct).ConfigureAwait(false);
-        }
+        public TOptions Options { get; }
 
         #endregion
     }

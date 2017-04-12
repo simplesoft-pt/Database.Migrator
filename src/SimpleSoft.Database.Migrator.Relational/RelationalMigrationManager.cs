@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator.Relational
@@ -43,6 +44,27 @@ namespace SimpleSoft.Database.Migrator.Relational
         {
             _logger.LogDebug(
                 "Preparing context '{contextName}' database for migrations", _contextTypeName);
+
+            await Context.ExecuteAsync(async (ctx, c) =>
+            {
+                try
+                {
+                    await ctx.Connection.QuerySingleAsync<long>(
+                        "SELECT COUNT(*) FROM MIGRATOR_HISTORY",
+                        transaction: ctx.Transaction, commandTimeout: ctx.Connection.ConnectionTimeout);
+
+                    _logger.LogDebug(
+                        "Migration history table was detected in the database. Nothing needs to be done.");
+                    return;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(0, e,
+                        "Failed to read the migration history table. Trying to create the table...");
+                }
+
+
+            }, ct);
 
             throw new NotImplementedException();
         }
