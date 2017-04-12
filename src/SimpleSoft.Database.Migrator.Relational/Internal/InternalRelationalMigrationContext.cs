@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator.Relational.Internal
@@ -34,7 +35,7 @@ namespace SimpleSoft.Database.Migrator.Relational.Internal
         
         public IDbTransaction Transaction { get; private set; }
 
-        public IsolationLevel IsolationLevel { get; set; } = IsolationLevel.ReadCommitted;
+        public IsolationLevel DefaultIsolationLevel { get; set; } = IsolationLevel.ReadCommitted;
 
         #region IDisposable
 
@@ -76,7 +77,7 @@ namespace SimpleSoft.Database.Migrator.Relational.Internal
             else
                 await dbConnection.OpenAsync(ct);
 
-            Transaction = Connection.BeginTransaction(IsolationLevel);
+            Transaction = Connection.BeginTransaction(DefaultIsolationLevel);
         }
 
         /// <inheritdoc />
@@ -101,10 +102,46 @@ namespace SimpleSoft.Database.Migrator.Relational.Internal
 
         #endregion
 
+        #region QuerySingleAsync
+
+        public async Task<T> QuerySingleAsync<T>(
+            string sql, object param = null, IDbTransaction transaction = null,
+            int? commandTimeout = null, CommandType? commandType = null)
+        {
+            int timeout;
+            AssertCommandParameters(
+                transaction, commandTimeout, out transaction, out timeout);
+
+            LogQuery(sql, transaction, timeout);
+
+            return await Connection.QuerySingleAsync<T>(sql, param, transaction, timeout, commandType);
+        }
+
+        #endregion
+
         private void FailIfDisposed()
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(RelationalMigrationContext));
+        }
+
+        private void LogQuery(string query, IDbTransaction transaction, int commandTimeout)
+        {
+            _logger.LogDebug(@"
+Executing sql statement in database.
+    Is in transaction? {isInTransaction}
+    Command Timeout: {commandTimeout}
+
+SQL to execute:
+{sqlStatement}",
+                transaction != null, commandTimeout, query);
+        }
+
+        private void AssertCommandParameters(
+            IDbTransaction transaction, int? commandTimeout, out IDbTransaction tx, out int timeout)
+        {
+            tx = transaction ?? Transaction;
+            timeout = commandTimeout ?? Connection.ConnectionTimeout;
         }
     }
 }

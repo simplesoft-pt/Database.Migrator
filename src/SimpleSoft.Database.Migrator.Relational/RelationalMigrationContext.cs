@@ -32,10 +32,10 @@ namespace SimpleSoft.Database.Migrator.Relational
         public IDbTransaction Transaction => _internalContext.Transaction;
 
         /// <inheritdoc />
-        public IsolationLevel IsolationLevel
+        public IsolationLevel DefaultIsolationLevel
         {
-            get { return _internalContext.IsolationLevel; }
-            set { _internalContext.IsolationLevel = value; }
+            get { return _internalContext.DefaultIsolationLevel; }
+            set { _internalContext.DefaultIsolationLevel = value; }
         }
 
         #region IDisposable
@@ -102,10 +102,10 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <summary>
         /// Isolation level
         /// </summary>
-        public IsolationLevel IsolationLevel
+        public IsolationLevel DefaultIsolationLevel
         {
-            get { return _internalContext.IsolationLevel; }
-            set { _internalContext.IsolationLevel = value; }
+            get { return _internalContext.DefaultIsolationLevel; }
+            set { _internalContext.DefaultIsolationLevel = value; }
         }
 
         #region IDisposable

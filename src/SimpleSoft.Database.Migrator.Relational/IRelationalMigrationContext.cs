@@ -30,6 +30,6 @@ namespace SimpleSoft.Database.Migrator.Relational
         /// <summary>
         /// Isolation level
         /// </summary>
-        IsolationLevel IsolationLevel { get; }
+        IsolationLevel DefaultIsolationLevel { get; }
     }
 }
