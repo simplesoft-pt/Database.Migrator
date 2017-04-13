@@ -72,7 +72,7 @@ namespace SimpleSoft.Database.Migrator
             Logger.LogDebug(
                 "Preparing context '{contextName}' database to support migrations.", ContextTypeName);
 
-            await Context.ExecuteAsync(async (ctx, c) =>
+            await Context.RunAsync(async (ctx, c) =>
                 {
                     if (await MigrationsHistoryExistAsync(c).ConfigureAwait(false))
                     {
@@ -103,7 +103,7 @@ namespace SimpleSoft.Database.Migrator
                 "Adding '{migrationId}' to the history of '{contextName}' context.",
                 migrationId, ContextTypeName);
 
-            await Context.ExecuteAsync(async (ctx, c) =>
+            await Context.RunAsync(async (ctx, c) =>
                 {
                     var mostRecentMigrationId =
                         await GetMostRecentMigrationEntryIdAsync(c).ConfigureAwait(false);
@@ -128,7 +128,7 @@ namespace SimpleSoft.Database.Migrator
         public async Task<string> GetMostRecentMigrationIdAsync(CancellationToken ct)
         {
             var migrationId =
-                await Context.ExecuteAsync(async (ctx, c) =>
+                await Context.RunAsync(async (ctx, c) =>
                         await GetMostRecentMigrationEntryIdAsync(c).ConfigureAwait(false), ct)
                     .ConfigureAwait(false);
 
@@ -152,7 +152,7 @@ namespace SimpleSoft.Database.Migrator
                 "Removing most recent migration from the history of '{contextName}' context.",
                 ContextTypeName);
 
-            var result = await Context.ExecuteAsync(async (ctx, c) =>
+            var result = await Context.RunAsync(async (ctx, c) =>
                 {
                     var migrationId = await GetMostRecentMigrationEntryIdAsync(c).ConfigureAwait(false);
                     if (string.IsNullOrWhiteSpace(migrationId))

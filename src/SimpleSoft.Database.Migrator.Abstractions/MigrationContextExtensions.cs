@@ -33,7 +33,7 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public static class MigrationContextExtensions
     {
-        #region ExecuteAsync
+        #region RunAsync
 
         /// <summary>
         /// Execute the given action inside a context scope. The method
@@ -45,7 +45,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task ExecuteAsync(
+        public static async Task RunAsync(
             this IMigrationContext context, Func<IMigrationContext, CancellationToken, Task> action, CancellationToken ct = default(CancellationToken))
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -75,12 +75,12 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task ExecuteAsync(
+        public static async Task RunAsync(
             this IMigrationContext context, Func<IMigrationContext, Task> action, CancellationToken ct = default(CancellationToken))
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            await context.ExecuteAsync(async (ctx, c) => await action(context).ConfigureAwait(false), ct);
+            await context.RunAsync(async (ctx, c) => await action(context).ConfigureAwait(false), ct);
         }
 
         /// <summary>
@@ -93,17 +93,17 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task ExecuteAsync(
+        public static async Task RunAsync(
             this IMigrationContext context, Func<Task> action, CancellationToken ct = default(CancellationToken))
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            await context.ExecuteAsync(async (ctx, c) => await action().ConfigureAwait(false), ct);
+            await context.RunAsync(async (ctx, c) => await action().ConfigureAwait(false), ct);
         }
 
         #endregion
 
-        #region ExecuteAsync<TResult>
+        #region RunAsync<TResult>
 
         /// <summary>
         /// Execute the given action inside a context scope. The method
@@ -115,7 +115,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task<TResult> ExecuteAsync<TResult>(
+        public static async Task<TResult> RunAsync<TResult>(
             this IMigrationContext context, Func<IMigrationContext, CancellationToken, Task<TResult>> action, CancellationToken ct = default(CancellationToken))
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -147,12 +147,12 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task<TResult> ExecuteAsync<TResult>(
+        public static async Task<TResult> RunAsync<TResult>(
             this IMigrationContext context, Func<IMigrationContext, Task<TResult>> action, CancellationToken ct = default(CancellationToken))
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            return await context.ExecuteAsync(async (ctx, c) => await action(context).ConfigureAwait(false), ct);
+            return await context.RunAsync(async (ctx, c) => await action(context).ConfigureAwait(false), ct);
         }
 
         /// <summary>
@@ -165,17 +165,17 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task<TResult> ExecuteAsync<TResult>(
+        public static async Task<TResult> RunAsync<TResult>(
             this IMigrationContext context, Func<Task<TResult>> action, CancellationToken ct = default(CancellationToken))
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            return await context.ExecuteAsync(async (ctx, c) => await action().ConfigureAwait(false), ct);
+            return await context.RunAsync(async (ctx, c) => await action().ConfigureAwait(false), ct);
         }
 
         #endregion
 
-        #region ExecuteAsync<TContext>
+        #region RunAsync<TContext>
 
         /// <summary>
         /// Execute the given action inside a context scope. The method
@@ -187,7 +187,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task ExecuteAsync<TContext>(
+        public static async Task RunAsync<TContext>(
             this TContext context, Func<TContext, CancellationToken, Task> action, CancellationToken ct = default(CancellationToken))
             where TContext : IMigrationContext
         {
@@ -218,13 +218,13 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task ExecuteAsync<TContext>(
+        public static async Task RunAsync<TContext>(
             this TContext context, Func<TContext, Task> action, CancellationToken ct = default(CancellationToken))
             where TContext : IMigrationContext
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            await context.ExecuteAsync(async (ctx, c) =>
+            await context.RunAsync(async (ctx, c) =>
             {
                 await action(context).ConfigureAwait(false);
             }, ct);
@@ -240,21 +240,21 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task ExecuteAsync<TContext>(
+        public static async Task RunAsync<TContext>(
             this TContext context, Func<Task> action, CancellationToken ct = default(CancellationToken))
             where TContext : IMigrationContext
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            await context.ExecuteAsync(async (ctx, c) =>
+            await context.RunAsync(async (ctx, c) =>
             {
                 await action().ConfigureAwait(false);
             }, ct);
         }
 
         #endregion
-        
-        #region ExecuteAsync<TContext, TResult>
+
+        #region RunAsync<TContext, TResult>
 
         /// <summary>
         /// Execute the given action inside a context scope. The method
@@ -266,7 +266,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task<TResult> ExecuteAsync<TContext, TResult>(
+        public static async Task<TResult> RunAsync<TContext, TResult>(
             this TContext context, Func<TContext, CancellationToken, Task<TResult>> action, CancellationToken ct = default(CancellationToken))
             where TContext : IMigrationContext
         {
@@ -299,13 +299,13 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task<TResult> ExecuteAsync<TContext, TResult>(
+        public static async Task<TResult> RunAsync<TContext, TResult>(
             this TContext context, Func<TContext, Task<TResult>> action, CancellationToken ct = default(CancellationToken))
             where TContext : IMigrationContext
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            return await context.ExecuteAsync(async (ctx, c) => await action(context).ConfigureAwait(false), ct);
+            return await context.RunAsync(async (ctx, c) => await action(context).ConfigureAwait(false), ct);
         }
 
         /// <summary>
@@ -318,13 +318,13 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="action">The action to execute</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        public static async Task<TResult> ExecuteAsync<TContext, TResult>(
+        public static async Task<TResult> RunAsync<TContext, TResult>(
             this TContext context, Func<Task<TResult>> action, CancellationToken ct = default(CancellationToken))
             where TContext : IMigrationContext
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            return await context.ExecuteAsync(async (ctx, c) => await action().ConfigureAwait(false), ct);
+            return await context.RunAsync(async (ctx, c) => await action().ConfigureAwait(false), ct);
         }
 
         #endregion
