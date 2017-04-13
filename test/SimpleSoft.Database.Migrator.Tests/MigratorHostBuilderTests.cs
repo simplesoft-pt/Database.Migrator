@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SimpleSoft.Database.Migrator.Handlers;
@@ -211,27 +210,7 @@ namespace SimpleSoft.Database.Migrator.Tests
         #endregion
 
         #region LoggerFactory
-
-        [Fact]
-        public void GivenAHostBuilderWithDefaultValuesThenParametersMustNotBeNull()
-        {
-            ILoggerFactory factory = null;
-            IConfiguration configuration = null;
-
-            using (var builder = new MigratorHostBuilder())
-            {
-                builder.AddLoggingConfigurator(param =>
-                {
-                    factory = param.Factory;
-                    configuration = param.Configuration;
-                });
-                builder.Build<IMigrationContext>();
-
-                Assert.NotNull(factory);
-                Assert.NotNull(configuration);
-            }
-        }
-
+        
         [Fact]
         public void GivenAHostBuilderWhenSettingACustomFactoryThenItMustBeUsed()
         {
@@ -245,7 +224,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 {
                     builderFactory = param.Factory;
                 });
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
 
                 Assert.NotNull(builderFactory);
                 Assert.Same(originalFactory, builderFactory);
@@ -265,7 +244,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 {
                     builderFactory = param.Factory;
                 });
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
 
                 Assert.NotNull(builderFactory);
                 Assert.Same(originalFactory, builderFactory);
@@ -273,7 +252,7 @@ namespace SimpleSoft.Database.Migrator.Tests
         }
 
         [Fact]
-        public void GivenAHostBuilderWhenUsingNullFactoryThenArgumentNullExceptionMustBeThrown()
+        public void GivenAHostBuilderWhenSettingNullFactoryThenArgumentNullExceptionMustBeThrown()
         {
             using (var builder = new MigratorHostBuilder())
             {
@@ -284,6 +263,21 @@ namespace SimpleSoft.Database.Migrator.Tests
 
                 Assert.NotNull(ex);
             }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenUsingNullFactoryThenArgumentNullExceptionMustBeThrown()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() =>
+            {
+                using (new MigratorHostBuilder()
+                    .UseLoggerFactory(null))
+                {
+
+                }
+            });
+
+            Assert.NotNull(ex);
         }
 
         [Fact]
@@ -301,7 +295,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 {
                     ++runCount;
                 });
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
 
                 Assert.NotEmpty(builder.LoggingConfigurationHandlers);
                 Assert.Equal(2, builder.LoggingConfigurationHandlers.Count);
@@ -324,7 +318,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                     ++runCount;
                 }))
             {
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
 
                 Assert.NotEmpty(builder.LoggingConfigurationHandlers);
                 Assert.Equal(2, builder.LoggingConfigurationHandlers.Count);
@@ -349,7 +343,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                     services = param.ServiceCollection;
                     factory = param.Factory;
                 });
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
 
                 Assert.NotNull(services);
                 Assert.NotNull(factory);
@@ -371,7 +365,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 {
                     ++runCount;
                 });
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
 
                 Assert.NotEmpty(builder.ServiceConfigurationHandlers);
                 Assert.Equal(2, builder.ServiceConfigurationHandlers.Count);
@@ -394,7 +388,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                     ++runCount;
                 }))
             {
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
 
                 Assert.NotEmpty(builder.ServiceConfigurationHandlers);
                 Assert.Equal(2, builder.ServiceConfigurationHandlers.Count);
@@ -421,7 +415,7 @@ namespace SimpleSoft.Database.Migrator.Tests
 
                     return param.ServiceCollection.BuildServiceProvider();
                 });
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
 
                 Assert.NotNull(services);
                 Assert.NotNull(factory);
@@ -443,7 +437,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                     return param.ServiceCollection.BuildServiceProvider();
                 }))
             {
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
 
                 Assert.NotNull(services);
                 Assert.NotNull(factory);
