@@ -5,6 +5,7 @@
     "dependencies": {
         "dotnet-test-xunit": "2.2.0-preview2-build1029",
         "SimpleSoft.Database.Migrator": { "target": "project" },
+        "SimpleSoft.Database.Migrator.SqlServer": { "target": "project" },
         "xunit": "2.2.0"
     },
 
