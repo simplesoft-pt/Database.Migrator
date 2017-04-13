@@ -118,8 +118,8 @@ namespace SimpleSoft.Database.Migrator
                     Logger.LogWarning(
                         "The history of '{contextName}' context has the migration '{mostRecentMigrationId}', which is considered more recent than '{migrationId}'.",
                         ContextTypeName, mostRecentMigrationId, migrationId);
-#warning Create custom exception
-                    throw new Exception("A more recent migration already exists in the database");
+                    throw new InvalidOperationException(
+                        $"The database already has the migration '{mostRecentMigrationId}' which is more recent than '{migrationId}'");
                 }, ct)
                 .ConfigureAwait(false);
         }
