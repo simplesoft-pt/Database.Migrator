@@ -23,10 +23,9 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SimpleSoft.Database.Migrator.Handlers;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -36,14 +35,32 @@ namespace SimpleSoft.Database.Migrator
     public static class MigratorHostBuilderExtensions
     {
         /// <summary>
-        /// Adds the handler to the <see cref="IMigratorHostBuilder.LoggingConfigurationHandlers"/> collection.
+        /// Adds the handler to the <see cref="IMigratorHostBuilder.ConfigurationBuilderHandlers"/> 
+        /// collection.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
         /// <param name="builder">The builder instance</param>
         /// <param name="handler">The handler to add</param>
         /// <returns>The builder instance</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder ConfigureConfigurations<TBuilder>(this TBuilder builder, Action<IConfiguration> handler)
+        public static TBuilder ConfigureConfigurationBuilder<TBuilder>(this TBuilder builder, Action<ConfigurationBuilderConfiguratorParam> handler)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            builder.AddConfigurationBuilderConfigurator(handler);
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds the handler to the <see cref="IMigratorHostBuilder.ConfigurationHandlers"/> collection.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="handler">The handler to add</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder ConfigureConfigurations<TBuilder>(this TBuilder builder, Action<ConfigurationConfiguratorParam> handler)
             where TBuilder : IMigratorHostBuilder
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -51,8 +68,6 @@ namespace SimpleSoft.Database.Migrator
             builder.AddConfigurationConfigurator(handler);
             return builder;
         }
-
-        #region ConfigureLogging
 
         /// <summary>
         /// Adds the handler to the <see cref="IMigratorHostBuilder.LoggingConfigurationHandlers"/> collection.
@@ -62,7 +77,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="handler">The handler to add</param>
         /// <returns>The builder instance</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder ConfigureLogging<TBuilder>(this TBuilder builder, Action<ILoggerFactory, IConfiguration> handler)
+        public static TBuilder ConfigureLogging<TBuilder>(this TBuilder builder, Action<LoggingConfiguratorParam> handler)
             where TBuilder : IMigratorHostBuilder
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -72,28 +87,6 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <summary>
-        /// Adds the handler to the <see cref="IMigratorHostBuilder.LoggingConfigurationHandlers"/> collection.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="handler">The handler to add</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder ConfigureLogging<TBuilder>(this TBuilder builder, Action<ILoggerFactory> handler)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-
-            builder.AddLoggingConfigurator((factory, config) => handler(factory));
-            return builder;
-        }
-
-        #endregion
-
-        #region ConfigureServices
-
-        /// <summary>
         /// Adds the handler to the <see cref="IMigratorHostBuilder.ServiceConfigurationHandlers"/> collection.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
@@ -101,7 +94,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="handler">The handler to add</param>
         /// <returns>The builder instance</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder ConfigureServices<TBuilder>(this TBuilder builder, Action<IServiceCollection, ILoggerFactory, IConfiguration> handler)
+        public static TBuilder ConfigureServices<TBuilder>(this TBuilder builder, Action<ServiceConfiguratorParam> handler)
             where TBuilder : IMigratorHostBuilder
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -111,46 +104,6 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <summary>
-        /// Adds the handler to the <see cref="IMigratorHostBuilder.ServiceConfigurationHandlers"/> collection.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="handler">The handler to add</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder ConfigureServices<TBuilder>(this TBuilder builder, Action<IServiceCollection, ILoggerFactory> handler)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-
-            builder.AddServiceConfigurator((services, factory, config) => handler(services, factory));
-            return builder;
-        }
-
-        /// <summary>
-        /// Adds the handler to the <see cref="IMigratorHostBuilder.ServiceConfigurationHandlers"/> collection.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="handler">The handler to add</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder ConfigureServices<TBuilder>(this TBuilder builder, Action<IServiceCollection> handler)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-
-            builder.AddServiceConfigurator((services, factory, config) => handler(services));
-            return builder;
-        }
-
-        #endregion
-
-        #region UseServiceProvider
-
-        /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
         /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
         /// </summary>
@@ -159,7 +112,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="buildServiceProvider">The builder function</param>
         /// <returns>The builder instance</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseServiceProvider<TBuilder>(this TBuilder builder, Func<IServiceCollection, ILoggerFactory, IConfiguration, IServiceProvider> buildServiceProvider)
+        public static TBuilder UseServiceProvider<TBuilder>(this TBuilder builder, Func<ServiceProviderBuilderParam, IServiceProvider> buildServiceProvider)
             where TBuilder : IMigratorHostBuilder
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -169,67 +122,6 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <summary>
-        /// Uses the given handler to build the <see cref="IServiceProvider"/> that
-        /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="buildServiceProvider">The builder function</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseServiceProvider<TBuilder>(this TBuilder builder, Func<IServiceCollection, ILoggerFactory, IServiceProvider> buildServiceProvider)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (buildServiceProvider == null) throw new ArgumentNullException(nameof(buildServiceProvider));
-
-            builder.SetServiceProviderBuilder((provider, factory, config) => buildServiceProvider(provider, factory));
-            return builder;
-        }
-
-        /// <summary>
-        /// Uses the given handler to build the <see cref="IServiceProvider"/> that
-        /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="buildServiceProvider">The builder function</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseServiceProvider<TBuilder>(this TBuilder builder, Func<IServiceCollection, IServiceProvider> buildServiceProvider)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (buildServiceProvider == null) throw new ArgumentNullException(nameof(buildServiceProvider));
-
-            builder.SetServiceProviderBuilder((provider, factory, config) => buildServiceProvider(provider));
-            return builder;
-        }
-
-        /// <summary>
-        /// Uses the given handler to build the <see cref="IServiceProvider"/> that
-        /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="buildServiceProvider">The builder function</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseServiceProvider<TBuilder>(this TBuilder builder, Func<IServiceProvider> buildServiceProvider)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (buildServiceProvider == null) throw new ArgumentNullException(nameof(buildServiceProvider));
-
-            builder.SetServiceProviderBuilder((provider, factory, config) => buildServiceProvider());
-            return builder;
-        }
-
-        #endregion
-
-        #region Configure
-
-        /// <summary>
         /// Adds the handler to the <see cref="IMigratorHostBuilder.ConfigureHandlers"/> collection.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
@@ -237,7 +129,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="handler">The handler to add</param>
         /// <returns>The builder instance</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder Configure<TBuilder>(this TBuilder builder, Action<IServiceProvider, ILoggerFactory, IConfiguration> handler)
+        public static TBuilder Configure<TBuilder>(this TBuilder builder, Action<ConfigureParam> handler)
             where TBuilder : IMigratorHostBuilder
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -245,44 +137,6 @@ namespace SimpleSoft.Database.Migrator
             builder.AddConfigurator(handler);
             return builder;
         }
-
-        /// <summary>
-        /// Adds the handler to the <see cref="IMigratorHostBuilder.ConfigureHandlers"/> collection.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="handler">The handler to add</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder Configure<TBuilder>(this TBuilder builder, Action<IServiceProvider, ILoggerFactory> handler)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-
-            builder.AddConfigurator((provider, factory, config) => handler(provider, factory));
-            return builder;
-        }
-
-        /// <summary>
-        /// Adds the handler to the <see cref="IMigratorHostBuilder.ConfigureHandlers"/> collection.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="handler">The handler to add</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder Configure<TBuilder>(this TBuilder builder, Action<IServiceProvider> handler)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-
-            builder.AddConfigurator((provider, factory, config) => handler(provider));
-            return builder;
-        }
-
-        #endregion
 
         /// <summary>
         /// Assigns the given <see cref="ILoggerFactory"/> to be used
@@ -316,110 +170,12 @@ namespace SimpleSoft.Database.Migrator
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
-            builder.AddConfigurationConfigurator(config =>
+            builder.AddConfigurationConfigurator(param =>
             {
                 foreach (var values in configuration.AsEnumerable())
-                    config[values.Key] = values.Value;
+                    param.Configuration[values.Key] = values.Value;
             });
             return builder;
         }
-
-        #region Settings
-
-        /// <summary>
-        /// Assigns all the given settings to the host builder.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="settings">The settings to set</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseSettings<TBuilder>(
-            this TBuilder builder, IEnumerable<KeyValuePair<string, string>> settings)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (settings == null) throw new ArgumentNullException(nameof(settings));
-
-            foreach (var setting in settings)
-                builder.SetSetting(setting.Key, setting.Value);
-            return builder;
-        }
-
-        /// <summary>
-        /// Sets the <see cref="MigratorHostDefaults.EnvironmentKey"/> to the given value.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="environmentName">The environment name</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseEnvironment<TBuilder>(this TBuilder builder, string environmentName)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null)
-                throw new ArgumentNullException(nameof(builder));
-            if (environmentName == null)
-                throw new ArgumentNullException(nameof(environmentName));
-            if (string.IsNullOrWhiteSpace(environmentName))
-                throw new ArgumentException("Value cannot be whitespace.", nameof(environmentName));
-
-            builder.SetSetting(MigratorHostDefaults.EnvironmentKey, environmentName);
-            return builder;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="MigratorHostDefaults.EnvironmentKey"/> value.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static string GetEnvironment<TBuilder>(this TBuilder builder)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-
-            return builder.GetSetting(MigratorHostDefaults.EnvironmentKey);
-        }
-
-        /// <summary>
-        /// Sets the <see cref="MigratorHostDefaults.ContentRootKey"/> to the given value.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="contentRootPath">The environment name</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseContentRoot<TBuilder>(this TBuilder builder, string contentRootPath)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null)
-                throw new ArgumentNullException(nameof(builder));
-            if (contentRootPath == null)
-                throw new ArgumentNullException(nameof(contentRootPath));
-            if (string.IsNullOrWhiteSpace(contentRootPath))
-                throw new ArgumentException("Value cannot be whitespace.", nameof(contentRootPath));
-
-            builder.SetSetting(MigratorHostDefaults.ContentRootKey, contentRootPath);
-            return builder;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="MigratorHostDefaults.ContentRootKey"/> value.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static string GetContentRoot<TBuilder>(this TBuilder builder)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-
-            return builder.GetSetting(MigratorHostDefaults.ContentRootKey);
-        }
-
-        #endregion
     }
 }

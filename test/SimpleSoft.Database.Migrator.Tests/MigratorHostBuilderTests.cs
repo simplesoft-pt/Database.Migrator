@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -7,22 +8,46 @@ namespace SimpleSoft.Database.Migrator.Tests
 {
     public class MigratorHostBuilderTests
     {
-        #region LoggerFactory
+        #region Configuration
 
         [Fact]
-        public void GivenAHostBuilderWithDefaultValuesThenLoggerFactoryMustNotBeNull()
+        public void GivenAHostBuilderWithDefaultValuesThenConfigurationNotBeNull()
         {
-            ILoggerFactory factory = null;
+            IConfiguration configuration = null;
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.AddLoggingConfigurator((f, cfg) =>
+                builder.AddConfigurationConfigurator(param =>
                 {
-                    factory = f;
+                    configuration = param.Configuration;
+                });
+                builder.Build<IMigrationContext>();
+
+                Assert.NotNull(configuration);
+            }
+        }
+
+        #endregion
+
+        #region LoggerFactory
+
+        [Fact]
+        public void GivenAHostBuilderWithDefaultValuesThenParametersMustNotBeNull()
+        {
+            ILoggerFactory factory = null;
+            IConfiguration configuration = null;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddLoggingConfigurator(param =>
+                {
+                    factory = param.Factory;
+                    configuration = param.Configuration;
                 });
                 builder.Build<IMigrationContext>();
 
                 Assert.NotNull(factory);
+                Assert.NotNull(configuration);
             }
         }
 
@@ -35,9 +60,9 @@ namespace SimpleSoft.Database.Migrator.Tests
             using (var builder = new MigratorHostBuilder())
             {
                 builder.SetLoggerFactory(originalFactory);
-                builder.AddLoggingConfigurator((f, cfg) =>
+                builder.AddLoggingConfigurator(param =>
                 {
-                    builderFactory = f;
+                    builderFactory = param.Factory;
                 });
                 builder.Build<IMigrationContext>();
 
@@ -55,9 +80,9 @@ namespace SimpleSoft.Database.Migrator.Tests
             using (var builder = new MigratorHostBuilder()
                 .UseLoggerFactory(originalFactory))
             {
-                builder.AddLoggingConfigurator((f, cfg) =>
+                builder.AddLoggingConfigurator(param =>
                 {
-                    builderFactory = f;
+                    builderFactory = param.Factory;
                 });
                 builder.Build<IMigrationContext>();
 
@@ -87,11 +112,11 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.AddLoggingConfigurator((f, cfg) =>
+                builder.AddLoggingConfigurator(param =>
                 {
                     ++runCount;
                 });
-                builder.AddLoggingConfigurator((f, cfg) =>
+                builder.AddLoggingConfigurator(param =>
                 {
                     ++runCount;
                 });
@@ -138,10 +163,10 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.AddServiceConfigurator((s, f, cfg) =>
+                builder.AddServiceConfigurator(param =>
                 {
-                    services = s;
-                    factory = f;
+                    services = param.ServiceCollection;
+                    factory = param.Factory;
                 });
                 builder.Build<IMigrationContext>();
 
@@ -157,11 +182,11 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.AddServiceConfigurator((s, f, cfg) =>
+                builder.AddServiceConfigurator(param =>
                 {
                     ++runCount;
                 });
-                builder.AddServiceConfigurator((s, f, cfg) =>
+                builder.AddServiceConfigurator(param =>
                 {
                     ++runCount;
                 });
@@ -179,11 +204,11 @@ namespace SimpleSoft.Database.Migrator.Tests
             var runCount = 0;
 
             using (var builder = new MigratorHostBuilder()
-                .ConfigureServices((s,f) =>
+                .ConfigureServices(param =>
                 {
                     ++runCount;
                 })
-                .ConfigureServices(s =>
+                .ConfigureServices(param =>
                 {
                     ++runCount;
                 }))
@@ -208,12 +233,12 @@ namespace SimpleSoft.Database.Migrator.Tests
 
             using (var builder = new MigratorHostBuilder())
             {
-                builder.SetServiceProviderBuilder((s, f, cfg) =>
+                builder.SetServiceProviderBuilder(param =>
                 {
-                    services = s;
-                    factory = f;
+                    services = param.ServiceCollection;
+                    factory = param.Factory;
 
-                    return s.BuildServiceProvider();
+                    return param.ServiceCollection.BuildServiceProvider();
                 });
                 builder.Build<IMigrationContext>();
 
@@ -229,12 +254,12 @@ namespace SimpleSoft.Database.Migrator.Tests
             ILoggerFactory factory = null;
 
             using (var builder = new MigratorHostBuilder()
-                .UseServiceProvider((s, f) =>
+                .UseServiceProvider(param =>
                 {
-                    services = s;
-                    factory = f;
+                    services = param.ServiceCollection;
+                    factory = param.Factory;
 
-                    return s.BuildServiceProvider();
+                    return param.ServiceCollection.BuildServiceProvider();
                 }))
             {
                 builder.Build<IMigrationContext>();
