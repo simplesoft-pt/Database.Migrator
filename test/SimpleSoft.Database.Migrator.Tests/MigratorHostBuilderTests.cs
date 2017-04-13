@@ -2,28 +2,207 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SimpleSoft.Database.Migrator.Handlers;
 using Xunit;
 
 namespace SimpleSoft.Database.Migrator.Tests
 {
     public class MigratorHostBuilderTests
     {
+        [Fact]
+        public void GivenAHostBuilderWhenBuildThenInvalidOperationExceptionMusBeThrown()
+        {
+            InvalidOperationException ex;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                ex = Assert.Throws<InvalidOperationException>(() =>
+                {
+                    builder.Build<IMigrationContext>();
+                });
+            }
+
+            Assert.NotNull(ex);
+            Assert.True(ex.Message.IndexOf(nameof(IMigrationContext), StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWithRegisteredMigrationManagerWhenBuildThenNoExceptionIsThrown()
+        {
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddServiceConfigurator(param =>
+                {
+                    param.ServiceCollection
+                        .AddScoped<IMigrationManager<IMigrationContext>>(k => null);
+                });
+                builder.Build<IMigrationContext>();
+            }
+        }
+
+        #region ConfigurationBuilder
+
+        [Fact]
+        public void GivenAHostBuilderWhenAddingConfigurationBuilderConfiguratorThenParamMustNotBeNull()
+        {
+            ConfigurationBuilderConfiguratorParam parameter = null;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddConfigurationBuilderConfigurator(param =>
+                {
+                    parameter = param;
+                });
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+            }
+
+            Assert.NotNull(parameter);
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenConfiguringConfigurationBuildersThenParamMustNotBeNull()
+        {
+            ConfigurationBuilderConfiguratorParam parameter = null;
+
+            using (var builder = new MigratorHostBuilder()
+                .ConfigureConfigurationBuilder(param =>
+                {
+                    parameter = param;
+                }))
+            {
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+            }
+
+            Assert.NotNull(parameter);
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenAddingMultipleConfigurationBuilderConfiguratorThenAllHandlersAreRun()
+        {
+            var runCount = 0;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddConfigurationBuilderConfigurator(param =>
+                {
+                    ++runCount;
+                });
+                builder.AddConfigurationBuilderConfigurator(param =>
+                {
+                    ++runCount;
+                });
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+
+                Assert.NotEmpty(builder.ConfigurationBuilderHandlers);
+                Assert.Equal(2, builder.ConfigurationBuilderHandlers.Count);
+                Assert.Equal(2, runCount);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenConfiguringMultipleConfigurationBuildersThenAllHandlersAreRun()
+        {
+            var runCount = 0;
+
+            using (var builder = new MigratorHostBuilder()
+                .ConfigureConfigurations(param =>
+                {
+                    ++runCount;
+                })
+                .ConfigureConfigurations(param =>
+                {
+                    ++runCount;
+                }))
+            {
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+
+                Assert.NotEmpty(builder.ConfigurationBuilderHandlers);
+                Assert.Equal(2, builder.ConfigurationBuilderHandlers.Count);
+                Assert.Equal(2, runCount);
+            }
+        }
+
+        #endregion
+
         #region Configuration
 
         [Fact]
-        public void GivenAHostBuilderWithDefaultValuesThenConfigurationNotBeNull()
+        public void GivenAHostBuilderWhenAddingConfigurationConfiguratorThenParamMustNotBeNull()
         {
-            IConfiguration configuration = null;
+            ConfigurationConfiguratorParam parameter = null;
 
             using (var builder = new MigratorHostBuilder())
             {
                 builder.AddConfigurationConfigurator(param =>
                 {
-                    configuration = param.Configuration;
+                    parameter = param;
                 });
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+            }
 
-                Assert.NotNull(configuration);
+            Assert.NotNull(parameter);
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenConfiguringConfigurationsThenParamMustNotBeNull()
+        {
+            ConfigurationConfiguratorParam parameter = null;
+
+            using (var builder = new MigratorHostBuilder()
+                .ConfigureConfigurations(param =>
+                {
+                    parameter = param;
+                }))
+            {
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+            }
+
+            Assert.NotNull(parameter);
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenAddingMultipleConfigurationConfiguratorThenAllHandlersAreRun()
+        {
+            var runCount = 0;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddConfigurationConfigurator(param =>
+                {
+                    ++runCount;
+                });
+                builder.AddConfigurationConfigurator(param =>
+                {
+                    ++runCount;
+                });
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+
+                Assert.NotEmpty(builder.ConfigurationHandlers);
+                Assert.Equal(2, builder.ConfigurationHandlers.Count);
+                Assert.Equal(2, runCount);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenConfiguringMultipleConfigurationsThenAllHandlersAreRun()
+        {
+            var runCount = 0;
+
+            using (var builder = new MigratorHostBuilder()
+                .ConfigureConfigurations(param =>
+                {
+                    ++runCount;
+                })
+                .ConfigureConfigurations(param =>
+                {
+                    ++runCount;
+                }))
+            {
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+
+                Assert.NotEmpty(builder.ConfigurationHandlers);
+                Assert.Equal(2, builder.ConfigurationHandlers.Count);
+                Assert.Equal(2, runCount);
             }
         }
 
@@ -303,5 +482,18 @@ namespace SimpleSoft.Database.Migrator.Tests
         }
 
         #endregion
+
+        private static void BuildAndIgnoreMissingMigrationManagerException(IMigratorHostBuilder builder)
+        {
+            try
+            {
+                builder.Build<IMigrationContext>();
+            }
+            catch (InvalidOperationException)
+            {
+                //  ignoring exception due to missing registration of
+                //  IMigrationManager<IMigrationContext>. Test porpuses only
+            }
+        }
     }
 }
