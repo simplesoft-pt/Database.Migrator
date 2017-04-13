@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -34,7 +36,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                 builder.AddServiceConfigurator(param =>
                 {
                     param.ServiceCollection
-                        .AddScoped<IMigrationManager<IMigrationContext>>(k => null);
+                        .AddMigrationManager<TestMigrationManager, IMigrationContext>();
                 });
                 builder.Build<IMigrationContext>();
             }
@@ -54,9 +56,9 @@ namespace SimpleSoft.Database.Migrator.Tests
                     parameter = param;
                 });
                 BuildAndIgnoreMissingMigrationManagerException(builder);
-            }
 
-            Assert.NotNull(parameter);
+                Assert.NotNull(parameter);
+            }
         }
 
         [Fact]
@@ -71,9 +73,9 @@ namespace SimpleSoft.Database.Migrator.Tests
                 }))
             {
                 BuildAndIgnoreMissingMigrationManagerException(builder);
-            }
 
-            Assert.NotNull(parameter);
+                Assert.NotNull(parameter);
+            }
         }
 
         [Fact]
@@ -105,11 +107,11 @@ namespace SimpleSoft.Database.Migrator.Tests
             var runCount = 0;
 
             using (var builder = new MigratorHostBuilder()
-                .ConfigureConfigurations(param =>
+                .ConfigureConfigurationBuilder(param =>
                 {
                     ++runCount;
                 })
-                .ConfigureConfigurations(param =>
+                .ConfigureConfigurationBuilder(param =>
                 {
                     ++runCount;
                 }))
@@ -494,6 +496,41 @@ namespace SimpleSoft.Database.Migrator.Tests
                 //  ignoring exception due to missing registration of
                 //  IMigrationManager<IMigrationContext>. Test porpuses only
             }
+        }
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class TestMigrationManager : IMigrationManager<IMigrationContext>
+        {
+            #region Implementation of IMigrationManager<out IMigrationContext>
+
+            /// <inheritdoc />
+            public IMigrationContext Context { get; } = null;
+
+            /// <inheritdoc />
+            public Task PrepareDatabaseAsync(CancellationToken ct)
+            {
+                return Task.CompletedTask;
+            }
+
+            /// <inheritdoc />
+            public Task AddMigrationAsync(string migrationId, string className, CancellationToken ct)
+            {
+                return Task.CompletedTask;
+            }
+
+            /// <inheritdoc />
+            public Task<string> GetMostRecentMigrationIdAsync(CancellationToken ct)
+            {
+                return Task.FromResult(string.Empty);
+            }
+
+            /// <inheritdoc />
+            public Task<bool> RemoveMostRecentMigrationAsync(CancellationToken ct)
+            {
+                return Task.FromResult(false);
+            }
+
+            #endregion
         }
     }
 }
