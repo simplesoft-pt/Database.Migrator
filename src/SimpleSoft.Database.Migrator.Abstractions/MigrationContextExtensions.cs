@@ -56,7 +56,7 @@ namespace SimpleSoft.Database.Migrator
             {
                 await action(context, ct).ConfigureAwait(false);
 
-                await context.PrepareAsync(ct).ConfigureAwait(false);
+                await context.PersistAsync(ct).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -126,7 +126,7 @@ namespace SimpleSoft.Database.Migrator
             {
                 var result = await action(context, ct).ConfigureAwait(false);
 
-                await context.PrepareAsync(ct).ConfigureAwait(false);
+                await context.PersistAsync(ct).ConfigureAwait(false);
 
                 return result;
             }
@@ -199,7 +199,7 @@ namespace SimpleSoft.Database.Migrator
             {
                 await action(context, ct).ConfigureAwait(false);
 
-                await context.PrepareAsync(ct).ConfigureAwait(false);
+                await context.PersistAsync(ct).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -278,7 +278,7 @@ namespace SimpleSoft.Database.Migrator
             {
                 var result = await action(context, ct).ConfigureAwait(false);
 
-                await context.PrepareAsync(ct).ConfigureAwait(false);
+                await context.PersistAsync(ct).ConfigureAwait(false);
 
                 return result;
             }
