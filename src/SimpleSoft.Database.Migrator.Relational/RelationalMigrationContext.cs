@@ -126,6 +126,8 @@ namespace SimpleSoft.Database.Migrator
 
             Transaction.Commit();
 
+            Connection.Close();
+
             return CompletedTask;
         }
 
@@ -135,6 +137,8 @@ namespace SimpleSoft.Database.Migrator
             FailIfDisposed();
 
             Transaction.Rollback();
+
+            Connection.Close();
 
             return CompletedTask;
         }
