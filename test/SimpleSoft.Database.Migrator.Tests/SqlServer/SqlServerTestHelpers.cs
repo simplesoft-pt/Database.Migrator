@@ -23,7 +23,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
                 "; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer"
             ;
 
-        public static async Task UsingConnectionAsync(
+        public static async Task UsingConnectionForEmptyDatabaseAsync(
             Func<IDbConnection, CancellationToken, Task> action, CancellationToken ct = default(CancellationToken))
         {
             await DropRecreateDatabaseAsync(ct);
@@ -34,7 +34,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             }
         }
 
-        public static async Task MigratorTestContextAsync(
+        public static async Task UsingMigratorTestContextForEmptyDatabaseAsync(
             Func<MigratorTestContext, CancellationToken, Task> action,
             CancellationToken ct = default(CancellationToken))
         {
@@ -45,6 +45,21 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             {
                 await action(context, ct);
             }
+        }
+
+        public static async Task UsingMigratorManagerAsync(
+            Func<SqlServerMigrationManager<MigratorTestContext>, CancellationToken, Task> action,
+            CancellationToken ct = default(CancellationToken))
+        {
+            await UsingMigratorTestContextForEmptyDatabaseAsync(async (ctx, c) =>
+            {
+                var manager = new SqlServerMigrationManager<MigratorTestContext>(
+                    ctx, LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
+
+                await manager.PrepareDatabaseAsync(c);
+
+                await action(manager, c);
+            }, ct);
         }
 
         private static async Task DropRecreateDatabaseAsync(CancellationToken ct)
