@@ -91,8 +91,8 @@ namespace SimpleSoft.Database.Migrator
 
             if (disposing)
             {
-                Transaction.Dispose();
-                Connection.Dispose();
+                Transaction?.Dispose();
+                Connection?.Dispose();
             }
 
             Transaction = null;
