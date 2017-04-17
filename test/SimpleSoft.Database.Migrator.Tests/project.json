@@ -6,6 +6,9 @@
         "dotnet-test-xunit": "2.2.0-preview2-build1029",
         "SimpleSoft.Database.Migrator": { "target": "project" },
         "SimpleSoft.Database.Migrator.SqlServer": { "target": "project" },
+        "Microsoft.Extensions.Logging": "1.1.1",
+        "Microsoft.Extensions.Logging.Debug": "1.1.1",
+        "Microsoft.Extensions.Logging.Console": "1.1.1",
         "xunit": "2.2.0"
     },
 
