@@ -40,6 +40,12 @@ namespace SimpleSoft.Database.Migrator
         TContext Context { get; }
 
         /// <summary>
+        /// Should this migration be run inside an 
+        /// <see cref="IMigrationContext"/> scope?
+        /// </summary>
+        bool RunInsideScope { get; set; }
+
+        /// <summary>
         /// Applies the given migration into the database
         /// </summary>
         /// <param name="ct">The cancellation token</param>

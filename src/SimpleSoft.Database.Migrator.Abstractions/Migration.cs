@@ -51,6 +51,9 @@ namespace SimpleSoft.Database.Migrator
         public TContext Context { get; }
 
         /// <inheritdoc />
+        public bool RunInsideScope { get; set; } = true;
+
+        /// <inheritdoc />
         public virtual Task ApplyAsync(CancellationToken ct)
         {
             return Task.FromResult(true);
