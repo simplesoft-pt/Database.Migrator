@@ -10,6 +10,8 @@ namespace SimpleSoft.Database.Migrator
         public async Task<int> ExecuteAsync(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            FailIfDisposed();
+
             int timeout;
             AssertCommandParameters(commandTimeout, out timeout);
 
@@ -22,6 +24,8 @@ namespace SimpleSoft.Database.Migrator
         public async Task<IDataReader> ExecuteReaderAsync(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            FailIfDisposed();
+
             int timeout;
             AssertCommandParameters(commandTimeout, out timeout);
 
@@ -34,6 +38,8 @@ namespace SimpleSoft.Database.Migrator
         public async Task<T> ExecuteScalarAsync<T>(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            FailIfDisposed();
+
             int timeout;
             AssertCommandParameters(commandTimeout, out timeout);
 

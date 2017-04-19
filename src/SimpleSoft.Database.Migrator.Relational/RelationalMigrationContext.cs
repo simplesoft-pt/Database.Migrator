@@ -25,6 +25,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -144,6 +145,7 @@ namespace SimpleSoft.Database.Migrator
 
         #endregion
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void FailIfDisposed()
         {
             if (_disposed)

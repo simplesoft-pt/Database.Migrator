@@ -10,6 +10,8 @@ namespace SimpleSoft.Database.Migrator
         public async Task<T> QuerySingleAsync<T>(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            FailIfDisposed();
+
             int timeout;
             AssertCommandParameters(commandTimeout, out timeout);
 
@@ -22,6 +24,8 @@ namespace SimpleSoft.Database.Migrator
         public async Task<T> QueryFirstOrDefaultAsync<T>(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            FailIfDisposed();
+
             int timeout;
             AssertCommandParameters(commandTimeout, out timeout);
 
