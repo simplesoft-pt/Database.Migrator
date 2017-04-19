@@ -13,7 +13,7 @@ namespace SimpleSoft.Database.Migrator
             int timeout;
             AssertCommandParameters(commandTimeout, out timeout);
 
-            LogQuery(sql, Transaction, timeout);
+            LogQuery(sql, timeout);
 
             return await Connection.QuerySingleAsync<T>(sql, param, Transaction, timeout, commandType);
         }
@@ -25,7 +25,7 @@ namespace SimpleSoft.Database.Migrator
             int timeout;
             AssertCommandParameters(commandTimeout, out timeout);
 
-            LogQuery(sql, Transaction, timeout);
+            LogQuery(sql, timeout);
 
             return await Connection.QueryFirstOrDefaultAsync<T>(sql, param, Transaction, timeout, commandType);
         }

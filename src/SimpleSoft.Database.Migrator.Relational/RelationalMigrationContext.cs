@@ -27,7 +27,6 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator
@@ -155,9 +154,8 @@ namespace SimpleSoft.Database.Migrator
         /// Logs the given query information
         /// </summary>
         /// <param name="query">The query to log</param>
-        /// <param name="transaction">The transaction currently used</param>
         /// <param name="commandTimeout">The command timeout</param>
-        protected void LogQuery(string query, IDbTransaction transaction, int commandTimeout)
+        protected void LogQuery(string query, int commandTimeout)
         {
             if (Logger.IsEnabled(LogLevel.Debug))
                 Logger.LogDebug(@"
@@ -167,7 +165,7 @@ Executing sql statement in database.
 
 SQL to execute:
 {sqlStatement}",
-                    transaction != null, commandTimeout, query);
+                    Transaction != null, commandTimeout, query);
         }
 
         /// <summary>

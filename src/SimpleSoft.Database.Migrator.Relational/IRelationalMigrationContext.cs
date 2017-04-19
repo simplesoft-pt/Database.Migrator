@@ -78,7 +78,7 @@ namespace SimpleSoft.Database.Migrator
         #region Executes
 
         /// <summary>
-        /// Executes the command into the database
+        /// Executes the SQL into the database
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="param"></param>
@@ -86,7 +86,30 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="commandType"></param>
         /// <returns></returns>
         Task<int> ExecuteAsync(
-            string sql, object param = null, int? commandTimeout = default(int?), CommandType? commandType = default(CommandType?));
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+
+        /// <summary>
+        /// Executes the SQL into the database returning a data reader
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="commandTimeout"></param>
+        /// <param name="commandType"></param>
+        /// <returns></returns>
+        Task<IDataReader> ExecuteReaderAsync(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+
+        /// <summary>
+        /// Executes the SQL as a scalar into the database
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="commandTimeout"></param>
+        /// <param name="commandType"></param>
+        /// <returns></returns>
+        Task<T> ExecuteScalarAsync<T>(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         #endregion
     }

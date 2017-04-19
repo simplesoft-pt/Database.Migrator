@@ -8,14 +8,38 @@ namespace SimpleSoft.Database.Migrator
     {
         /// <inheritdoc />
         public async Task<int> ExecuteAsync(
-            string sql, object param = null, int? commandTimeout = default(int?), CommandType? commandType = default(CommandType?))
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             int timeout;
             AssertCommandParameters(commandTimeout, out timeout);
 
-            LogQuery(sql, Transaction, timeout);
+            LogQuery(sql, timeout);
 
             return await Connection.ExecuteAsync(sql, param, Transaction, timeout, commandType);
+        }
+
+        /// <inheritdoc />
+        public async Task<IDataReader> ExecuteReaderAsync(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            int timeout;
+            AssertCommandParameters(commandTimeout, out timeout);
+
+            LogQuery(sql, timeout);
+
+            return await Connection.ExecuteReaderAsync(sql, param, Transaction, timeout, commandType);
+        }
+
+        /// <inheritdoc />
+        public async Task<T> ExecuteScalarAsync<T>(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            int timeout;
+            AssertCommandParameters(commandTimeout, out timeout);
+
+            LogQuery(sql, timeout);
+
+            return await Connection.ExecuteScalarAsync<T>(sql, param, Transaction, timeout, commandType);
         }
     }
 }
