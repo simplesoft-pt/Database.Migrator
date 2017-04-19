@@ -35,7 +35,7 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// The relational migration context
     /// </summary>
-    public abstract class RelationalMigrationContext : MigrationContext, IRelationalMigrationContext, IDisposable
+    public abstract partial class RelationalMigrationContext : MigrationContext, IRelationalMigrationContext, IDisposable
     {
         private static readonly Task CompletedTask = Task.FromResult(true);
         
@@ -145,42 +145,6 @@ namespace SimpleSoft.Database.Migrator
 
         #endregion
 
-        #region QuerySingleAsync
-
-        /// <inheritdoc />
-        public async Task<T> QuerySingleAsync<T>(
-            string sql, object param = null, IDbTransaction transaction = null,
-            int? commandTimeout = null, CommandType? commandType = null)
-        {
-            int timeout;
-            AssertCommandParameters(
-                transaction, commandTimeout, out transaction, out timeout);
-
-            LogQuery(sql, transaction, timeout);
-
-            return await Connection.QuerySingleAsync<T>(sql, param, transaction, timeout, commandType);
-        }
-
-        #endregion
-
-        #region ExecuteAsync
-
-        /// <inheritdoc />
-        public async Task<int> ExecuteAsync(
-            string sql, object param = null, IDbTransaction transaction = null,
-            int? commandTimeout = default(int?), CommandType? commandType = default(CommandType?))
-        {
-            int timeout;
-            AssertCommandParameters(
-                transaction, commandTimeout, out transaction, out timeout);
-
-            LogQuery(sql, transaction, timeout);
-
-            return await Connection.ExecuteAsync(sql, param, transaction, timeout, commandType);
-        }
-
-        #endregion
-
         private void FailIfDisposed()
         {
             if (_disposed)
@@ -195,27 +159,24 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="commandTimeout">The command timeout</param>
         protected void LogQuery(string query, IDbTransaction transaction, int commandTimeout)
         {
-            Logger.LogDebug(@"
+            if (Logger.IsEnabled(LogLevel.Debug))
+                Logger.LogDebug(@"
 Executing sql statement in database.
     Is in transaction? {isInTransaction}
     Command Timeout: {commandTimeout}
 
 SQL to execute:
 {sqlStatement}",
-                transaction != null, commandTimeout, query);
+                    transaction != null, commandTimeout, query);
         }
 
         /// <summary>
         /// Asserts the given parameters to the ones to be used by the command.
         /// </summary>
-        /// <param name="transaction">The transaction to assert</param>
         /// <param name="commandTimeout">The command timeout to assert</param>
-        /// <param name="tx">The given transaction of, if null, the currently set to <see cref="Transaction"/></param>
         /// <param name="timeout">The given command timeout or, if null, the timeout from <see cref="Connection"/></param>
-        protected void AssertCommandParameters(
-            IDbTransaction transaction, int? commandTimeout, out IDbTransaction tx, out int timeout)
+        protected void AssertCommandParameters(int? commandTimeout, out int timeout)
         {
-            tx = transaction ?? Transaction;
             timeout = commandTimeout ?? Connection.ConnectionTimeout;
         }
     }

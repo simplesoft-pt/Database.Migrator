@@ -47,7 +47,19 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         IsolationLevel DefaultIsolationLevel { get; }
 
-        #region QuerySingleAsync
+        #region Queries
+
+        /// <summary>
+        /// Queries the first or default value from the database
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="commandTimeout"></param>
+        /// <param name="commandType"></param>
+        /// <returns></returns>
+        Task<T> QueryFirstOrDefaultAsync<T>(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         /// <summary>
         /// Queries a single result from the database
@@ -55,30 +67,26 @@ namespace SimpleSoft.Database.Migrator
         /// <typeparam name="T"></typeparam>
         /// <param name="sql"></param>
         /// <param name="param"></param>
-        /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
         /// <returns></returns>
         Task<T> QuerySingleAsync<T>(
-            string sql, object param = null, IDbTransaction transaction = null,
-            int? commandTimeout = null, CommandType? commandType = null);
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         #endregion
 
-        #region ExecuteAsync
+        #region Executes
 
         /// <summary>
         /// Executes the command into the database
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="param"></param>
-        /// <param name="transaction"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
         /// <returns></returns>
         Task<int> ExecuteAsync(
-            string sql, object param = null, IDbTransaction transaction = null,
-            int? commandTimeout = default(int?), CommandType? commandType = default(CommandType?));
+            string sql, object param = null, int? commandTimeout = default(int?), CommandType? commandType = default(CommandType?));
 
         #endregion
     }
