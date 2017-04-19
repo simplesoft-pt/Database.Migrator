@@ -37,6 +37,12 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         TContext Context { get; }
 
+
+        /// <summary>
+        /// The context name
+        /// </summary>
+        string ContextName { get; }
+
         /// <summary>
         /// Prepares the database for migrations support.
         /// </summary>

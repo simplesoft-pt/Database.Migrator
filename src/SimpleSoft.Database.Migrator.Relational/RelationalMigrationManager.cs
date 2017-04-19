@@ -47,6 +47,20 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        /// <param name="context">The migration context</param>
+        /// <param name="logger">The logger</param>
+        /// <param name="contextName">The context name</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        protected RelationalMigrationManager(TContext context, ILogger<MigrationManager<TContext>> logger, string contextName) 
+            : base(context, logger, contextName)
+        {
+
+        }
+
+        /// <summary>
         /// The migrations history table name
         /// </summary>
         public string MigrationsHistoryTableName { get; set; } = "__DbMigratorHistory";

@@ -43,18 +43,38 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="logger">The class logger</param>
         /// <exception cref="ArgumentNullException"></exception>
         protected MigrationManager(TContext context, ILogger<MigrationManager<TContext>> logger)
+            : this(context, logger, typeof(TContext).Name)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
 
-            ContextTypeName = typeof(TContext).Name;
+        }
+
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        /// <param name="context">The migration context</param>
+        /// <param name="logger">The class logger</param>
+        /// <param name="contextName">The context name</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        protected MigrationManager(
+            TContext context, ILogger<MigrationManager<TContext>> logger, string contextName)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+            if (contextName == null)
+                throw new ArgumentNullException(nameof(contextName));
+            if (string.IsNullOrWhiteSpace(contextName))
+                throw new ArgumentException("Value cannot be whitespace.", nameof(contextName));
+
+            ContextName = contextName;
             Context = context;
             Logger = logger;
         }
 
-        /// <summary>
-        /// The context type name
-        /// </summary>
-        protected string ContextTypeName { get; }
+        /// <inheritdoc />
+        public string ContextName { get; }
 
         /// <summary>
         /// The class logger
@@ -70,7 +90,7 @@ namespace SimpleSoft.Database.Migrator
         public async Task PrepareDatabaseAsync(CancellationToken ct)
         {
             Logger.LogDebug(
-                "Preparing context '{contextName}' database to support migrations.", ContextTypeName);
+                "Preparing context '{contextName}' database to support migrations.", ContextName);
 
             await Context.RunAsync(async (ctx, c) =>
                 {
@@ -101,7 +121,7 @@ namespace SimpleSoft.Database.Migrator
 
             Logger.LogDebug(
                 "Adding '{migrationId}' to the history of '{contextName}' context.",
-                migrationId, ContextTypeName);
+                migrationId, ContextName);
 
             await Context.RunAsync(async (ctx, c) =>
                 {
@@ -117,7 +137,7 @@ namespace SimpleSoft.Database.Migrator
 
                     Logger.LogWarning(
                         "The history of '{contextName}' context has the migration '{mostRecentMigrationId}', which is considered more recent than '{migrationId}'.",
-                        ContextTypeName, mostRecentMigrationId, migrationId);
+                        ContextName, mostRecentMigrationId, migrationId);
                     throw new InvalidOperationException(
                         $"The database already has the migration '{mostRecentMigrationId}' which is more recent than '{migrationId}'");
                 }, ct)
@@ -135,13 +155,13 @@ namespace SimpleSoft.Database.Migrator
             if (string.IsNullOrWhiteSpace(migrationId))
             {
                 Logger.LogDebug(
-                    "No migrations have yet been applied to the '{contextName}' context.", ContextTypeName);
+                    "No migrations have yet been applied to the '{contextName}' context.", ContextName);
                 return null;
             }
 
             Logger.LogDebug(
                 "The migration '{migrationId}' is the most recent from the history of '{contextName}' context.",
-                migrationId, ContextTypeName);
+                migrationId, ContextName);
             return migrationId;
         }
 
@@ -150,7 +170,7 @@ namespace SimpleSoft.Database.Migrator
         {
             Logger.LogDebug(
                 "Removing most recent migration from the history of '{contextName}' context.",
-                ContextTypeName);
+                ContextName);
 
             var result = await Context.RunAsync(async (ctx, c) =>
                 {
@@ -159,13 +179,13 @@ namespace SimpleSoft.Database.Migrator
                     {
                         Logger.LogWarning(
                             "No migrations were found in history of '{contextName}' context. No changes will be made.",
-                            ContextTypeName);
+                            ContextName);
                         return false;
                     }
 
                     Logger.LogDebug(
                         "Removing migration '{migradionId}' from the history of '{contextName}' context",
-                        migrationId, ContextTypeName);
+                        migrationId, ContextName);
                     await DeleteMigrationEntryByIdAsync(migrationId, c).ConfigureAwait(false);
                     return true;
                 }, ct)

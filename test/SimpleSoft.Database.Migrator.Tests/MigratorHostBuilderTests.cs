@@ -501,6 +501,9 @@ namespace SimpleSoft.Database.Migrator.Tests
             public IMigrationContext Context { get; } = null;
 
             /// <inheritdoc />
+            public string ContextName { get; } = null;
+
+            /// <inheritdoc />
             public Task PrepareDatabaseAsync(CancellationToken ct)
             {
                 return Task.CompletedTask;

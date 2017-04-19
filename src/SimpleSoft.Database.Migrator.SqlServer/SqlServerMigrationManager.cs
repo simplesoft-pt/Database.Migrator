@@ -36,9 +36,28 @@ namespace SimpleSoft.Database.Migrator
     public class SqlServerMigrationManager<TContext>: RelationalMigrationManager<TContext>
         where TContext : IRelationalMigrationContext
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        /// <param name="context">The migration context</param>
+        /// <param name="logger">The logger</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public SqlServerMigrationManager(TContext context, ILogger<RelationalMigrationManager<TContext>> logger) 
             : base(context, logger)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        /// <param name="context">The migration context</param>
+        /// <param name="logger">The logger</param>
+        /// <param name="contextName">The context name</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public SqlServerMigrationManager(TContext context, ILogger<MigrationManager<TContext>> logger, string contextName) 
+            : base(context, logger, contextName)
         {
 
         }
