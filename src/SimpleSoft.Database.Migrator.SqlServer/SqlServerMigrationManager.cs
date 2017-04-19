@@ -82,9 +82,11 @@ namespace SimpleSoft.Database.Migrator
             await Context.ExecuteAsync($@"
 CREATE TABLE {MigrationsHistoryTableName}
 (
-	MigrationId NVARCHAR(150) PRIMARY KEY NOT NULL,
-	ClassName NVARCHAR(500) NOT NULL,
-	AppliedOn DATETIME2 NOT NULL
+    ContextName NVARCHAR(256) NOT NULL,
+    MigrationId NVARCHAR(128) NOT NULL,
+    ClassName NVARCHAR(512) NOT NULL,
+    AppliedOn DATETIME2 NOT NULL,
+    PRIMARY KEY (ContextName, MigrationId)
 )")
                 .ConfigureAwait(false);
         }
@@ -93,13 +95,15 @@ CREATE TABLE {MigrationsHistoryTableName}
         protected override async Task InsertMigrationEntryAsync(string migrationId, string className, DateTimeOffset appliedOn, CancellationToken ct)
         {
             await Context.ExecuteAsync($@"
-INSERT INTO {MigrationsHistoryTableName}(MigrationId, ClassName, AppliedOn) 
-VALUES (@MigrationId, @ClassName, @AppliedOn)", new
-            {
-                MigrationId = migrationId,
-                ClassName = className,
-                AppliedOn = appliedOn
-            });
+INSERT INTO {MigrationsHistoryTableName}(ContextName, MigrationId, ClassName, AppliedOn) 
+VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
+                {
+                    ContextName,
+                    MigrationId = migrationId,
+                    ClassName = className,
+                    AppliedOn = appliedOn
+                })
+                .ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -109,8 +113,13 @@ VALUES (@MigrationId, @ClassName, @AppliedOn)", new
 SELECT 
     TOP(1) MigrationId 
 FROM {MigrationsHistoryTableName} 
+WHERE
+    ContextName = @ContextName
 ORDER BY 
-    MigrationId DESC")
+    MigrationId DESC", new
+                {
+                    ContextName
+                })
                 .ConfigureAwait(false);
 
             return migrationId;
@@ -122,8 +131,10 @@ ORDER BY
             await Context.ExecuteAsync($@"
 DELETE FROM {MigrationsHistoryTableName} 
 WHERE 
-    MigrationId = @MigrationId", new
+    ContextName = @ContextName
+    AND MigrationId = @MigrationId", new
                 {
+                    ContextName,
                     MigrationId = migrationId
                 })
                 .ConfigureAwait(false);
