@@ -50,7 +50,15 @@ namespace SimpleSoft.Database.Migrator
         /// <returns>A task to be awaited</returns>
         Task PrepareDatabaseAsync(CancellationToken ct);
 
-            /// <summary>
+        /// <summary>
+        /// Adds the given migration information to the database.
+        /// </summary>
+        /// <typeparam name="T">The migration type</typeparam>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>A task to be awaited</returns>
+        Task AddMigrationAsync<T>(CancellationToken ct);
+
+        /// <summary>
         /// Adds the given migration information to the database.
         /// </summary>
         /// <param name="migrationId">The migration identifier</param>

@@ -108,6 +108,13 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
+        public async Task AddMigrationAsync<T>(CancellationToken ct)
+        {
+            var classType = typeof(T);
+            await AddMigrationAsync(classType.Name, classType.FullName, ct).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
         public async Task AddMigrationAsync(string migrationId, string className, CancellationToken ct)
         {
             if (migrationId == null)
