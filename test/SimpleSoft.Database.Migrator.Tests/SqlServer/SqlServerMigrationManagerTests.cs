@@ -92,8 +92,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
         [Fact]
         public async Task GivenADatabaseWithMigrationsWhenAddingANewOneNoExceptionIsThrown()
         {
-            var migrationId = string.Concat(
-                "Migration", DateTimeOffset.UtcNow.ToString("yyyyMMdd_HHmmss_fffffff"));
+            var migrationId = MigrationsTestHelper.GenerateMigrationId();
 
             //  Existing static migration
             await _fixture.Manager.AddMigrationAsync(

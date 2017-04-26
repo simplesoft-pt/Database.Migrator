@@ -78,8 +78,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
                     .GetAwaiter()
                     .GetResult();
 
-                var migrationId = string.Concat(
-                    "Migration", DateTimeOffset.UtcNow.ToString("yyyyMMdd_HHmmss_fffffff"));
+                var migrationId = MigrationsTestHelper.GenerateMigrationId();
 
                 //  Existing static migration
                 manager.AddMigrationAsync(
