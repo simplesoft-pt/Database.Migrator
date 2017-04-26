@@ -510,6 +510,12 @@ namespace SimpleSoft.Database.Migrator.Tests
             }
 
             /// <inheritdoc />
+            public Task AddMigrationAsync<T>(CancellationToken ct)
+            {
+                return Task.CompletedTask;
+            }
+
+            /// <inheritdoc />
             public Task AddMigrationAsync(string migrationId, string className, CancellationToken ct)
             {
                 return Task.CompletedTask;

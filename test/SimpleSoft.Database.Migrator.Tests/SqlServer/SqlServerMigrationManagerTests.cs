@@ -90,14 +90,42 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
         }
 
         [Fact]
-        public async Task GivenADatabaseWithMigrationsWhenAddingANewOneNoExceptionIsThrown()
+        public async Task GivenADatabaseWithMigrationsWhenAddingANewOneThenNoExceptionIsThrown()
         {
-            var migrationId = MigrationsTestHelper.GenerateMigrationId();
+            string migrationId;
+            string className;
+            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
 
-            //  Existing static migration
-            await _fixture.Manager.AddMigrationAsync(
-                migrationId, string.Concat("SimpleSoft.Database.Migrator.Tests.SqlServer.", migrationId),
-                CancellationToken.None);
+            await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
+        }
+
+        [Fact]
+        public async Task GivenADatabaseWithMigrationsWhenAddingAnOlderOneThenAnInvalidOperationExceptionMustBeThrown()
+        {
+            string migrationId;
+            string className;
+            MigrationsTestHelper.GenerateMigrationInfo(
+                DateTimeOffset.UtcNow.AddDays(-1), out migrationId, out className);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            {
+                await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
+            });
+        }
+
+        [Fact]
+        public async Task GivenADatabaseWithMigrationsWhenAddingAnExistingOneThenAnInvalidOperationExceptionMustBeThrown()
+        {
+            string migrationId;
+            string className;
+            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+
+            await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            {
+                await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
+            });
         }
     }
 }

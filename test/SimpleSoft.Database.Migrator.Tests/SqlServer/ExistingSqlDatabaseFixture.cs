@@ -78,11 +78,13 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
                     .GetAwaiter()
                     .GetResult();
 
-                var migrationId = MigrationsTestHelper.GenerateMigrationId();
+                string migrationId;
+                string className;
+                MigrationsTestHelper.GenerateMigrationInfo(
+                    DateTimeOffset.UtcNow, out migrationId, out className);
 
                 //  Existing static migration
-                manager.AddMigrationAsync(
-                        migrationId, string.Concat("SimpleSoft.Database.Migrator.Tests.SqlServer.", migrationId), ct)
+                manager.AddMigrationAsync(migrationId, className, ct)
                     .ConfigureAwait(false)
                     .GetAwaiter()
                     .GetResult();
