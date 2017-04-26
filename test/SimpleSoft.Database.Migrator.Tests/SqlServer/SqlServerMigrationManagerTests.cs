@@ -41,6 +41,57 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
         }
 
         [Fact]
+        public async Task GivenANewMigrationWhenPassingNullParametersThenArgumentNullExceptionMustBeThrown()
+        {
+            var ct = CancellationToken.None;
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            {
+                await _fixture.Manager.AddMigrationAsync(
+                    null, "SimpleSoft.Database.Migrator.Tests.SqlServer.V00000", ct);
+            });
+
+            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            {
+                await _fixture.Manager.AddMigrationAsync("V00000", null, ct);
+            });
+        }
+
+        [Fact]
+        public async Task GivenANewMigrationWhenPassingEmptyParametersThenArgumentExceptionMustBeThrown()
+        {
+            var ct = CancellationToken.None;
+
+            await Assert.ThrowsAsync<ArgumentException>(async () =>
+            {
+                await _fixture.Manager.AddMigrationAsync(
+                    string.Empty, "SimpleSoft.Database.Migrator.Tests.SqlServer.V00000", ct);
+            });
+
+            await Assert.ThrowsAsync<ArgumentException>(async () =>
+            {
+                await _fixture.Manager.AddMigrationAsync("V00000", string.Empty, ct);
+            });
+        }
+
+        [Fact]
+        public async Task GivenANewMigrationWhenPassingWhiteSpaceParametersThenArgumentExceptionMustBeThrown()
+        {
+            var ct = CancellationToken.None;
+
+            await Assert.ThrowsAsync<ArgumentException>(async () =>
+            {
+                await _fixture.Manager.AddMigrationAsync(
+                    "    ", "SimpleSoft.Database.Migrator.Tests.SqlServer.V00000", ct);
+            });
+
+            await Assert.ThrowsAsync<ArgumentException>(async () =>
+            {
+                await _fixture.Manager.AddMigrationAsync("V00000", "    ", ct);
+            });
+        }
+
+        [Fact]
         public async Task GivenADatabaseWithMigrationsWhenAddingANewOneNoExceptionIsThrown()
         {
             var ct = CancellationToken.None;
