@@ -61,18 +61,25 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
                     return;
 
                 connection.Execute("CREATE DATABASE " + databaseName, null, null, timeout);
-                connection.Close();
+            }
 
-                using (var context = new MigratorTestContext(connection))
-                {
-                    var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                        context, LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
+            var ct = CancellationToken.None;
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var context = new MigratorTestContext(connection))
+            {
+                var manager = new SqlServerMigrationManager<MigratorTestContext>(
+                    context, LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
 
-                    manager.PrepareDatabaseAsync(CancellationToken.None)
-                        .ConfigureAwait(false)
-                        .GetAwaiter()
-                        .GetResult();
-                }
+                manager.PrepareDatabaseAsync(ct)
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
+
+                //  Existing static migration
+                manager.AddMigrationAsync("V00000", "SimpleSoft.Database.Migrator.Tests.SqlServer.V00000", ct)
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
             }
         }
     }
