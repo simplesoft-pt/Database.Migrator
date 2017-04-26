@@ -62,6 +62,18 @@ namespace SimpleSoft.Database.Migrator
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         /// <summary>
+        /// Queries the first or default value from the database
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="commandTimeout"></param>
+        /// <param name="commandType"></param>
+        /// <returns></returns>
+        Task<T> QuerySingleOrDefaultAsync<T>(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+
+        /// <summary>
         /// Queries a single result from the database
         /// </summary>
         /// <typeparam name="T"></typeparam>

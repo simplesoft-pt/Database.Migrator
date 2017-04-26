@@ -33,5 +33,19 @@ namespace SimpleSoft.Database.Migrator
 
             return await Connection.QueryFirstOrDefaultAsync<T>(sql, param, Transaction, timeout, commandType);
         }
+
+        /// <inheritdoc />
+        public async Task<T> QuerySingleOrDefaultAsync<T>(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            FailIfDisposed();
+
+            int timeout;
+            AssertCommandParameters(commandTimeout, out timeout);
+
+            LogQuery(sql, timeout);
+
+            return await Connection.QuerySingleOrDefaultAsync<T>(sql, param, Transaction, timeout, commandType);
+        }
     }
 }
