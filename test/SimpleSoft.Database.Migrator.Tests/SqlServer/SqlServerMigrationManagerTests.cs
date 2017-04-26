@@ -47,13 +47,12 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync(
-                    null, "SimpleSoft.Database.Migrator.Tests.SqlServer.V00000", ct);
+                await _fixture.Manager.AddMigrationAsync(null, "...", ct);
             });
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync("V00000", null, ct);
+                await _fixture.Manager.AddMigrationAsync("...", null, ct);
             });
         }
 
@@ -64,13 +63,12 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
 
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync(
-                    string.Empty, "SimpleSoft.Database.Migrator.Tests.SqlServer.V00000", ct);
+                await _fixture.Manager.AddMigrationAsync(string.Empty, "...", ct);
             });
 
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync("V00000", string.Empty, ct);
+                await _fixture.Manager.AddMigrationAsync("...", string.Empty, ct);
             });
         }
 
@@ -82,27 +80,25 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
                 await _fixture.Manager.AddMigrationAsync(
-                    "    ", "SimpleSoft.Database.Migrator.Tests.SqlServer.V00000", ct);
+                    "    ", "...", ct);
             });
 
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync("V00000", "    ", ct);
+                await _fixture.Manager.AddMigrationAsync("...", "    ", ct);
             });
         }
 
         [Fact]
         public async Task GivenADatabaseWithMigrationsWhenAddingANewOneNoExceptionIsThrown()
         {
-            var ct = CancellationToken.None;
+            var migrationId = string.Concat(
+                "Migration", DateTimeOffset.UtcNow.ToString("yyyyMMdd_HHmmss_fffffff"));
 
-            var mostRecentMigrationId = await _fixture.Manager.GetMostRecentMigrationIdAsync(ct);
-
-            var testMigrationId = string.Concat(
-                "V", (int.Parse(mostRecentMigrationId.Replace("V", string.Empty)) + 1).ToString("D5"));
-
+            //  Existing static migration
             await _fixture.Manager.AddMigrationAsync(
-                testMigrationId, $"SimpleSoft.Database.Migrator.Tests.SqlServer.{testMigrationId}", ct);
+                migrationId, string.Concat("SimpleSoft.Database.Migrator.Tests.SqlServer.", migrationId),
+                CancellationToken.None);
         }
     }
 }

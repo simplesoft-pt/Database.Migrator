@@ -62,10 +62,8 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
                     {
                         databaseName
                     }, null, timeout);
-                if (dbId.HasValue)
-                    return;
-
-                connection.Execute("CREATE DATABASE " + databaseName, null, null, timeout);
+                if (dbId == null)
+                    connection.Execute("CREATE DATABASE " + databaseName, null, null, timeout);
             }
 
             var ct = CancellationToken.None;
@@ -80,8 +78,12 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
                     .GetAwaiter()
                     .GetResult();
 
+                var migrationId = string.Concat(
+                    "Migration", DateTimeOffset.UtcNow.ToString("yyyyMMdd_HHmmss_fffffff"));
+
                 //  Existing static migration
-                manager.AddMigrationAsync("V00000", "SimpleSoft.Database.Migrator.Tests.SqlServer.V00000", ct)
+                manager.AddMigrationAsync(
+                        migrationId, string.Concat("SimpleSoft.Database.Migrator.Tests.SqlServer.", migrationId), ct)
                     .ConfigureAwait(false)
                     .GetAwaiter()
                     .GetResult();
