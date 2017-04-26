@@ -135,7 +135,7 @@ namespace SimpleSoft.Database.Migrator
                     var mostRecentMigrationId =
                         await GetMostRecentMigrationEntryIdAsync(c).ConfigureAwait(false);
                     if (string.IsNullOrWhiteSpace(mostRecentMigrationId) ||
-                        string.Compare(migrationId, mostRecentMigrationId, StringComparison.OrdinalIgnoreCase) >= 0)
+                        string.Compare(migrationId, mostRecentMigrationId, StringComparison.OrdinalIgnoreCase) > 0)
                     {
                         await InsertMigrationEntryAsync(migrationId, className, DateTimeOffset.Now, c)
                             .ConfigureAwait(false);
