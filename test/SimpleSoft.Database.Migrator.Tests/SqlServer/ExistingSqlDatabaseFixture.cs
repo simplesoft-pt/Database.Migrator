@@ -24,11 +24,15 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
 
             Connection = new SqlConnection(ConnectionString);
             Context = new MigratorTestContext(Connection);
+            Manager = new SqlServerMigrationManager<MigratorTestContext>(
+                Context, LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
         }
 
         public DbConnection Connection { get; private set; }
 
         public MigratorTestContext Context { get; private set; }
+
+        public SqlServerMigrationManager<MigratorTestContext> Manager { get; private set; }
 
         #region Implementation of IDisposable
 
@@ -38,6 +42,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             Context?.Dispose();
             Connection?.Dispose();
 
+            Manager = null;
             Context = null;
             Connection = null;
         }
