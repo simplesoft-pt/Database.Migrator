@@ -109,7 +109,7 @@ VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
         /// <inheritdoc />
         protected override async Task<string> GetMostRecentMigrationEntryIdAsync(CancellationToken ct)
         {
-            var migrationId = await Context.QuerySingleAsync<string>($@"
+            var migrationId = await Context.QuerySingleOrDefaultAsync<string>($@"
 SELECT 
     TOP(1) MigrationId 
 FROM {MigrationsHistoryTableName} 
