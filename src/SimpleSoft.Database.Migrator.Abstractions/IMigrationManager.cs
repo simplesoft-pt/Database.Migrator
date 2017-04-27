@@ -22,6 +22,7 @@
 // SOFTWARE.
 #endregion
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,7 +37,6 @@ namespace SimpleSoft.Database.Migrator
         /// The migration context
         /// </summary>
         TContext Context { get; }
-
 
         /// <summary>
         /// The context name
@@ -66,6 +66,13 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
         Task AddMigrationAsync(string migrationId, string className, CancellationToken ct);
+
+        /// <summary>
+        /// Returns a collection of all migrations currently applied
+        /// </summary>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>A task to be awaited for the result</returns>
+        Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(CancellationToken ct);
 
         /// <summary>
         /// Gets the most recent migration identifier from the database 

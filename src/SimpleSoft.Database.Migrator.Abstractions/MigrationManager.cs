@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -133,11 +134,11 @@ namespace SimpleSoft.Database.Migrator
             await Context.RunAsync(async (ctx, c) =>
                 {
                     var mostRecentMigrationId =
-                        await GetMostRecentMigrationEntryIdAsync(c).ConfigureAwait(false);
+                        await GetMostRecentMigrationEntryIdAsync(ContextName, c).ConfigureAwait(false);
                     if (string.IsNullOrWhiteSpace(mostRecentMigrationId) ||
                         string.Compare(migrationId, mostRecentMigrationId, StringComparison.OrdinalIgnoreCase) > 0)
                     {
-                        await InsertMigrationEntryAsync(migrationId, className, DateTimeOffset.Now, c)
+                        await InsertMigrationEntryAsync(ContextName, migrationId, className, DateTimeOffset.Now, c)
                             .ConfigureAwait(false);
                         return;
                     }
@@ -152,11 +153,25 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
+        public async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(CancellationToken ct)
+        {
+            var migrationIds =
+                await Context.RunAsync(async (ctx, c) =>
+                        await GetAllMigrationsAsync(ContextName, c).ConfigureAwait(false), ct)
+                    .ConfigureAwait(false);
+
+            Logger.LogDebug(
+                "A total of {migrationCount} migrations have been found for the '{contextName}' context",
+                migrationIds.Count, ContextName);
+            return migrationIds;
+        }
+
+        /// <inheritdoc />
         public async Task<string> GetMostRecentMigrationIdAsync(CancellationToken ct)
         {
             var migrationId =
                 await Context.RunAsync(async (ctx, c) =>
-                        await GetMostRecentMigrationEntryIdAsync(c).ConfigureAwait(false), ct)
+                        await GetMostRecentMigrationEntryIdAsync(ContextName, c).ConfigureAwait(false), ct)
                     .ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(migrationId))
@@ -181,7 +196,7 @@ namespace SimpleSoft.Database.Migrator
 
             var result = await Context.RunAsync(async (ctx, c) =>
                 {
-                    var migrationId = await GetMostRecentMigrationEntryIdAsync(c).ConfigureAwait(false);
+                    var migrationId = await GetMostRecentMigrationEntryIdAsync(ContextName, c).ConfigureAwait(false);
                     if (string.IsNullOrWhiteSpace(migrationId))
                     {
                         Logger.LogWarning(
@@ -193,7 +208,7 @@ namespace SimpleSoft.Database.Migrator
                     Logger.LogDebug(
                         "Removing migration '{migradionId}' from the history of '{contextName}' context",
                         migrationId, ContextName);
-                    await DeleteMigrationEntryByIdAsync(migrationId, c).ConfigureAwait(false);
+                    await DeleteMigrationEntryByIdAsync(ContextName, migrationId, c).ConfigureAwait(false);
                     return true;
                 }, ct)
                 .ConfigureAwait(false);
@@ -220,27 +235,38 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// Inserts a migration entry into the table.
         /// </summary>
+        /// <param name="contextName">The migration context name</param>
         /// <param name="migrationId">The migration identifier</param>
         /// <param name="className">The class responsible for this migration</param>
         /// <param name="appliedOn">The date the migration was applied</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
         protected abstract Task InsertMigrationEntryAsync(
-            string migrationId, string className, DateTimeOffset appliedOn, CancellationToken ct);
+            string contextName, string migrationId, string className, DateTimeOffset appliedOn, CancellationToken ct);
+
+        /// <summary>
+        /// Returns a collection of all migrations ids currently applied.
+        /// </summary>
+        /// <param name="contextName">The migration context name</param>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>A task to be awaited for the result</returns>
+        protected abstract Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(string contextName, CancellationToken ct);
 
         /// <summary>
         /// Gets the identifier of the most recently applied migration.
         /// </summary>
+        /// <param name="contextName">The migration context name</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited for the result</returns>
-        protected abstract Task<string> GetMostRecentMigrationEntryIdAsync(CancellationToken ct);
+        protected abstract Task<string> GetMostRecentMigrationEntryIdAsync(string contextName, CancellationToken ct);
 
         /// <summary>
         /// Deletes a migration by its identifier.
         /// </summary>
+        /// <param name="contextName">The migration context name</param>
         /// <param name="migrationId">The migration identifier</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        protected abstract Task DeleteMigrationEntryByIdAsync(string migrationId, CancellationToken ct);
+        protected abstract Task DeleteMigrationEntryByIdAsync(string contextName, string migrationId, CancellationToken ct);
     }
 }

@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -92,13 +94,13 @@ CREATE TABLE {MigrationsHistoryTableName}
         }
 
         /// <inheritdoc />
-        protected override async Task InsertMigrationEntryAsync(string migrationId, string className, DateTimeOffset appliedOn, CancellationToken ct)
+        protected override async Task InsertMigrationEntryAsync(string contextName, string migrationId, string className, DateTimeOffset appliedOn, CancellationToken ct)
         {
             await Context.ExecuteAsync($@"
 INSERT INTO {MigrationsHistoryTableName}(ContextName, MigrationId, ClassName, AppliedOn) 
 VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
                 {
-                    ContextName,
+                    ContextName = contextName,
                     MigrationId = migrationId,
                     ClassName = className,
                     AppliedOn = appliedOn
@@ -107,7 +109,20 @@ VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
         }
 
         /// <inheritdoc />
-        protected override async Task<string> GetMostRecentMigrationEntryIdAsync(CancellationToken ct)
+        protected override async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(string contextName, CancellationToken ct)
+        {
+            var result = await Context.Query<string>($@"
+SELECT 
+    MigrationId
+FROM {MigrationsHistoryTableName}
+ORDER BY 
+    ContextName DESC, MigrationId DESC");
+
+            return result as IReadOnlyCollection<string> ?? result.ToList();
+        }
+
+        /// <inheritdoc />
+        protected override async Task<string> GetMostRecentMigrationEntryIdAsync(string contextName, CancellationToken ct)
         {
             var migrationId = await Context.QuerySingleOrDefaultAsync<string>($@"
 SELECT 
@@ -116,9 +131,9 @@ FROM {MigrationsHistoryTableName}
 WHERE
     ContextName = @ContextName
 ORDER BY 
-    MigrationId DESC", new
+    ContextName DESC, MigrationId DESC", new
                 {
-                    ContextName
+                    ContextName = contextName
                 })
                 .ConfigureAwait(false);
 
@@ -126,7 +141,7 @@ ORDER BY
         }
 
         /// <inheritdoc />
-        protected override async Task DeleteMigrationEntryByIdAsync(string migrationId, CancellationToken ct)
+        protected override async Task DeleteMigrationEntryByIdAsync(string contextName, string migrationId, CancellationToken ct)
         {
             await Context.ExecuteAsync($@"
 DELETE FROM {MigrationsHistoryTableName} 
@@ -134,7 +149,7 @@ WHERE
     ContextName = @ContextName
     AND MigrationId = @MigrationId", new
                 {
-                    ContextName,
+                    ContextName = contextName,
                     MigrationId = migrationId
                 })
                 .ConfigureAwait(false);

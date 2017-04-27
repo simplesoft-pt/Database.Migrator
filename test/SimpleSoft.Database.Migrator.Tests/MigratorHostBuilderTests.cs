@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -519,6 +520,12 @@ namespace SimpleSoft.Database.Migrator.Tests
             public Task AddMigrationAsync(string migrationId, string className, CancellationToken ct)
             {
                 return Task.CompletedTask;
+            }
+
+            /// <inheritdoc />
+            public Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(CancellationToken ct)
+            {
+                return Task.FromResult<IReadOnlyCollection<string>>(new string[0]);
             }
 
             /// <inheritdoc />
