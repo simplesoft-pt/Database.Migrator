@@ -32,12 +32,21 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
         }
 
         [Fact]
-        public async Task GivenADatabaseWithMigrationsWhenGettingTheMostRecentThenOneBustBeReturned()
+        public async Task GivenADatabaseWithMigrationsWhenGettingTheMostRecentThenOneMustBeReturned()
         {
             var migrationId = await _fixture.Manager.GetMostRecentMigrationIdAsync(CancellationToken.None);
 
             Assert.NotNull(migrationId);
             Assert.NotEmpty(migrationId);
+        }
+
+        [Fact]
+        public async Task GivenADatabaseWithMigrationsWhenGettingAllThenSomeMustBeReturned()
+        {
+            var migrationIds = await _fixture.Manager.GetAllMigrationsAsync(CancellationToken.None);
+
+            Assert.NotNull(migrationIds);
+            Assert.NotEmpty(migrationIds);
         }
 
         [Fact]
@@ -104,11 +113,15 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
         {
             string migrationId;
             string className;
-            MigrationsTestHelper.GenerateMigrationInfo(
-                DateTimeOffset.UtcNow.AddDays(-1), out migrationId, out className);
+            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+
+            await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
+                MigrationsTestHelper.GenerateMigrationInfo(
+                    DateTimeOffset.UtcNow.AddDays(-1), out migrationId, out className);
+
                 await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
             });
         }
@@ -126,6 +139,42 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             {
                 await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
             });
+        }
+
+        [Fact]
+        public async Task GivenADatabaseWithMigrationsWhenRemovingTheMostRecentThenTrueMustBeReturned()
+        {
+            var ct = CancellationToken.None;
+
+            var migrationIdsBeforeRemove = await _fixture.Manager.GetAllMigrationsAsync(ct);
+
+            var removed = await _fixture.Manager.RemoveMostRecentMigrationAsync(ct);
+
+            var migrationIdsAfterRemove = await _fixture.Manager.GetAllMigrationsAsync(ct);
+
+            Assert.True(removed);
+            Assert.NotEqual(migrationIdsBeforeRemove.Count, migrationIdsAfterRemove.Count);
+            Assert.True(migrationIdsBeforeRemove.Count > migrationIdsAfterRemove.Count);
+        }
+
+        [Fact]
+        public async Task GivenADatabaseWithMigrationsWhenRemovingAllThenFalseMustEventuallyBeReturned()
+        {
+            var ct = CancellationToken.None;
+
+            var migrationIds = await _fixture.Manager.GetAllMigrationsAsync(ct);
+
+            //    guard condition to be sure the cicle eventually ends
+            var countGuard = migrationIds.Count + 20;
+
+            while (await _fixture.Manager.RemoveMostRecentMigrationAsync(ct))
+            {
+                --countGuard;
+                Assert.NotEqual(0, countGuard);
+            }
+
+            migrationIds = await _fixture.Manager.GetAllMigrationsAsync(ct);
+            Assert.Empty(migrationIds);
         }
     }
 }
