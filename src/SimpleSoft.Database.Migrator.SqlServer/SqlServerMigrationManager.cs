@@ -115,8 +115,14 @@ VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
 SELECT 
     MigrationId
 FROM {MigrationsHistoryTableName}
+WHERE
+    ContextName = @ContextName
 ORDER BY 
-    ContextName DESC, MigrationId DESC");
+    ContextName DESC, MigrationId DESC", new
+                {
+                    ContextName = contextName
+                })
+                .ConfigureAwait(false);
 
             return result as IReadOnlyCollection<string> ?? result.ToList();
         }
