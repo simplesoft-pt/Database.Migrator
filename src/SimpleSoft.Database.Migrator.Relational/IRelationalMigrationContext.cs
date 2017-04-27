@@ -22,6 +22,7 @@
 // SOFTWARE.
 #endregion
 
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -50,7 +51,7 @@ namespace SimpleSoft.Database.Migrator
         #region Queries
 
         /// <summary>
-        /// Queries the first or default value from the database
+        /// Queries a collection of entries from the database
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="sql"></param>
@@ -58,7 +59,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
         /// <returns></returns>
-        Task<T> QueryFirstOrDefaultAsync<T>(
+        Task<IEnumerable<T>> Query<T>(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         /// <summary>
@@ -83,6 +84,30 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="commandType"></param>
         /// <returns></returns>
         Task<T> QuerySingleAsync<T>(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+
+        /// <summary>
+        /// Queries the first value from the database
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="commandTimeout"></param>
+        /// <param name="commandType"></param>
+        /// <returns></returns>
+        Task<T> QueryFirstAsync<T>(
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+
+        /// <summary>
+        /// Queries the first or default value from the database
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="commandTimeout"></param>
+        /// <param name="commandType"></param>
+        /// <returns></returns>
+        Task<T> QueryFirstOrDefaultAsync<T>(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         #endregion
