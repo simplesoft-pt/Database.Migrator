@@ -179,17 +179,11 @@ namespace SimpleSoft.Database.Migrator
                     for (; migrationStartIdx < _migrations.Count; migrationStartIdx++)
                     {
                         var migrationMeta = _migrations.Values[migrationStartIdx];
-                        using (Logger.BeginScope("MigrationId : {migrationId}", migrationMeta.Id,
-                            migrationMeta.Type.FullName))
+                        using (Logger.BeginScope(
+                            "MigrationId : {migrationId}", migrationMeta.Id, migrationMeta.Type.FullName))
                         {
-                            using (var migrationScope = ServiceScopeFactory.CreateScope())
+                            await UsingMigrationAsync(migrationMeta.Type, async migration =>
                             {
-                                Logger.LogDebug(
-                                    "Resolving migration of type '{migrationType}' from service collection",
-                                    migrationMeta.Type);
-                                var migration = (IMigration<TContext>)
-                                    migrationScope.ServiceProvider.GetRequiredService(migrationMeta.Type);
-
                                 await manager.Context.RunAsync(async () =>
                                 {
                                     await manager.AddMigrationAsync(migrationMeta.Id, migrationMeta.ClassName, ct)
@@ -207,9 +201,9 @@ namespace SimpleSoft.Database.Migrator
                                         await migration.ApplyAsync(ct).ConfigureAwait(false);
                                     }
                                 }, ct).ConfigureAwait(false);
-                            }
-                            Logger.LogInformation(
-                                "Applied migration '{migrationId}' to the database", migrationMeta.Id);
+                            }).ConfigureAwait(false);
+
+                            Logger.LogInformation("Migration applied to the database");
                         }
                     }
 
@@ -233,6 +227,27 @@ namespace SimpleSoft.Database.Migrator
                     managerScope.ServiceProvider.GetRequiredService<IMigrationManager<TContext>>();
 
                 await handler(manager).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Gets a new <see cref="IMigration{TContext}"/> from the service
+        /// scope factory for the given type
+        /// </summary>
+        /// <param name="migrationType">The migration type to resolve</param>
+        /// <param name="handler">The handler to receive the migration</param>
+        /// <returns>A task to be awaited</returns>
+        protected async Task UsingMigrationAsync(Type migrationType, Func<IMigration<TContext>, Task> handler)
+        {
+            using (var migrationScope = ServiceScopeFactory.CreateScope())
+            {
+                Logger.LogDebug(
+                    "Resolving migration of type '{migrationType}' from service collection",
+                    migrationType);
+                var migration = (IMigration<TContext>)
+                    migrationScope.ServiceProvider.GetRequiredService(migrationType);
+
+                await handler(migration).ConfigureAwait(false);
             }
         }
 
