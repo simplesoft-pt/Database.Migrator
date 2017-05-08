@@ -35,7 +35,11 @@ namespace SimpleSoft.Database.Migrator
         /// <inheritdoc />
         public string Normalize(string name)
         {
-            return name?.Trim().ToUpperInvariant();
+            return name == null
+                ? null
+                : (string.IsNullOrWhiteSpace(name)
+                    ? string.Empty
+                    : name.Trim().ToUpperInvariant());
         }
 
         #endregion
