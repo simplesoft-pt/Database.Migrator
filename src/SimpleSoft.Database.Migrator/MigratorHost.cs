@@ -223,6 +223,7 @@ namespace SimpleSoft.Database.Migrator
         {
             using (var managerScope = ServiceScopeFactory.CreateScope())
             {
+                Logger.LogDebug("Resolving migration manager from service collection");
                 var manager =
                     managerScope.ServiceProvider.GetRequiredService<IMigrationManager<TContext>>();
 
