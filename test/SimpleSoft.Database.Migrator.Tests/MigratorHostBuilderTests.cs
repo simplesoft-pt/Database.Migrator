@@ -42,6 +42,48 @@ namespace SimpleSoft.Database.Migrator.Tests
             }
         }
 
+        #region NamingNormalizer
+
+        [Fact]
+        public void GivenAHostBuilderWhenBuildingThenDefaultNamingNormalizerMustNotBeNull()
+        {
+            using (var builder = new MigratorHostBuilder())
+            {
+                Assert.NotNull(builder.NamingNormalizer);
+                Assert.IsType<DefaultNamingNormalizer>(builder.NamingNormalizer);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenSettingACustomNamingNormalizerThenItMustBeUsed()
+        {
+            var namingNormalizer = new TrimNamingNormalizer();
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.NamingNormalizer = namingNormalizer;
+
+                Assert.NotNull(builder.NamingNormalizer);
+                Assert.Same(namingNormalizer, builder.NamingNormalizer);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenSettingANullNamingNormalizerThenArgumentNullExceptionMustBeThrown()
+        {
+            using (var builder = new MigratorHostBuilder())
+            {
+                var ex = Assert.Throws<ArgumentNullException>(() =>
+                {
+                    builder.NamingNormalizer = null;
+                });
+
+                Assert.NotNull(ex);
+            }
+        }
+
+        #endregion
+
         #region ConfigurationBuilder
 
         [Fact]
@@ -211,6 +253,23 @@ namespace SimpleSoft.Database.Migrator.Tests
         #endregion
 
         #region LoggerFactory
+        
+        [Fact]
+        public void GivenAHostBuilderWhenBuildingThenDefaultLoggerFactoryMustNotBeNull()
+        {
+            ILoggerFactory builderFactory = null;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddLoggingConfigurator(param =>
+                {
+                    builderFactory = param.Factory;
+                });
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+            }
+
+            Assert.NotNull(builderFactory);
+        }
         
         [Fact]
         public void GivenAHostBuilderWhenSettingACustomFactoryThenItMustBeUsed()
