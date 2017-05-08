@@ -34,6 +34,8 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public static class MigratorHostBuilderExtensions
     {
+        #region NamingNormalizer
+
         /// <summary>
         /// Assigns the given <see cref="INamingNormalizer"/> to be used
         /// by the <see cref="IMigratorHost{TContext}"/>.
@@ -51,6 +53,42 @@ namespace SimpleSoft.Database.Migrator
             builder.NamingNormalizer = normalizer;
             return builder;
         }
+
+        /// <summary>
+        /// Assigns an instance of <see cref="DefaultNamingNormalizer"/> to be used
+        /// by the <see cref="IMigratorHost{TContext}"/>.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder UseDefaultNamingNormalizer<TBuilder>(this TBuilder builder)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            builder.NamingNormalizer = new DefaultNamingNormalizer();
+            return builder;
+        }
+
+        /// <summary>
+        /// Assigns an instance of <see cref="TrimNamingNormalizer"/> to be used
+        /// by the <see cref="IMigratorHost{TContext}"/>.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder UseTrimNamingNormalizer<TBuilder>(this TBuilder builder)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            builder.NamingNormalizer = new TrimNamingNormalizer();
+            return builder;
+        }
+
+        #endregion
 
         /// <summary>
         /// Adds the handler to the <see cref="IMigratorHostBuilder.ConfigurationBuilderHandlers"/> 
