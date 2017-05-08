@@ -41,10 +41,11 @@ namespace SimpleSoft.Database.Migrator
         /// Creates a new instance
         /// </summary>
         /// <param name="context">The migration context</param>
+        /// <param name="normalizer"></param>
         /// <param name="logger">The class logger</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected MigrationManager(TContext context, ILogger<MigrationManager<TContext>> logger)
-            : this(context, logger, typeof(TContext).Name)
+        protected MigrationManager(TContext context, INamingNormalizer normalizer, ILogger<MigrationManager<TContext>> logger)
+            : this(context, normalizer, logger, typeof(TContext).Name)
         {
 
         }
@@ -53,15 +54,18 @@ namespace SimpleSoft.Database.Migrator
         /// Creates a new instance
         /// </summary>
         /// <param name="context">The migration context</param>
+        /// <param name="normalizer"></param>
         /// <param name="logger">The class logger</param>
         /// <param name="contextName">The context name</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
         protected MigrationManager(
-            TContext context, ILogger<MigrationManager<TContext>> logger, string contextName)
+            TContext context, INamingNormalizer normalizer, ILogger<MigrationManager<TContext>> logger, string contextName)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
+            if (normalizer == null)
+                throw new ArgumentNullException(nameof(normalizer));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
             if (contextName == null)
@@ -69,13 +73,19 @@ namespace SimpleSoft.Database.Migrator
             if (string.IsNullOrWhiteSpace(contextName))
                 throw new ArgumentException("Value cannot be whitespace.", nameof(contextName));
 
-            ContextName = contextName;
+            ContextName = normalizer.Normalize(contextName);
+            Normalizer = normalizer;
             Context = context;
             Logger = logger;
         }
 
         /// <inheritdoc />
         public string ContextName { get; }
+
+        /// <summary>
+        /// The naming normalizer
+        /// </summary>
+        protected INamingNormalizer Normalizer { get; }
 
         /// <summary>
         /// The class logger
@@ -127,6 +137,8 @@ namespace SimpleSoft.Database.Migrator
             if (string.IsNullOrWhiteSpace(className))
                 throw new ArgumentException("Value cannot be whitespace.", nameof(className));
 
+            migrationId = Normalizer.Normalize(migrationId);
+            className = Normalizer.Normalize(className);
             Logger.LogDebug(
                 "Adding '{migrationId}' to the history of '{contextName}' context.",
                 migrationId, ContextName);
@@ -136,7 +148,7 @@ namespace SimpleSoft.Database.Migrator
                     var mostRecentMigrationId =
                         await GetMostRecentMigrationEntryIdAsync(ContextName, c).ConfigureAwait(false);
                     if (string.IsNullOrWhiteSpace(mostRecentMigrationId) ||
-                        string.Compare(migrationId, mostRecentMigrationId, StringComparison.OrdinalIgnoreCase) > 0)
+                        string.CompareOrdinal(migrationId, mostRecentMigrationId) > 0)
                     {
                         await InsertMigrationEntryAsync(ContextName, migrationId, className, DateTimeOffset.Now, c)
                             .ConfigureAwait(false);

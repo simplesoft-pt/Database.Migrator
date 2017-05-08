@@ -19,7 +19,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             var ct = CancellationToken.None;
 
             var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                _fixture.Context, LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
+                _fixture.Context, new DefaultNamingNormalizer(), LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
 
             await manager.PrepareDatabaseAsync(ct);
 

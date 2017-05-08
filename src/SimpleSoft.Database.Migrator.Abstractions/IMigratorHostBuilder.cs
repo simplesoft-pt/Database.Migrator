@@ -37,6 +37,11 @@ namespace SimpleSoft.Database.Migrator
     public interface IMigratorHostBuilder
     {
         /// <summary>
+        /// The naming normalizer to be used
+        /// </summary>
+        INamingNormalizer NamingNormalizer { get; set; }
+
+        /// <summary>
         /// Collection of handlers used to configure the <see cref="IConfigurationBuilder"/>.
         /// </summary>
         IReadOnlyCollection<Action<ConfigurationBuilderConfiguratorParam>> ConfigurationBuilderHandlers { get; }

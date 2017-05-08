@@ -20,13 +20,21 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             Assert.Throws<ArgumentNullException>(() =>
             {
                 var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                    null, LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
+                    null, new DefaultNamingNormalizer(), LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
                 Assert.NotNull(manager);
             });
 
             Assert.Throws<ArgumentNullException>(() =>
             {
-                var manager = new SqlServerMigrationManager<MigratorTestContext>(_fixture.Context, null);
+                var manager = new SqlServerMigrationManager<MigratorTestContext>(
+                    _fixture.Context, null, LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
+                Assert.NotNull(manager);
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var manager = new SqlServerMigrationManager<MigratorTestContext>(
+                    _fixture.Context, new DefaultNamingNormalizer(), null);
                 Assert.NotNull(manager);
             });
         }

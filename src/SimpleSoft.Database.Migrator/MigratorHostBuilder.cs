@@ -41,6 +41,7 @@ namespace SimpleSoft.Database.Migrator
     {
         private ILoggerFactory _loggerFactory;
         private bool _disposed;
+        private INamingNormalizer _namingNormalizer;
         private readonly List<Action<ConfigurationBuilderConfiguratorParam>> _configurationBuilderHandlers;
         private readonly List<Action<ConfigurationConfiguratorParam>> _configurationHandlers;
         private readonly List<Action<LoggingConfiguratorParam>> _loggingConfigurationHandlers;
@@ -54,6 +55,7 @@ namespace SimpleSoft.Database.Migrator
         public MigratorHostBuilder()
         {
             _loggerFactory = new LoggerFactory();
+            _namingNormalizer = new DefaultNamingNormalizer();
 
             _configurationBuilderHandlers = new List<Action<ConfigurationBuilderConfiguratorParam>>();
             _configurationHandlers = new List<Action<ConfigurationConfiguratorParam>>();
@@ -91,6 +93,7 @@ namespace SimpleSoft.Database.Migrator
                 _loggerFactory?.Dispose();
             
             _loggerFactory = null;
+            _namingNormalizer = null;
             _configurationBuilderHandlers.Clear();
             _configurationHandlers.Clear();
             _loggingConfigurationHandlers.Clear();
@@ -104,6 +107,17 @@ namespace SimpleSoft.Database.Migrator
         #endregion
 
         #region Implementation of IMigratorHostBuilder
+
+        /// <inheritdoc />
+        public INamingNormalizer NamingNormalizer
+        {
+            get { return _namingNormalizer; }
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(value));
+                _namingNormalizer = value;
+            }
+        }
 
         /// <inheritdoc />
         public IReadOnlyCollection<Action<ConfigurationBuilderConfiguratorParam>> ConfigurationBuilderHandlers => _configurationBuilderHandlers;
@@ -222,6 +236,7 @@ namespace SimpleSoft.Database.Migrator
                 .AddSingleton(configuration)
                 .AddSingleton<IConfiguration>(configuration)
                 .AddSingleton(loggerFactory)
+                .AddSingleton(_namingNormalizer)
                 .AddLogging();
 
             if (_serviceConfigurationHandlers.Count == 0)

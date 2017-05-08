@@ -25,7 +25,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             Connection = new SqlConnection(ConnectionString);
             Context = new MigratorTestContext(Connection);
             Manager = new SqlServerMigrationManager<MigratorTestContext>(
-                Context, LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
+                Context, new DefaultNamingNormalizer(), LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
         }
 
         public DbConnection Connection { get; private set; }
@@ -71,7 +71,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             using (var context = new MigratorTestContext(connection))
             {
                 var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                    context, LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
+                    context, new DefaultNamingNormalizer(), LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
 
                 manager.PrepareDatabaseAsync(ct)
                     .ConfigureAwait(false)

@@ -22,46 +22,18 @@
 // SOFTWARE.
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
-    /// Represents a configured migrator host
+    /// Normalizes names
     /// </summary>
-    public interface IMigratorHost<out TContext> where TContext : IMigrationContext
+    public interface INamingNormalizer
     {
         /// <summary>
-        /// The service provider used
+        /// Normalizes the given name
         /// </summary>
-        IServiceProvider ServiceProvider { get; }
-
-        /// <summary>
-        /// The migration manager
-        /// </summary>
-        IMigrationManager<TContext> Manager { get; }
-
-        /// <summary>
-        /// The migrations identifiers, sorted ascending
-        /// </summary>
-        IEnumerable<string> Migrations { get; }
-
-        /// <summary>
-        /// Applies all the missing migrations to the database, up to the most recent one.
-        /// </summary>
-        /// <param name="ct">The cancellation token</param>
-        /// <returns>A task to be awaited</returns>
-        Task ApplyMigrationsAsync(CancellationToken ct);
-
-        /// <summary>
-        /// Applies all the missing migrations to the database, up to the given one.
-        /// </summary>
-        /// <param name="migrationId">The migration id</param>
-        /// <param name="ct">The cancellation token</param>
-        /// <returns>A task to be awaited</returns>
-        Task ApplyMigrationsStoppingAtAsync(string migrationId, CancellationToken ct);
+        /// <param name="name">The name to normalize</param>
+        /// <returns>The name normalized</returns>
+        string Normalize(string name);
     }
 }

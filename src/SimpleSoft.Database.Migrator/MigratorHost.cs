@@ -24,6 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -37,6 +40,7 @@ namespace SimpleSoft.Database.Migrator
         private readonly IConfiguration _configuration;
         private readonly ILogger<MigratorHost<TContext>> _logger;
         private readonly SortedDictionary<string, Type> _migrations;
+        private readonly string _contextName;
 
         /// <summary>
         /// Creates a new instance
@@ -67,16 +71,13 @@ namespace SimpleSoft.Database.Migrator
             _migrations = new SortedDictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
             foreach (var migration in migrations)
                 _migrations.Add(migration.Name, migration);
+            _contextName = typeof(TContext).Name;
 
-            ContextType = typeof(TContext);
             ServiceProvider = serviceProvider;
             Manager = manager;
         }
 
         #region Implementation of IMigratorHost<TContext>
-
-        /// <inheritdoc />
-        public Type ContextType { get; }
 
         /// <inheritdoc />
         public IServiceProvider ServiceProvider { get; }
@@ -86,6 +87,50 @@ namespace SimpleSoft.Database.Migrator
 
         /// <inheritdoc />
         public IEnumerable<string> Migrations => _migrations.Keys;
+
+        /// <inheritdoc />
+        public async Task ApplyMigrationsAsync(CancellationToken ct)
+        {
+            if (_migrations.Count == 0)
+            {
+                _logger.LogWarning(
+                    "The migration collection for '{contextName}' context is empty. Nothing to be done.",
+                    _contextName);
+                return;
+            }
+
+            var lastMigrationId = _migrations.Keys.Last();
+            await ApplyMigrationsStoppingAtAsync(lastMigrationId, ct).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public async Task ApplyMigrationsStoppingAtAsync(string migrationId, CancellationToken ct)
+        {
+            if (migrationId == null)
+                throw new ArgumentNullException(nameof(migrationId));
+            if (string.IsNullOrWhiteSpace(migrationId))
+                throw new ArgumentException("Value cannot be whitespace.", nameof(migrationId));
+
+            _logger.LogDebug(
+                "About to apply '{migrationId}' migration for '{contextName}' context", migrationId, _contextName);
+
+            if (!_migrations.ContainsKey(migrationId))
+                throw new InvalidOperationException(
+                    $"There is no matching migration with the identifier '{migrationId}'");
+
+            var dbMigrations = await Manager.GetAllMigrationsAsync(ct).ConfigureAwait(false);
+            if (dbMigrations.Any(e => e.Equals(migrationId, StringComparison.OrdinalIgnoreCase)))
+            {
+                _logger.LogDebug(
+                    "Migration '{migrationId}' is already applied for '{contextName}' context", migrationId, _contextName);
+                return;
+            }
+
+            var appliedMigrationIds = new List<string>(dbMigrations.Count);
+            appliedMigrationIds.AddRange(dbMigrations);
+
+            //  TODO    Validar match exacto de migrations
+        }
 
         #endregion
     }

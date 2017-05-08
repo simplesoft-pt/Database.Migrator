@@ -35,6 +35,24 @@ namespace SimpleSoft.Database.Migrator
     public static class MigratorHostBuilderExtensions
     {
         /// <summary>
+        /// Assigns the given <see cref="INamingNormalizer"/> to be used
+        /// by the <see cref="IMigratorHost{TContext}"/>.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="normalizer">The normalizer to use</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder UseNamingNormalizer<TBuilder>(this TBuilder builder, INamingNormalizer normalizer)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            builder.NamingNormalizer = normalizer;
+            return builder;
+        }
+
+        /// <summary>
         /// Adds the handler to the <see cref="IMigratorHostBuilder.ConfigurationBuilderHandlers"/> 
         /// collection.
         /// </summary>
