@@ -45,12 +45,36 @@ namespace SimpleSoft.Database.Migrator.Tests
         #region NamingNormalizer
 
         [Fact]
-        public void GivenAHostBuilderWhenBuildingThenDefaultNamingNormalizerMustNotBeNull()
+        public void GivenNewAHostBuilderThenNamingNormalizerMustNotBeNull()
         {
             using (var builder = new MigratorHostBuilder())
             {
                 Assert.NotNull(builder.NamingNormalizer);
                 Assert.IsType<DefaultNamingNormalizer>(builder.NamingNormalizer);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenUsingDefaultNamingNormalizerThenMustBeOfTypeDefaultNamingNormalizer()
+        {
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.UseDefaultNamingNormalizer();
+
+                Assert.NotNull(builder.NamingNormalizer);
+                Assert.IsType<DefaultNamingNormalizer>(builder.NamingNormalizer);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenUsingTrimNamingNormalizerThenMustBeOfTypeTrimNamingNormalizer()
+        {
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.UseTrimNamingNormalizer();
+
+                Assert.NotNull(builder.NamingNormalizer);
+                Assert.IsType<TrimNamingNormalizer>(builder.NamingNormalizer);
             }
         }
 
@@ -69,6 +93,20 @@ namespace SimpleSoft.Database.Migrator.Tests
         }
 
         [Fact]
+        public void GivenAHostBuilderWhenUsingACustomNamingNormalizerThenItMustBeUsed()
+        {
+            var namingNormalizer = new TrimNamingNormalizer();
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.UseNamingNormalizer(namingNormalizer);
+
+                Assert.NotNull(builder.NamingNormalizer);
+                Assert.Same(namingNormalizer, builder.NamingNormalizer);
+            }
+        }
+
+        [Fact]
         public void GivenAHostBuilderWhenSettingANullNamingNormalizerThenArgumentNullExceptionMustBeThrown()
         {
             using (var builder = new MigratorHostBuilder())
@@ -76,6 +114,20 @@ namespace SimpleSoft.Database.Migrator.Tests
                 var ex = Assert.Throws<ArgumentNullException>(() =>
                 {
                     builder.NamingNormalizer = null;
+                });
+
+                Assert.NotNull(ex);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenUsingANullNamingNormalizerThenArgumentNullExceptionMustBeThrown()
+        {
+            using (var builder = new MigratorHostBuilder())
+            {
+                var ex = Assert.Throws<ArgumentNullException>(() =>
+                {
+                    builder.UseNamingNormalizer(null);
                 });
 
                 Assert.NotNull(ex);
