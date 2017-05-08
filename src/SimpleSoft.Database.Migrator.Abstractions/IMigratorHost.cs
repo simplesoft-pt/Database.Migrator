@@ -22,7 +22,6 @@
 // SOFTWARE.
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,22 +31,12 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Represents a configured migrator host
     /// </summary>
-    public interface IMigratorHost<out TContext> where TContext : IMigrationContext
+    public interface IMigratorHost<TContext> where TContext : IMigrationContext
     {
         /// <summary>
-        /// The service provider used
+        /// The migration metadata information, sorted ascending by <see cref="MigrationMetadata{TContext}.Id"/>.
         /// </summary>
-        IServiceProvider ServiceProvider { get; }
-
-        /// <summary>
-        /// The migration manager
-        /// </summary>
-        IMigrationManager<TContext> Manager { get; }
-
-        /// <summary>
-        /// The migrations identifiers, sorted ascending
-        /// </summary>
-        IEnumerable<string> Migrations { get; }
+        IEnumerable<MigrationMetadata<TContext>> MigrationMetadatas { get; }
 
         /// <summary>
         /// Applies all the missing migrations to the database, up to the most recent one.

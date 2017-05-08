@@ -208,29 +208,70 @@ namespace SimpleSoft.Database.Migrator
             if (_disposed)
                 throw new ObjectDisposedException(nameof(MigratorHostBuilder));
 
-            var cfgBuilderParam = new ConfigurationBuilderConfiguratorParam(
-                new ConfigurationBuilder()
-                    .AddInMemoryCollection(new Dictionary<string, string>
-                    {
-                        {MigratorHostDefaults.EnvironmentKey, MigratorHostDefaults.DefaultEnvironment},
-                        {MigratorHostDefaults.ContentRootKey, Directory.GetCurrentDirectory()}
-                    })
-                    .AddEnvironmentVariables("DATABASE_MIGRATOR_"));
+            var configurationBuilder = BuildConfigurationBuilderUsingHandlers();
+
+            var configuration = 
+                BuidConfigurationRootUsingHandlers(configurationBuilder);
+
+            var loggerFactory = 
+                BuildLoggerFactoryUsingHandlers(configuration);
+
+            var logger = loggerFactory.CreateLogger<MigratorHostBuilder>();
+            var serviceCollection = 
+                BuildServiceCollectionUsingHandlers(logger, configuration, loggerFactory);
+            
+            var serviceProvider =
+                BuildServiceProviderUsingHandlers(logger, serviceCollection, configuration, loggerFactory);
+
+            var migrationImplTypes =
+                ExtractMigrationMetadatas<TContext>(logger, _namingNormalizer, serviceCollection);
+
+            return new MigratorHost<TContext>(
+                serviceProvider, _namingNormalizer, migrationImplTypes,
+                loggerFactory.CreateLogger<MigratorHost<TContext>>());
+        }
+
+        #endregion
+
+        #region Private
+
+        private IConfigurationBuilder BuildConfigurationBuilderUsingHandlers()
+        {
+            var cfgBuilderParam = new ConfigurationBuilderConfiguratorParam(new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    {MigratorHostDefaults.EnvironmentKey, MigratorHostDefaults.DefaultEnvironment},
+                    {MigratorHostDefaults.ContentRootKey, Directory.GetCurrentDirectory()}
+                })
+                .AddEnvironmentVariables("DATABASE_MIGRATOR_"));
             foreach (var handler in _configurationBuilderHandlers)
                 handler(cfgBuilderParam);
-            
-            var cfgParam = new ConfigurationConfiguratorParam(cfgBuilderParam.Builder.Build());
+
+            return cfgBuilderParam.Builder;
+        }
+
+        private IConfigurationRoot BuidConfigurationRootUsingHandlers(IConfigurationBuilder configurationBuilder)
+        {
+            var cfgParam = new ConfigurationConfiguratorParam(configurationBuilder.Build());
             foreach (var handler in _configurationHandlers)
                 handler(cfgParam);
 
-            var configuration = cfgParam.Configuration;
+            return cfgParam.Configuration;
+        }
+
+        private ILoggerFactory BuildLoggerFactoryUsingHandlers(IConfiguration configuration)
+        {
             var loggerFactory = _loggerFactory;
             var loggingParam = new LoggingConfiguratorParam(loggerFactory, configuration);
             foreach (var handler in _loggingConfigurationHandlers)
                 handler(loggingParam);
 
-            var logger = loggerFactory.CreateLogger<MigratorHostBuilder>();
-            
+            return loggerFactory;
+        }
+
+        private IServiceCollection BuildServiceCollectionUsingHandlers(
+            ILogger logger, IConfigurationRoot configuration, ILoggerFactory loggerFactory)
+        {
             logger.LogDebug("Configuring core services");
             var serviceCollection = new ServiceCollection()
                 .AddSingleton(configuration)
@@ -252,6 +293,45 @@ namespace SimpleSoft.Database.Migrator
                     handler(serviceParam);
             }
 
+            return serviceCollection;
+        }
+
+        private static IEnumerable<MigrationMetadata<TContext>> ExtractMigrationMetadatas<TContext>(
+            ILogger logger, INamingNormalizer namingNormalizer, IServiceCollection serviceCollection) 
+            where TContext : IMigrationContext
+        {
+            logger.LogDebug("Searching for registered migrations");
+
+            var migrationInterfaceType = typeof(IMigration<TContext>).GetTypeInfo();
+
+            var migrationImplTypes = new List<MigrationMetadata<TContext>>(serviceCollection.Count);
+            migrationImplTypes.AddRange(
+                serviceCollection.Where(e => migrationInterfaceType.IsAssignableFrom(e.ImplementationType))
+                    .Select(e => new MigrationMetadata<TContext>(
+                        namingNormalizer.Normalize(e.ImplementationType.Name),
+                        namingNormalizer.Normalize(e.ImplementationType.FullName),
+                        e.ImplementationType)));
+
+            if (migrationImplTypes.Count == 0)
+            {
+                if (logger.IsEnabled(LogLevel.Warning))
+                    logger.LogWarning(
+                        "No migrations were found for the context '{contextType}'", typeof(TContext).Name);
+            }
+            else
+            {
+                if (logger.IsEnabled(LogLevel.Debug))
+                    logger.LogDebug(
+                        "A total of {totalMigrations} migrations were found for the context '{contextType}'",
+                        migrationImplTypes.Count, typeof(TContext).Name);
+            }
+
+            return migrationImplTypes;
+        }
+
+        private IServiceProvider BuildServiceProviderUsingHandlers(
+            ILogger logger, IServiceCollection serviceCollection, IConfiguration configuration, ILoggerFactory loggerFactory)
+        {
             logger.LogDebug("Building services provider");
             var serviceProvider = ServiceProviderBuilder(new ServiceProviderBuilderParam(
                 serviceCollection, loggerFactory, configuration));
@@ -268,31 +348,7 @@ namespace SimpleSoft.Database.Migrator
                     handler(configureParam);
             }
 
-            var migrationInterfaceType = typeof(IMigration<TContext>).GetTypeInfo();
-
-            var migrationImplTypes = new List<Type>(serviceCollection.Count);
-            migrationImplTypes.AddRange(
-                serviceCollection.Where(e => migrationInterfaceType.IsAssignableFrom(e.ImplementationType))
-                    .Select(e => e.ImplementationType));
-
-            if (migrationImplTypes.Count == 0)
-            {
-                if (logger.IsEnabled(LogLevel.Warning))
-                    logger.LogWarning(
-                        "No migrations were found for the context '{contextType}'", typeof(TContext).Name);
-            }
-            else
-            {
-                if (logger.IsEnabled(LogLevel.Debug))
-                    logger.LogDebug(
-                        "A total of {totalMigrations} migrations were found for the context '{contextType}'",
-                        migrationImplTypes.Count, typeof(TContext).Name);
-            }
-
-            return new MigratorHost<TContext>(
-                serviceProvider, configuration,
-                serviceProvider.GetRequiredService<IMigrationManager<TContext>>(),
-                migrationImplTypes, loggerFactory.CreateLogger<MigratorHost<TContext>>());
+            return serviceProvider;
         }
 
         #endregion

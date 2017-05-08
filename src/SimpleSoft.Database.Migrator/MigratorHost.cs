@@ -24,10 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator
@@ -37,69 +36,91 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public class MigratorHost<TContext> : IMigratorHost<TContext> where TContext : IMigrationContext
     {
-        private readonly IConfiguration _configuration;
-        private readonly ILogger<MigratorHost<TContext>> _logger;
-        private readonly SortedDictionary<string, Type> _migrations;
-        private readonly string _contextName;
+        private readonly SortedList<string, MigrationMetadata<TContext>> _migrations;
 
         /// <summary>
         /// Creates a new instance
         /// </summary>
         /// <param name="serviceProvider">The service provider</param>
-        /// <param name="configuration">The configuration to use</param>
-        /// <param name="manager">The migration manager</param>
+        /// <param name="namingNormalizer">The naming normalizer</param>
         /// <param name="migrations">The migrations found</param>
-        /// <param name="logger">The logger to be used</param>
+        /// <param name="logger"></param>
         /// <exception cref="ArgumentNullException"></exception>
         public MigratorHost(
-            IServiceProvider serviceProvider, IConfiguration configuration, IMigrationManager<TContext> manager, 
-            IEnumerable<Type> migrations, ILogger<MigratorHost<TContext>> logger)
+            IServiceProvider serviceProvider, INamingNormalizer namingNormalizer, 
+            IEnumerable<MigrationMetadata<TContext>> migrations, ILogger<MigratorHost<TContext>> logger)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
-            if (configuration == null)
-                throw new ArgumentNullException(nameof(configuration));
-            if (manager == null)
-                throw new ArgumentNullException(nameof(manager));
+            if (namingNormalizer == null)
+                throw new ArgumentNullException(nameof(namingNormalizer));
             if (migrations == null)
                 throw new ArgumentNullException(nameof(migrations));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
-            _configuration = configuration;
-            _logger = logger;
-            _migrations = new SortedDictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-            foreach (var migration in migrations)
-                _migrations.Add(migration.Name, migration);
-            _contextName = typeof(TContext).Name;
-
+            Logger = logger;
+            ContextName = namingNormalizer.Normalize(typeof(TContext).Name);
+            NamingNormalizer = namingNormalizer;
             ServiceProvider = serviceProvider;
-            Manager = manager;
+            ServiceScopeFactory = ServiceProvider.GetRequiredService<IServiceScopeFactory>();
+
+            _migrations = new SortedList<string, MigrationMetadata<TContext>>();
+            foreach (var migration in migrations)
+            {
+                var name = namingNormalizer.Normalize(migration.Id);
+                if (_migrations.ContainsKey(name))
+                    throw new ArgumentException(
+                        $"Collection contains duplicated migrations with name '{name}' for context '{ContextName}'",
+                        nameof(migrations));
+
+                _migrations.Add(migration.Id, new MigrationMetadata<TContext>(
+                    name, namingNormalizer.Normalize(migration.ClassName), migration.Type));
+            }
         }
 
         #region Implementation of IMigratorHost<TContext>
 
-        /// <inheritdoc />
-        public IServiceProvider ServiceProvider { get; }
+        /// <summary>
+        /// The host logger
+        /// </summary>
+        protected ILogger<MigratorHost<TContext>> Logger { get; }
+
+        /// <summary>
+        /// The service provider
+        /// </summary>
+        protected IServiceProvider ServiceProvider { get; }
+
+        /// <summary>
+        /// The service scope factory
+        /// </summary>
+        protected IServiceScopeFactory ServiceScopeFactory { get; }
+
+        /// <summary>
+        /// The naming normalized
+        /// </summary>
+        protected INamingNormalizer NamingNormalizer { get; }
+
+        /// <summary>
+        /// The context name
+        /// </summary>
+        protected string ContextName { get; }
 
         /// <inheritdoc />
-        public IMigrationManager<TContext> Manager { get; }
-
-        /// <inheritdoc />
-        public IEnumerable<string> Migrations => _migrations.Keys;
+        public IEnumerable<MigrationMetadata<TContext>> MigrationMetadatas => _migrations.Values;
 
         /// <inheritdoc />
         public async Task ApplyMigrationsAsync(CancellationToken ct)
         {
             if (_migrations.Count == 0)
             {
-                _logger.LogWarning(
+                Logger.LogWarning(
                     "The migration collection for '{contextName}' context is empty. Nothing to be done.",
-                    _contextName);
+                    ContextName);
                 return;
             }
 
-            var lastMigrationId = _migrations.Keys.Last();
+            var lastMigrationId = _migrations.Keys[_migrations.Count - 1];
             await ApplyMigrationsStoppingAtAsync(lastMigrationId, ct).ConfigureAwait(false);
         }
 
@@ -111,27 +132,129 @@ namespace SimpleSoft.Database.Migrator
             if (string.IsNullOrWhiteSpace(migrationId))
                 throw new ArgumentException("Value cannot be whitespace.", nameof(migrationId));
 
-            _logger.LogDebug(
-                "About to apply '{migrationId}' migration for '{contextName}' context", migrationId, _contextName);
-
-            if (!_migrations.ContainsKey(migrationId))
-                throw new InvalidOperationException(
-                    $"There is no matching migration with the identifier '{migrationId}'");
-
-            var dbMigrations = await Manager.GetAllMigrationsAsync(ct).ConfigureAwait(false);
-            if (dbMigrations.Any(e => e.Equals(migrationId, StringComparison.OrdinalIgnoreCase)))
+            using (Logger.BeginScope("Context: {contextName}", ContextName))
             {
-                _logger.LogDebug(
-                    "Migration '{migrationId}' is already applied for '{contextName}' context", migrationId, _contextName);
-                return;
+                migrationId = NamingNormalizer.Normalize(migrationId);
+                Logger.LogDebug("About to apply '{migrationId}' migration", migrationId);
+
+                if (!_migrations.ContainsKey(migrationId))
+                    throw new InvalidOperationException(
+                        $"There is no matching migration with the identifier '{migrationId}'");
+
+                if (_migrations.Count == 0)
+                {
+                    Logger.LogWarning("The migration collection is empty. Nothing to be done.");
+                    return;
+                }
+
+                await UsingManagerAsync(async manager =>
+                {
+                    int migrationStartIdx;
+
+                    var dbMigrations = await manager.GetAllMigrationsAsync(ct).ConfigureAwait(false);
+                    if (dbMigrations.Count > 0)
+                    {
+                        var sortedDbMigrations = new SortedList<string, string>(dbMigrations.Count);
+                        foreach (var dbMigration in dbMigrations)
+                            sortedDbMigrations.Add(dbMigration, dbMigration);
+
+                        FailIfAppliedMigrationsMismatchInMemory(sortedDbMigrations.Keys);
+
+                        if (sortedDbMigrations.ContainsKey(migrationId))
+                        {
+                            Logger.LogDebug("Migration '{migrationId}' is already applied", migrationId);
+                            return;
+                        }
+
+                        migrationStartIdx = sortedDbMigrations.Count;
+                    }
+                    else
+                    {
+                        migrationStartIdx = 0;
+                    }
+
+                    Logger.LogDebug(
+                        "Migrations starting at position {migrationStartIdx} for a total of {migrationCount} migrations",
+                        migrationStartIdx, _migrations.Count);
+                    for (; migrationStartIdx < _migrations.Count; migrationStartIdx++)
+                    {
+                        var migrationMeta = _migrations.Values[migrationStartIdx];
+                        using (Logger.BeginScope("MigrationId : {migrationId}", migrationMeta.Id,
+                            migrationMeta.Type.FullName))
+                        {
+                            using (var migrationScope = ServiceScopeFactory.CreateScope())
+                            {
+                                Logger.LogDebug(
+                                    "Resolving migration of type '{migrationType}' from service collection",
+                                    migrationMeta.Type);
+                                var migration = (IMigration<TContext>)
+                                    migrationScope.ServiceProvider.GetRequiredService(migrationMeta.Type);
+
+                                await manager.Context.RunAsync(async () =>
+                                {
+                                    await manager.AddMigrationAsync(migrationMeta.Id, migrationMeta.ClassName, ct)
+                                        .ConfigureAwait(false);
+
+                                    if (migration.RunInsideScope)
+                                    {
+                                        await migration.Context.RunAsync(async () =>
+                                        {
+                                            await migration.ApplyAsync(ct).ConfigureAwait(false);
+                                        }, ct).ConfigureAwait(false);
+                                    }
+                                    else
+                                    {
+                                        await migration.ApplyAsync(ct).ConfigureAwait(false);
+                                    }
+                                }, ct).ConfigureAwait(false);
+                            }
+                            Logger.LogInformation(
+                                "Applied migration '{migrationId}' to the database", migrationMeta.Id);
+                        }
+                    }
+
+                }).ConfigureAwait(false);
             }
-
-            var appliedMigrationIds = new List<string>(dbMigrations.Count);
-            appliedMigrationIds.AddRange(dbMigrations);
-
-            //  TODO    Validar match exacto de migrations
         }
 
         #endregion
+
+        /// <summary>
+        /// Gets a new <see cref="IMigrationManager{TContext}"/> from the 
+        /// service scope factory
+        /// </summary>
+        /// <param name="handler">The handler to receive the manager</param>
+        /// <returns>A task to be awaited</returns>
+        protected async Task UsingManagerAsync(Func<IMigrationManager<TContext>, Task> handler)
+        {
+            using (var managerScope = ServiceScopeFactory.CreateScope())
+            {
+                var manager =
+                    managerScope.ServiceProvider.GetRequiredService<IMigrationManager<TContext>>();
+
+                await handler(manager).ConfigureAwait(false);
+            }
+        }
+
+        private void FailIfAppliedMigrationsMismatchInMemory(IList<string> sortedDbMigrations)
+        {
+            if(sortedDbMigrations.Count == 0) return;
+
+            if (_migrations.Count < sortedDbMigrations.Count)
+                throw new InvalidOperationException(
+                    "Registered migrations are fewer than the ones currently applied to the database");
+
+            for (var i = 0; i < Math.Min(sortedDbMigrations.Count, _migrations.Keys.Count); i++)
+            {
+                var dbMigrationId = sortedDbMigrations[i];
+                var memoryMigrationId = _migrations.Keys[i];
+
+                if (string.CompareOrdinal(dbMigrationId, memoryMigrationId) != 0)
+                {
+                    throw new InvalidOperationException(
+                        $"Mismatch between database migrations and registered ones. Expecting {dbMigrationId} but found {memoryMigrationId} for the same order");
+                }
+            }
+        }
     }
 }
