@@ -219,9 +219,11 @@ namespace SimpleSoft.Database.Migrator
             var logger = loggerFactory.CreateLogger<MigratorHostBuilder>();
             var serviceCollection = 
                 BuildServiceCollectionUsingHandlers(logger, configuration, loggerFactory);
-            
+
             var serviceProvider =
                 BuildServiceProviderUsingHandlers(logger, serviceCollection, configuration, loggerFactory);
+
+            FailIfNoContextExist<TContext>(serviceCollection);
 
             var migrationImplTypes =
                 ExtractMigrationMetadatas<TContext>(logger, _namingNormalizer, serviceCollection);
@@ -296,8 +298,40 @@ namespace SimpleSoft.Database.Migrator
             return serviceCollection;
         }
 
+        private IServiceProvider BuildServiceProviderUsingHandlers(
+            ILogger logger, IServiceCollection serviceCollection, IConfiguration configuration, ILoggerFactory loggerFactory)
+        {
+            logger.LogDebug("Building services provider");
+            var serviceProvider = ServiceProviderBuilder(new ServiceProviderBuilderParam(
+                serviceCollection, loggerFactory, configuration));
+
+            if (_configureHandlers.Count == 0)
+                logger.LogWarning("Configuration handlers collection is empty. Default configurations will be used...");
+            else
+            {
+                logger.LogDebug(
+                    "Configuring the host using a total of {total} handlers",
+                    _configureHandlers.Count);
+                var configureParam = new ConfigureParam(serviceProvider, loggerFactory, configuration);
+                foreach (var handler in _configureHandlers)
+                    handler(configureParam);
+            }
+
+            return serviceProvider;
+        }
+
+        private static void FailIfNoContextExist<TContext>(IServiceCollection serviceCollection)
+            where TContext : IMigrationContext
+        {
+            var contextType = typeof(TContext);
+
+            var context = serviceCollection.SingleOrDefault(e => contextType == e.ServiceType);
+            if (context == null)
+                throw new InvalidOperationException($"No context of type '{contextType.FullName}' was found.");
+        }
+
         private static IEnumerable<MigrationMetadata<TContext>> ExtractMigrationMetadatas<TContext>(
-            ILogger logger, INamingNormalizer namingNormalizer, IServiceCollection serviceCollection) 
+            ILogger logger, INamingNormalizer namingNormalizer, IServiceCollection serviceCollection)
             where TContext : IMigrationContext
         {
             logger.LogDebug("Searching for registered migrations");
@@ -327,28 +361,6 @@ namespace SimpleSoft.Database.Migrator
             }
 
             return migrationImplTypes;
-        }
-
-        private IServiceProvider BuildServiceProviderUsingHandlers(
-            ILogger logger, IServiceCollection serviceCollection, IConfiguration configuration, ILoggerFactory loggerFactory)
-        {
-            logger.LogDebug("Building services provider");
-            var serviceProvider = ServiceProviderBuilder(new ServiceProviderBuilderParam(
-                serviceCollection, loggerFactory, configuration));
-
-            if (_configureHandlers.Count == 0)
-                logger.LogWarning("Configuration handlers collection is empty. Default configurations will be used...");
-            else
-            {
-                logger.LogDebug(
-                    "Configuring the host using a total of {total} handlers",
-                    _configureHandlers.Count);
-                var configureParam = new ConfigureParam(serviceProvider, loggerFactory, configuration);
-                foreach (var handler in _configureHandlers)
-                    handler(configureParam);
-            }
-
-            return serviceProvider;
         }
 
         #endregion

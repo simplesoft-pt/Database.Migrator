@@ -38,7 +38,7 @@ namespace SimpleSoft.Database.Migrator.Tests
                     param.ServiceCollection
                         .AddMigrationManager<TestMigrationManager, IMigrationContext>();
                 });
-                builder.Build<IMigrationContext>();
+                BuildAndIgnoreMissingMigrationManagerException(builder);
             }
         }
 
