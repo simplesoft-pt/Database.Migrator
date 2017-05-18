@@ -132,10 +132,10 @@ namespace SimpleSoft.Database.Migrator
             if (string.IsNullOrWhiteSpace(migrationId))
                 throw new ArgumentException("Value cannot be whitespace.", nameof(migrationId));
 
-            using (Logger.BeginScope("Context: {contextName}", ContextName))
+            using (Logger.BeginScope("Context:{contextName} MigrationId:{migrationId}", ContextName, migrationId))
             {
                 migrationId = NamingNormalizer.Normalize(migrationId);
-                Logger.LogDebug("About to apply '{migrationId}' migration", migrationId);
+                Logger.LogInformation("About to apply migration", migrationId);
 
                 if (!_migrations.ContainsKey(migrationId))
                     throw new InvalidOperationException(
@@ -149,28 +149,12 @@ namespace SimpleSoft.Database.Migrator
 
                 await UsingManagerAsync(async manager =>
                 {
-                    int migrationStartIdx;
-
-                    var dbMigrations = await manager.GetAllMigrationsAsync(ct).ConfigureAwait(false);
-                    if (dbMigrations.Count > 0)
+                    var migrationStartIdx =
+                        await CalculateMigrationStartIndexAsync(migrationId, manager, ct).ConfigureAwait(false);
+                    if (migrationStartIdx == -1)
                     {
-                        var sortedDbMigrations = new SortedList<string, string>(dbMigrations.Count);
-                        foreach (var dbMigration in dbMigrations)
-                            sortedDbMigrations.Add(dbMigration, dbMigration);
-
-                        FailIfAppliedMigrationsMismatchInMemory(sortedDbMigrations.Keys);
-
-                        if (sortedDbMigrations.ContainsKey(migrationId))
-                        {
-                            Logger.LogDebug("Migration '{migrationId}' is already applied", migrationId);
-                            return;
-                        }
-
-                        migrationStartIdx = sortedDbMigrations.Count;
-                    }
-                    else
-                    {
-                        migrationStartIdx = 0;
+                        Logger.LogInformation("Migration is already applied. Nothing to be done.", migrationId);
+                        return;
                     }
 
                     Logger.LogDebug(
@@ -179,16 +163,18 @@ namespace SimpleSoft.Database.Migrator
                     for (; migrationStartIdx < _migrations.Count; migrationStartIdx++)
                     {
                         var migrationMeta = _migrations.Values[migrationStartIdx];
-                        using (Logger.BeginScope(
-                            "MigrationId : {migrationId}", migrationMeta.Id, migrationMeta.Type.FullName))
+                        using (Logger.BeginScope("MigrationType:{migrationType}]", migrationMeta.Type.FullName))
                         {
-                            await UsingMigrationAsync(migrationMeta.Type, async migration =>
+                            await manager.Context.RunAsync(async () =>
                             {
-                                await manager.Context.RunAsync(async () =>
-                                {
-                                    await manager.AddMigrationAsync(migrationMeta.Id, migrationMeta.ClassName, ct)
-                                        .ConfigureAwait(false);
+                                //  this will lock the table but no commit will be made, yet
+                                await manager.AddMigrationAsync(migrationMeta.Id, migrationMeta.ClassName, ct)
+                                    .ConfigureAwait(false);
 
+                                await UsingMigrationAsync(migrationMeta.Type, async migration =>
+                                {
+                                    Logger.LogDebug(
+                                        "Applying migration [RunInsideScope: {runInsideScope}]", migration.RunInsideScope);
                                     if (migration.RunInsideScope)
                                     {
                                         await migration.Context.RunAsync(async () =>
@@ -200,8 +186,8 @@ namespace SimpleSoft.Database.Migrator
                                     {
                                         await migration.ApplyAsync(ct).ConfigureAwait(false);
                                     }
-                                }, ct).ConfigureAwait(false);
-                            }).ConfigureAwait(false);
+                                }).ConfigureAwait(false);
+                            }, ct).ConfigureAwait(false);
 
                             Logger.LogInformation("Migration applied to the database");
                         }
@@ -250,6 +236,24 @@ namespace SimpleSoft.Database.Migrator
 
                 await handler(migration).ConfigureAwait(false);
             }
+        }
+
+        private async Task<int> CalculateMigrationStartIndexAsync(
+            string migrationId, IMigrationManager<TContext> manager, CancellationToken ct)
+        {
+            var dbMigrations = await manager.GetAllMigrationsAsync(ct).ConfigureAwait(false);
+            if (dbMigrations.Count <= 0)
+                return 0;
+
+            var sortedDbMigrations = new SortedList<string, string>(dbMigrations.Count);
+            foreach (var dbMigration in dbMigrations)
+                sortedDbMigrations.Add(dbMigration, dbMigration);
+
+            FailIfAppliedMigrationsMismatchInMemory(sortedDbMigrations.Keys);
+
+            return sortedDbMigrations.ContainsKey(migrationId)
+                ? -1
+                : sortedDbMigrations.Count;
         }
 
         private void FailIfAppliedMigrationsMismatchInMemory(IList<string> sortedDbMigrations)
