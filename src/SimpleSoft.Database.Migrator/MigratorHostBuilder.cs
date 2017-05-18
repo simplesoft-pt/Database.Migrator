@@ -327,7 +327,8 @@ namespace SimpleSoft.Database.Migrator
 
             var context = serviceCollection.SingleOrDefault(e => contextType == e.ServiceType);
             if (context == null)
-                throw new InvalidOperationException($"No context of type '{contextType.FullName}' was found.");
+                throw new InvalidOperationException(
+                    $"No context of type '{contextType.FullName}' was found in the service collection.");
         }
 
         private static IEnumerable<MigrationMetadata<TContext>> ExtractMigrationMetadatas<TContext>(
