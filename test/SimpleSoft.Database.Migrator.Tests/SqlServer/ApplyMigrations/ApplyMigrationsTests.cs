@@ -52,11 +52,9 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer.ApplyMigrations
 
     public class Version001 : Migration<ApplyMigrationsContext>
     {
-        private readonly ILogger<Version001> _logger;
-
-        public Version001(ApplyMigrationsContext context, ILogger<Version001> logger) : base(context)
+        public Version001(ApplyMigrationsContext context) : base(context)
         {
-            _logger = logger;
+            RunInTransaction = false;
         }
 
         #region Overrides of Migration<ApplyMigrationsContext>
@@ -64,8 +62,6 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer.ApplyMigrations
         /// <inheritdoc />
         public override async Task ApplyAsync(CancellationToken ct)
         {
-            _logger.LogDebug("Running migration Version001");
-
             await Context.ExecuteAsync(@"
 create table Version001Table(
 	Id bigint primary key,
@@ -107,7 +103,7 @@ values (@id, @value)", new
     {
         public Version003(ApplyMigrationsContext context) : base(context)
         {
-
+            RunInTransaction = false;
         }
 
         #region Overrides of Migration<ApplyMigrationsContext>
@@ -115,7 +111,9 @@ values (@id, @value)", new
         /// <inheritdoc />
         public override async Task ApplyAsync(CancellationToken ct)
         {
-            //await Context.ExecuteAsync("drop table Version001Table");
+            await Context.ExecuteAsync(@"
+alter table Version001Table 
+add Description nvarchar(1024) not null default 'hello world'");
         }
 
         #endregion
