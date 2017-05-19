@@ -56,13 +56,15 @@ namespace SimpleSoft.Database.Migrator
         /// <inheritdoc />
         public virtual Task ApplyAsync(CancellationToken ct)
         {
-            return Task.FromResult(true);
+            throw new NotImplementedException(
+                "This migration apply method was not overriden. This is intended to prevent the migration history to change without the developer beeing explicit by overriden this method.");
         }
 
         /// <inheritdoc />
         public virtual Task RollbackAsync(CancellationToken ct)
         {
-            return Task.FromResult(true);
+            throw new NotImplementedException(
+                "This migration rollback method was not overriden. This is intended to prevent the migration history to change without the developer beeing explicit by overriden this method.");
         }
     }
 }
