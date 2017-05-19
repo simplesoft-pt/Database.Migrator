@@ -297,6 +297,7 @@ namespace SimpleSoft.Database.Migrator
             var builder = new MigrationsBuilder<TContext>(services);
             config(builder);
 
+            services.AddScoped<TContext>();
             foreach (var migrationType in builder.Migrations)
             {
                 services.AddScoped(migrationType);
