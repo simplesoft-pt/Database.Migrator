@@ -30,7 +30,7 @@ from (
 	select 
         MigrationId, ClassName, AppliedOn
 	from " + manager.MigrationsHistoryTableName + @"
-) V"), ct);
+) V"), true, ct);
             Assert.NotNull(tableId);
             Assert.Equal(0L, tableId);
         }

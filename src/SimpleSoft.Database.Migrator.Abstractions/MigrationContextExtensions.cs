@@ -33,6 +33,73 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public static class MigrationContextExtensions
     {
+        /// <summary>
+        /// Execute the given action inside a context scope. The method
+        /// <see cref="IMigrationContext.PrepareAsync"/> will be invoked and,
+        /// if no exception is thrown <see cref="IMigrationContext.PersistAsync"/>, otherwise 
+        /// <see cref="IMigrationContext.RollbackAsync"/> will be invoked instead.
+        /// </summary>
+        /// <param name="context">The context to use</param>
+        /// <param name="action">The action to execute</param>
+        /// <param name="openTransaction">Should a transaction be open?</param>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>A task to be awaited</returns>
+        public static async Task RunAsync(
+            this IMigrationContext context, Func<Task> action,
+            bool openTransaction, CancellationToken ct = default(CancellationToken))
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (action == null) throw new ArgumentNullException(nameof(action));
+
+            await context.PrepareAsync(openTransaction, ct).ConfigureAwait(false);
+            try
+            {
+                await action().ConfigureAwait(false);
+
+                await context.PersistAsync(ct).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                await context.RollbackAsync(ct).ConfigureAwait(false);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Execute the given action inside a context scope. The method
+        /// <see cref="IMigrationContext.PrepareAsync"/> will be invoked and,
+        /// if no exception is thrown <see cref="IMigrationContext.PersistAsync"/>, otherwise 
+        /// <see cref="IMigrationContext.RollbackAsync"/> will be invoked instead.
+        /// </summary>
+        /// <param name="context">The context to use</param>
+        /// <param name="action">The action to execute</param>
+        /// <param name="openTransaction">Should a transaction be open?</param>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>A task to be awaited</returns>
+        public static async Task<TResult> RunAsync<TResult>(
+            this IMigrationContext context, Func<Task<TResult>> action,
+            bool openTransaction, CancellationToken ct = default(CancellationToken))
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (action == null) throw new ArgumentNullException(nameof(action));
+
+            await context.PrepareAsync(openTransaction, ct).ConfigureAwait(false);
+            try
+            {
+                var result = await action().ConfigureAwait(false);
+
+                await context.PersistAsync(ct).ConfigureAwait(false);
+
+                return result;
+            }
+            catch (Exception)
+            {
+                await context.RollbackAsync(ct).ConfigureAwait(false);
+                throw;
+            }
+        }
+
+        /*/
         #region RunAsync
 
         /// <summary>
@@ -43,15 +110,17 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         /// <param name="context">The context to use</param>
         /// <param name="action">The action to execute</param>
+        /// <param name="openTransaction">Should a transaction be open?</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
         public static async Task RunAsync(
-            this IMigrationContext context, Func<IMigrationContext, CancellationToken, Task> action, CancellationToken ct = default(CancellationToken))
+            this IMigrationContext context, Func<IMigrationContext, CancellationToken, Task> action,
+            bool openTransaction, CancellationToken ct = default(CancellationToken))
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            await context.PrepareAsync(ct).ConfigureAwait(false);
+            await context.PrepareAsync(openTransaction, ct).ConfigureAwait(false);
             try
             {
                 await action(context, ct).ConfigureAwait(false);
@@ -76,11 +145,50 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
         public static async Task RunAsync(
+            this IMigrationContext context, Func<IMigrationContext, CancellationToken, Task> action, CancellationToken ct = default(CancellationToken))
+        {
+            await context.RunAsync(action, true, ct)
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Execute the given action inside a context scope. The method
+        /// <see cref="IMigrationContext.PrepareAsync"/> will be invoked and,
+        /// if no exception is thrown <see cref="IMigrationContext.PersistAsync"/>, otherwise 
+        /// <see cref="IMigrationContext.RollbackAsync"/> will be invoked instead.
+        /// </summary>
+        /// <param name="context">The context to use</param>
+        /// <param name="action">The action to execute</param>
+        /// <param name="openTransaction">Should a transaction be open?</param>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>A task to be awaited</returns>
+        public static async Task RunAsync(
+            this IMigrationContext context, Func<IMigrationContext, Task> action,
+            bool openTransaction, CancellationToken ct = default(CancellationToken))
+        {
+            if (action == null) throw new ArgumentNullException(nameof(action));
+
+            await context.RunAsync(async (ctx, c) => await action(context).ConfigureAwait(false), openTransaction, ct)
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Execute the given action inside a context scope. The method
+        /// <see cref="IMigrationContext.PrepareAsync"/> will be invoked and,
+        /// if no exception is thrown <see cref="IMigrationContext.PersistAsync"/>, otherwise 
+        /// <see cref="IMigrationContext.RollbackAsync"/> will be invoked instead.
+        /// </summary>
+        /// <param name="context">The context to use</param>
+        /// <param name="action">The action to execute</param>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>A task to be awaited</returns>
+        public static async Task RunAsync(
             this IMigrationContext context, Func<IMigrationContext, Task> action, CancellationToken ct = default(CancellationToken))
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            await context.RunAsync(async (ctx, c) => await action(context).ConfigureAwait(false), ct);
+            await context.RunAsync(async (ctx, c) => await action(context).ConfigureAwait(false), true, ct)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -121,7 +229,7 @@ namespace SimpleSoft.Database.Migrator
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            await context.PrepareAsync(ct).ConfigureAwait(false);
+            await context.PrepareAsync(TODO, ct).ConfigureAwait(false);
             try
             {
                 var result = await action(context, ct).ConfigureAwait(false);
@@ -194,7 +302,7 @@ namespace SimpleSoft.Database.Migrator
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            await context.PrepareAsync(ct).ConfigureAwait(false);
+            await context.PrepareAsync(TODO, ct).ConfigureAwait(false);
             try
             {
                 await action(context, ct).ConfigureAwait(false);
@@ -273,7 +381,7 @@ namespace SimpleSoft.Database.Migrator
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (action == null) throw new ArgumentNullException(nameof(action));
 
-            await context.PrepareAsync(ct).ConfigureAwait(false);
+            await context.PrepareAsync(TODO, ct).ConfigureAwait(false);
             try
             {
                 var result = await action(context, ct).ConfigureAwait(false);
@@ -328,5 +436,6 @@ namespace SimpleSoft.Database.Migrator
         }
 
         #endregion
+        //*/
     }
 }

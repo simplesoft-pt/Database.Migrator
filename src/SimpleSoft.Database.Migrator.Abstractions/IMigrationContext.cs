@@ -48,9 +48,10 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// Prepares the context to perform database work
         /// </summary>
+        /// <param name="openTransaction">Should a transaction be open?</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        Task PrepareAsync(CancellationToken ct);
+        Task PrepareAsync(bool openTransaction, CancellationToken ct);
 
         /// <summary>
         /// Persist all changes into the database

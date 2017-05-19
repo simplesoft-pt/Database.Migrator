@@ -106,7 +106,7 @@ namespace SimpleSoft.Database.Migrator
         #region Overrides of MigrationContext
 
         /// <inheritdoc />
-        public override async Task PrepareAsync(CancellationToken ct)
+        public override async Task PrepareAsync(bool openTransaction, CancellationToken ct)
         {
             FailIfDisposed();
 
@@ -116,7 +116,8 @@ namespace SimpleSoft.Database.Migrator
             else
                 await dbConnection.OpenAsync(ct).ConfigureAwait(false);
 
-            Transaction = Connection.BeginTransaction(DefaultIsolationLevel);
+            if (openTransaction)
+                Transaction = Connection.BeginTransaction(DefaultIsolationLevel);
         }
 
         /// <inheritdoc />
@@ -124,9 +125,8 @@ namespace SimpleSoft.Database.Migrator
         {
             FailIfDisposed();
 
-            Transaction.Commit();
-
-            Connection.Close();
+            Transaction?.Commit();
+            Connection?.Close();
 
             return CompletedTask;
         }
@@ -136,9 +136,8 @@ namespace SimpleSoft.Database.Migrator
         {
             FailIfDisposed();
 
-            Transaction.Rollback();
-
-            Connection.Close();
+            Transaction?.Rollback();
+            Connection?.Close();
 
             return CompletedTask;
         }

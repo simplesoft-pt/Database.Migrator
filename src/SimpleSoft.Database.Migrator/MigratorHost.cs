@@ -149,6 +149,8 @@ namespace SimpleSoft.Database.Migrator
 
                 await UsingManagerAsync(async manager =>
                 {
+                    await manager.PrepareDatabaseAsync(ct).ConfigureAwait(false);
+
                     var migrationStartIdx =
                         await CalculateMigrationStartIndexAsync(migrationId, manager, ct).ConfigureAwait(false);
                     if (migrationStartIdx == -1)
@@ -165,29 +167,22 @@ namespace SimpleSoft.Database.Migrator
                         var migrationMeta = _migrations.Values[migrationStartIdx];
                         using (Logger.BeginScope("MigrationType:{migrationType}]", migrationMeta.Type.FullName))
                         {
-                            await manager.Context.RunAsync(async () =>
+                            await UsingMigrationAsync(migrationMeta.Type, async migration =>
                             {
-                                //  this will lock the table but no commit will be made, yet
-                                await manager.AddMigrationAsync(migrationMeta.Id, migrationMeta.ClassName, ct)
-                                    .ConfigureAwait(false);
+                                Logger.LogDebug(
+                                    "Applying migration [RunInsideScope: {runInsideScope}]",
+                                    migration.RunInTransaction);
 
-                                await UsingMigrationAsync(migrationMeta.Type, async migration =>
+                                await migration.Context.RunAsync(async () =>
                                 {
-                                    Logger.LogDebug(
-                                        "Applying migration [RunInsideScope: {runInsideScope}]", migration.RunInsideScope);
-                                    if (migration.RunInsideScope)
-                                    {
-                                        await migration.Context.RunAsync(async () =>
-                                        {
-                                            await migration.ApplyAsync(ct).ConfigureAwait(false);
-                                        }, ct).ConfigureAwait(false);
-                                    }
-                                    else
-                                    {
-                                        await migration.ApplyAsync(ct).ConfigureAwait(false);
-                                    }
-                                }).ConfigureAwait(false);
-                            }, ct).ConfigureAwait(false);
+                                    await migration.ApplyAsync(ct).ConfigureAwait(false);
+                                }, migration.RunInTransaction, ct).ConfigureAwait(false);
+
+                            }).ConfigureAwait(false);
+
+                            //  this will lock the table but no commit will be made, yet
+                            await manager.AddMigrationAsync(migrationMeta.Id, migrationMeta.ClassName, ct)
+                                .ConfigureAwait(false);
 
                             Logger.LogInformation("Migration applied to the database");
                         }

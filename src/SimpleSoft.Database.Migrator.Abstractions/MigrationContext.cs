@@ -36,7 +36,7 @@ namespace SimpleSoft.Database.Migrator
         #region Implementation of IMigrationContext
 
         /// <inheritdoc />
-        public virtual Task PrepareAsync(CancellationToken ct)
+        public virtual Task PrepareAsync(bool openTransaction, CancellationToken ct)
         {
             return Task.FromResult(true);
         }

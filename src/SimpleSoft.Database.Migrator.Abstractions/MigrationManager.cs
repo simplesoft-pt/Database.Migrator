@@ -103,19 +103,18 @@ namespace SimpleSoft.Database.Migrator
             Logger.LogDebug(
                 "Preparing context '{contextName}' database to support migrations.", ContextName);
 
-            await Context.RunAsync(async (ctx, c) =>
+            await Context.RunAsync(async () =>
+            {
+                if (await MigrationsHistoryExistAsync(ct).ConfigureAwait(false))
                 {
-                    if (await MigrationsHistoryExistAsync(c).ConfigureAwait(false))
-                    {
-                        Logger.LogInformation(
-                            "Migrations history was detected in the database. No changes need to be done.");
-                        return;
-                    }
+                    Logger.LogInformation(
+                        "Migrations history was detected in the database. No changes need to be done.");
+                    return;
+                }
 
-                    Logger.LogWarning("Migrations history does not exist. Trying to create...");
-                    await CreateMigrationsHistoryAsync(c).ConfigureAwait(false);
-                }, ct)
-                .ConfigureAwait(false);
+                Logger.LogWarning("Migrations history does not exist. Trying to create...");
+                await CreateMigrationsHistoryAsync(ct).ConfigureAwait(false);
+            }, true, ct).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -143,33 +142,32 @@ namespace SimpleSoft.Database.Migrator
                 "Adding '{migrationId}' to the history of '{contextName}' context.",
                 migrationId, ContextName);
 
-            await Context.RunAsync(async (ctx, c) =>
+            await Context.RunAsync(async () =>
+            {
+                var mostRecentMigrationId =
+                    await GetMostRecentMigrationEntryIdAsync(ContextName, ct).ConfigureAwait(false);
+                if (string.IsNullOrWhiteSpace(mostRecentMigrationId) ||
+                    string.CompareOrdinal(migrationId, mostRecentMigrationId) > 0)
                 {
-                    var mostRecentMigrationId =
-                        await GetMostRecentMigrationEntryIdAsync(ContextName, c).ConfigureAwait(false);
-                    if (string.IsNullOrWhiteSpace(mostRecentMigrationId) ||
-                        string.CompareOrdinal(migrationId, mostRecentMigrationId) > 0)
-                    {
-                        await InsertMigrationEntryAsync(ContextName, migrationId, className, DateTimeOffset.Now, c)
-                            .ConfigureAwait(false);
-                        return;
-                    }
+                    await InsertMigrationEntryAsync(ContextName, migrationId, className, DateTimeOffset.Now, ct)
+                        .ConfigureAwait(false);
+                    return;
+                }
 
-                    Logger.LogWarning(
-                        "The history of '{contextName}' context has the migration '{mostRecentMigrationId}', which is considered more recent than '{migrationId}'.",
-                        ContextName, mostRecentMigrationId, migrationId);
-                    throw new InvalidOperationException(
-                        $"The database already has the migration '{mostRecentMigrationId}' which is more recent than '{migrationId}'");
-                }, ct)
-                .ConfigureAwait(false);
+                Logger.LogWarning(
+                    "The history of '{contextName}' context has the migration '{mostRecentMigrationId}', which is considered more recent than '{migrationId}'.",
+                    ContextName, mostRecentMigrationId, migrationId);
+                throw new InvalidOperationException(
+                    $"The database already has the migration '{mostRecentMigrationId}' which is more recent than '{migrationId}'");
+            }, true, ct).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
         public async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(CancellationToken ct)
         {
             var migrationIds =
-                await Context.RunAsync(async (ctx, c) =>
-                        await GetAllMigrationsAsync(ContextName, c).ConfigureAwait(false), ct)
+                await Context.RunAsync(async () =>
+                        await GetAllMigrationsAsync(ContextName, ct).ConfigureAwait(false), true, ct)
                     .ConfigureAwait(false);
 
             Logger.LogDebug(
@@ -182,8 +180,8 @@ namespace SimpleSoft.Database.Migrator
         public async Task<string> GetMostRecentMigrationIdAsync(CancellationToken ct)
         {
             var migrationId =
-                await Context.RunAsync(async (ctx, c) =>
-                        await GetMostRecentMigrationEntryIdAsync(ContextName, c).ConfigureAwait(false), ct)
+                await Context.RunAsync(async () =>
+                        await GetMostRecentMigrationEntryIdAsync(ContextName, ct).ConfigureAwait(false), true, ct)
                     .ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(migrationId))
@@ -206,24 +204,24 @@ namespace SimpleSoft.Database.Migrator
                 "Removing most recent migration from the history of '{contextName}' context.",
                 ContextName);
 
-            var result = await Context.RunAsync(async (ctx, c) =>
+            var result = await Context.RunAsync(async () =>
+            {
+                var migrationId = await GetMostRecentMigrationEntryIdAsync(ContextName, ct)
+                    .ConfigureAwait(false);
+                if (string.IsNullOrWhiteSpace(migrationId))
                 {
-                    var migrationId = await GetMostRecentMigrationEntryIdAsync(ContextName, c).ConfigureAwait(false);
-                    if (string.IsNullOrWhiteSpace(migrationId))
-                    {
-                        Logger.LogWarning(
-                            "No migrations were found in history of '{contextName}' context. No changes will be made.",
-                            ContextName);
-                        return false;
-                    }
+                    Logger.LogWarning(
+                        "No migrations were found in history of '{contextName}' context. No changes will be made.",
+                        ContextName);
+                    return false;
+                }
 
-                    Logger.LogDebug(
-                        "Removing migration '{migradionId}' from the history of '{contextName}' context",
-                        migrationId, ContextName);
-                    await DeleteMigrationEntryByIdAsync(ContextName, migrationId, c).ConfigureAwait(false);
-                    return true;
-                }, ct)
-                .ConfigureAwait(false);
+                Logger.LogDebug(
+                    "Removing migration '{migradionId}' from the history of '{contextName}' context",
+                    migrationId, ContextName);
+                await DeleteMigrationEntryByIdAsync(ContextName, migrationId, ct).ConfigureAwait(false);
+                return true;
+            }, true, ct).ConfigureAwait(false);
 
             return result;
         }

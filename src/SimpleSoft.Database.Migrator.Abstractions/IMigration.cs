@@ -43,7 +43,7 @@ namespace SimpleSoft.Database.Migrator
         /// Should this migration be run inside an 
         /// <see cref="IMigrationContext"/> scope?
         /// </summary>
-        bool RunInsideScope { get; set; }
+        bool RunInTransaction { get; set; }
 
         /// <summary>
         /// Applies the given migration into the database
