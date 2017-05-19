@@ -121,11 +121,11 @@ namespace SimpleSoft.Database.Migrator
             }
 
             var lastMigrationId = _migrations.Keys[_migrations.Count - 1];
-            await ApplyMigrationsStoppingAtAsync(lastMigrationId, ct).ConfigureAwait(false);
+            await ApplyMigrationsAsync(lastMigrationId, ct).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
-        public async Task ApplyMigrationsStoppingAtAsync(string migrationId, CancellationToken ct)
+        public async Task ApplyMigrationsAsync(string migrationId, CancellationToken ct)
         {
             if (migrationId == null)
                 throw new ArgumentNullException(nameof(migrationId));

@@ -51,6 +51,6 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="migrationId">The migration id</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        Task ApplyMigrationsStoppingAtAsync(string migrationId, CancellationToken ct);
+        Task ApplyMigrationsAsync(string migrationId, CancellationToken ct);
     }
 }
