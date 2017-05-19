@@ -341,7 +341,15 @@ namespace SimpleSoft.Database.Migrator
 
             var migrationImplTypes = new List<MigrationMetadata<TContext>>(serviceCollection.Count);
             migrationImplTypes.AddRange(
-                serviceCollection.Where(e => migrationInterfaceType.IsAssignableFrom(e.ImplementationType))
+                serviceCollection.Where(e =>
+                    {
+                        if (migrationInterfaceType.IsAssignableFrom(e.ServiceType))
+                        {
+                            var type = e.ServiceType.GetTypeInfo();
+                            return type.IsClass && !type.IsAbstract;
+                        }
+                        return false;
+                    })
                     .Select(e => new MigrationMetadata<TContext>(
                         namingNormalizer.Normalize(e.ImplementationType.Name),
                         namingNormalizer.Normalize(e.ImplementationType.FullName),
