@@ -28,11 +28,14 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer.ApplyMigrations
             }).ConfigureServices(p =>
             {
                 p.ServiceCollection
-                    .AddMigrationContext<ApplyMigrationsContext>()
-                    .AddMigrationManager<SqlServerMigrationManager<ApplyMigrationsContext>, ApplyMigrationsContext>()
-                    .AddMigration<Version001, ApplyMigrationsContext>()
-                    .AddMigration<Version002, ApplyMigrationsContext>()
-                    .AddMigration<Version003, ApplyMigrationsContext>();
+                    .AddMigrations<ApplyMigrationsContext>(options =>
+                    {
+                        options.AddSqlServer(EmptySqlDatabaseFixture.ConnectionString);
+
+                        options.AddMigration<Version001>();
+                        options.AddMigration<Version002>();
+                        options.AddMigration<Version003>();
+                    });
             }))
             {
                 var host = builder.Build<ApplyMigrationsContext>();

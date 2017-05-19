@@ -278,5 +278,32 @@ namespace SimpleSoft.Database.Migrator
         }
 
         #endregion
+
+        /// <summary>
+        /// Adds support for migrations for the given <see cref="IMigrationContext"/>.
+        /// </summary>
+        /// <typeparam name="TContext">The migration context</typeparam>
+        /// <param name="services">The service collection</param>
+        /// <param name="config">Configuration handler</param>
+        /// <returns>The service collection after changes</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IServiceCollection AddMigrations<TContext>(
+            this IServiceCollection services, Action<MigrationsBuilder<TContext>> config)
+            where TContext : class, IMigrationContext
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (config == null) throw new ArgumentNullException(nameof(config));
+
+            var builder = new MigrationsBuilder<TContext>(services);
+            config(builder);
+
+            foreach (var migrationType in builder.Migrations)
+            {
+                services.AddScoped(migrationType);
+                services.AddScoped(typeof(IMigration<TContext>), migrationType);
+            }
+
+            return services;
+        }
     }
 }
