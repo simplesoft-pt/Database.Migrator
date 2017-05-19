@@ -179,34 +179,4 @@ SQL to execute:
             timeout = commandTimeout ?? Connection.ConnectionTimeout;
         }
     }
-
-    /// <summary>
-    /// The relational migration context
-    /// </summary>
-    /// <typeparam name="TOptions">The migration options</typeparam>
-    public class RelationalMigrationContext<TOptions> : RelationalMigrationContext, IRelationalMigrationContext<TOptions>
-        where TOptions : MigrationOptions
-    {
-        /// <summary>
-        /// Creates a new instance
-        /// </summary>
-        /// <param name="connection">The connection to use</param>
-        /// <param name="options">The context options</param>
-        /// <param name="logger">The logger to use</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public RelationalMigrationContext(TOptions options, IDbConnection connection, ILogger<RelationalMigrationContext<TOptions>> logger) 
-            : base(connection, logger)
-        {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-
-            Options = options;
-        }
-
-        #region Implementation of IMigrationContext<out TOptions>
-
-        /// <inheritdoc />
-        public TOptions Options { get; }
-
-        #endregion
-    }
 }

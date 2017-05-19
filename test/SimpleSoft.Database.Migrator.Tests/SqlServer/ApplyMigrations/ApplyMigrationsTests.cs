@@ -16,6 +16,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer.ApplyMigrations
             _fixture = fixture;
         }
 
+        /*/
         [Fact]
         public async Task Tmp()
         {
@@ -39,6 +40,7 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer.ApplyMigrations
                 await host.ApplyMigrationsAsync(CancellationToken.None);
             }
         }
+        //*/
     }
 
     public class ApplyMigrationsContext : RelationalMigrationContext

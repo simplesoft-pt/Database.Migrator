@@ -150,14 +150,4 @@ namespace SimpleSoft.Database.Migrator
 
         #endregion
     }
-
-    /// <summary>
-    /// The relational migration context
-    /// </summary>
-    /// <typeparam name="TOptions">The migration options</typeparam>
-    public interface IRelationalMigrationContext<out TOptions> : IMigrationContext<TOptions>, IRelationalMigrationContext 
-        where TOptions : MigrationOptions
-    {
-
-    }
 }
