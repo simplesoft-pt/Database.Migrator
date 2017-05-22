@@ -51,12 +51,5 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
         Task ApplyAsync(CancellationToken ct);
-
-        /// <summary>
-        /// Does a rollback of this migration
-        /// </summary>
-        /// <param name="ct">The cancellation token</param>
-        /// <returns>A task to be awaited</returns>
-        Task RollbackAsync(CancellationToken ct);
     }
 }
