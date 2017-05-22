@@ -40,6 +40,6 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(false)]
 
-[assembly: AssemblyVersion("0.0.0")]
-[assembly: AssemblyFileVersion("0.0.0.17128")]
-[assembly: AssemblyInformationalVersion("0.0.0-alpha02")]
+[assembly: AssemblyVersion("1.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.17142")]
+[assembly: AssemblyInformationalVersion("1.0.0-alpha01")]

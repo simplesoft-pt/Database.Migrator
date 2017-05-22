@@ -1,5 +1,5 @@
 ﻿{
-    "version": "0.0.0-alpha02",
+    "version": "1.0.0-alpha01",
     "title": "SimpleSoft.Database.Migrator.SqlServer",
     "description": "Support for simple database migrations for SQL Server.",
     "authors": [ "João Simões" ],
