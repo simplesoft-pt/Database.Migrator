@@ -132,7 +132,7 @@ namespace SimpleSoft.Database.Migrator
             if (string.IsNullOrWhiteSpace(migrationId))
                 throw new ArgumentException("Value cannot be whitespace.", nameof(migrationId));
 
-            using (Logger.BeginScope("Context:{contextName} MigrationId:{migrationId}", ContextName, migrationId))
+            using (Logger.BeginScope("Context:{contextName} TargetMigrationId:{migrationId}", ContextName, migrationId))
             {
                 migrationId = NamingNormalizer.Normalize(migrationId);
                 Logger.LogInformation("About to apply migration", migrationId);
@@ -165,7 +165,7 @@ namespace SimpleSoft.Database.Migrator
                     for (; migrationStartIdx < _migrations.Count; migrationStartIdx++)
                     {
                         var migrationMeta = _migrations.Values[migrationStartIdx];
-                        using (Logger.BeginScope("MigrationType:{migrationType}]", migrationMeta.Type.FullName))
+                        using (Logger.BeginScope("CurrentMigrationId:{currentmigrationId}", migrationMeta.Id))
                         {
                             await UsingMigrationAsync(migrationMeta.Type, async migration =>
                             {
@@ -179,8 +179,7 @@ namespace SimpleSoft.Database.Migrator
                                 }, migration.RunInTransaction, ct).ConfigureAwait(false);
 
                             }).ConfigureAwait(false);
-
-                            //  this will lock the table but no commit will be made, yet
+                            
                             await manager.AddMigrationAsync(migrationMeta.Id, migrationMeta.ClassName, ct)
                                 .ConfigureAwait(false);
 
