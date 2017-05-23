@@ -53,7 +53,6 @@ $xprojFiles | Where-Object {$_.FullName -like "*test*"} | ForEach-Object  {
 
 Write-Host "Packing all NuGets..."
 
-
 $xprojFiles | Where-Object {$_.FullName -like "*src*"} | ForEach-Object  {
     Write-Host "Packing NuGet of $($_.FullName)..."
     dotnet.exe pack $_.DirectoryName
