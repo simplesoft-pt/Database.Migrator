@@ -74,10 +74,7 @@ namespace SimpleSoft.Database.Migrator
         protected override async Task<bool> MigrationsHistoryExistAsync(CancellationToken ct)
         {
             var tableId = await Context.QuerySingleAsync<long?>(
-                    "SELECT OBJECT_ID(@TableName, 'U') as TableId", new
-                    {
-                        TableName = MigrationsHistoryTableName
-                    })
+                    "SELECT OBJECT_ID('__DbMigratorHistory', 'U') as TableId")
                 .ConfigureAwait(false);
             return tableId.HasValue;
         }
@@ -85,8 +82,8 @@ namespace SimpleSoft.Database.Migrator
         /// <inheritdoc />
         protected override async Task CreateMigrationsHistoryAsync(CancellationToken ct)
         {
-            await Context.ExecuteAsync($@"
-CREATE TABLE {MigrationsHistoryTableName}
+            await Context.ExecuteAsync(@"
+CREATE TABLE __DbMigratorHistory
 (
     ContextName NVARCHAR(256) NOT NULL,
     MigrationId NVARCHAR(128) NOT NULL,
@@ -101,8 +98,8 @@ CREATE TABLE {MigrationsHistoryTableName}
         protected override async Task InsertMigrationEntryAsync(string contextName, string migrationId,
             string className, DateTimeOffset appliedOn, CancellationToken ct)
         {
-            await Context.ExecuteAsync($@"
-INSERT INTO {MigrationsHistoryTableName}(ContextName, MigrationId, ClassName, AppliedOn) 
+            await Context.ExecuteAsync(@"
+INSERT INTO __DbMigratorHistory(ContextName, MigrationId, ClassName, AppliedOn) 
 VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
                 {
                     ContextName = contextName,
@@ -117,10 +114,10 @@ VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
         protected override async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(string contextName,
             CancellationToken ct)
         {
-            var result = await Context.Query<string>($@"
+            var result = await Context.Query<string>(@"
 SELECT 
     MigrationId
-FROM {MigrationsHistoryTableName}
+FROM __DbMigratorHistory
 WHERE
     ContextName = @ContextName
 ORDER BY 
@@ -137,10 +134,10 @@ ORDER BY
         protected override async Task<string> GetMostRecentMigrationEntryIdAsync(string contextName,
             CancellationToken ct)
         {
-            var migrationId = await Context.QuerySingleOrDefaultAsync<string>($@"
+            var migrationId = await Context.QuerySingleOrDefaultAsync<string>(@"
 SELECT 
     TOP(1) MigrationId 
-FROM {MigrationsHistoryTableName} 
+FROM __DbMigratorHistory 
 WHERE
     ContextName = @ContextName
 ORDER BY 
@@ -157,8 +154,8 @@ ORDER BY
         protected override async Task DeleteMigrationEntryByIdAsync(string contextName, string migrationId,
             CancellationToken ct)
         {
-            await Context.ExecuteAsync($@"
-DELETE FROM {MigrationsHistoryTableName} 
+            await Context.ExecuteAsync(@"
+DELETE FROM __DbMigratorHistory 
 WHERE 
     ContextName = @ContextName
     AND MigrationId = @MigrationId", new

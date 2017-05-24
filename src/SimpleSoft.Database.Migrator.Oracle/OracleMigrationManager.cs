@@ -46,9 +46,17 @@ namespace SimpleSoft.Database.Migrator.Oracle
         #region Overrides of MigrationManager<TContext>
 
         /// <inheritdoc />
-        protected override Task<bool> MigrationsHistoryExistAsync(CancellationToken ct)
+        protected override async Task<bool> MigrationsHistoryExistAsync(CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var tableCount = await Context.QuerySingleAsync<int>(@"
+SELECT COUNT(*)
+FROM SYS.ALL_OBJECTS
+WHERE
+  OBJECT_TYPE = 'TABLE'
+  AND OWNER = SYS_CONTEXT ('USERENV', 'SESSION_USER')
+  AND OBJECT_NAME = 'DB_MIGRATOR_HISTORY'").ConfigureAwait(false);
+
+            return tableCount > 0;
         }
 
         /// <inheritdoc />

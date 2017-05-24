@@ -10,6 +10,6 @@
         /// <summary>
         /// The migrations history table name
         /// </summary>
-        string MigrationsHistoryTableName { get; set; }
+        //string MigrationsHistoryTableName { get; set; }
     }
 }

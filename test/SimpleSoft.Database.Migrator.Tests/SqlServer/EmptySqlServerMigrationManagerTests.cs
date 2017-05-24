@@ -29,7 +29,7 @@ select count(*) as Total
 from (
 	select 
         MigrationId, ClassName, AppliedOn
-	from " + manager.MigrationsHistoryTableName + @"
+	from __DbMigratorHistory
 ) V"), true, ct);
             Assert.NotNull(tableId);
             Assert.Equal(0L, tableId);
