@@ -111,8 +111,7 @@ VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
         }
 
         /// <inheritdoc />
-        protected override async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(string contextName,
-            CancellationToken ct)
+        protected override async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(string contextName, CancellationToken ct)
         {
             var result = await Context.Query<string>(@"
 SELECT 
@@ -121,7 +120,7 @@ FROM __DbMigratorHistory
 WHERE
     ContextName = @ContextName
 ORDER BY 
-    ContextName DESC, MigrationId DESC", new
+    ContextName ASC, MigrationId DESC", new
                 {
                     ContextName = contextName
                 })
@@ -131,8 +130,7 @@ ORDER BY
         }
 
         /// <inheritdoc />
-        protected override async Task<string> GetMostRecentMigrationEntryIdAsync(string contextName,
-            CancellationToken ct)
+        protected override async Task<string> GetMostRecentMigrationEntryIdAsync(string contextName, CancellationToken ct)
         {
             var migrationId = await Context.QuerySingleOrDefaultAsync<string>(@"
 SELECT 
@@ -141,7 +139,7 @@ FROM __DbMigratorHistory
 WHERE
     ContextName = @ContextName
 ORDER BY 
-    ContextName DESC, MigrationId DESC", new
+    ContextName ASC, MigrationId DESC", new
                 {
                     ContextName = contextName
                 })
@@ -151,8 +149,7 @@ ORDER BY
         }
 
         /// <inheritdoc />
-        protected override async Task DeleteMigrationEntryByIdAsync(string contextName, string migrationId,
-            CancellationToken ct)
+        protected override async Task DeleteMigrationEntryByIdAsync(string contextName, string migrationId, CancellationToken ct)
         {
             await Context.ExecuteAsync(@"
 DELETE FROM __DbMigratorHistory 
