@@ -35,7 +35,7 @@ namespace SimpleSoft.Database.Migrator
     /// Manages migration states
     /// </summary>
     /// <typeparam name="TContext">The context type</typeparam>
-    public class SqlServerMigrationManager<TContext>: RelationalMigrationManager<TContext>
+    public class SqlServerMigrationManager<TContext> : RelationalMigrationManager<TContext>, ISqlServerMigrationManager<TContext>
         where TContext : IRelationalMigrationContext
     {
         /// <summary>
@@ -45,7 +45,8 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="normalizer">The naming normalizer</param>
         /// <param name="logger">The logger</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public SqlServerMigrationManager(TContext context, INamingNormalizer normalizer, ILogger<RelationalMigrationManager<TContext>> logger) 
+        public SqlServerMigrationManager(TContext context, INamingNormalizer normalizer,
+            ILogger<SqlServerMigrationManager<TContext>> logger)
             : base(context, normalizer, logger)
         {
 
@@ -60,7 +61,8 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="contextName">The context name</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public SqlServerMigrationManager(TContext context, INamingNormalizer normalizer, ILogger<MigrationManager<TContext>> logger, string contextName) 
+        public SqlServerMigrationManager(TContext context, INamingNormalizer normalizer,
+            ILogger<MigrationManager<TContext>> logger, string contextName)
             : base(context, normalizer, logger, contextName)
         {
 
@@ -96,7 +98,8 @@ CREATE TABLE {MigrationsHistoryTableName}
         }
 
         /// <inheritdoc />
-        protected override async Task InsertMigrationEntryAsync(string contextName, string migrationId, string className, DateTimeOffset appliedOn, CancellationToken ct)
+        protected override async Task InsertMigrationEntryAsync(string contextName, string migrationId,
+            string className, DateTimeOffset appliedOn, CancellationToken ct)
         {
             await Context.ExecuteAsync($@"
 INSERT INTO {MigrationsHistoryTableName}(ContextName, MigrationId, ClassName, AppliedOn) 
@@ -111,7 +114,8 @@ VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
         }
 
         /// <inheritdoc />
-        protected override async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(string contextName, CancellationToken ct)
+        protected override async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(string contextName,
+            CancellationToken ct)
         {
             var result = await Context.Query<string>($@"
 SELECT 
@@ -130,7 +134,8 @@ ORDER BY
         }
 
         /// <inheritdoc />
-        protected override async Task<string> GetMostRecentMigrationEntryIdAsync(string contextName, CancellationToken ct)
+        protected override async Task<string> GetMostRecentMigrationEntryIdAsync(string contextName,
+            CancellationToken ct)
         {
             var migrationId = await Context.QuerySingleOrDefaultAsync<string>($@"
 SELECT 
@@ -149,7 +154,8 @@ ORDER BY
         }
 
         /// <inheritdoc />
-        protected override async Task DeleteMigrationEntryByIdAsync(string contextName, string migrationId, CancellationToken ct)
+        protected override async Task DeleteMigrationEntryByIdAsync(string contextName, string migrationId,
+            CancellationToken ct)
         {
             await Context.ExecuteAsync($@"
 DELETE FROM {MigrationsHistoryTableName} 

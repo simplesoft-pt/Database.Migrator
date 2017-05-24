@@ -31,7 +31,7 @@ namespace SimpleSoft.Database.Migrator
     /// Manages migration states
     /// </summary>
     /// <typeparam name="TContext">The context type</typeparam>
-    public abstract class RelationalMigrationManager<TContext> : MigrationManager<TContext> 
+    public abstract class RelationalMigrationManager<TContext> : MigrationManager<TContext>, IRelationalMigrationManager<TContext>
         where TContext : IRelationalMigrationContext
     {
         /// <summary>
@@ -62,9 +62,7 @@ namespace SimpleSoft.Database.Migrator
 
         }
 
-        /// <summary>
-        /// The migrations history table name
-        /// </summary>
+        /// <inheritdoc />
         public string MigrationsHistoryTableName { get; set; } = "__DbMigratorHistory";
     }
 }
