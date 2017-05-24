@@ -7,9 +7,6 @@
     public interface IRelationalMigrationManager<out TContext> : IMigrationManager<TContext>
         where TContext : IRelationalMigrationContext
     {
-        /// <summary>
-        /// The migrations history table name
-        /// </summary>
-        //string MigrationsHistoryTableName { get; set; }
+
     }
 }

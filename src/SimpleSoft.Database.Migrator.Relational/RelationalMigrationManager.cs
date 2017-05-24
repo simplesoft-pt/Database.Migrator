@@ -61,8 +61,5 @@ namespace SimpleSoft.Database.Migrator
         {
 
         }
-
-        /// <inheritdoc />
-        //public string MigrationsHistoryTableName { get; set; } = "__DbMigratorHistory";
     }
 }
