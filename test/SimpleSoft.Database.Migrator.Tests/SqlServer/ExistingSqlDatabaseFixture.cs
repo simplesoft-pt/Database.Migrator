@@ -1,71 +1,48 @@
 using System;
-using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading;
-using Dapper;
 
 namespace SimpleSoft.Database.Migrator.Tests.SqlServer
 {
-    public class ExistingSqlDatabaseFixture : IDisposable
+    public class ExistingSqlDatabaseFixture : SqlServerDatabaseFixture
     {
-        public const string DatabaseName = "MigratorTest";
-
-        public const string ConnectionString =
-                "Data Source=.; Initial Catalog=MigratorTest; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer"
-            ;
-
-        private const string MasterConnectionString =
-                "Data Source=.; Initial Catalog=master; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer"
-            ;
-
-        public ExistingSqlDatabaseFixture()
+        public ExistingSqlDatabaseFixture() : base(
+            "Data Source=.; Initial Catalog=master; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer",
+            "Data Source=.; Initial Catalog=MigratorTest; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer",
+            "MigratorTest")
         {
-            CreateDatabaseIfNeeded(DatabaseName);
+            PrepareDatabase();
 
-            Connection = new SqlConnection(ConnectionString);
             Context = new MigratorTestContext(Connection);
             Manager = new SqlServerMigrationManager<MigratorTestContext>(
                 Context, new DefaultNamingNormalizer(), LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
         }
 
-        public DbConnection Connection { get; private set; }
-
         public MigratorTestContext Context { get; private set; }
 
         public SqlServerMigrationManager<MigratorTestContext> Manager { get; private set; }
 
-        #region Implementation of IDisposable
+        #region Overrides of SqlServerDatabaseFixture
 
         /// <inheritdoc />
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Context?.Dispose();
-            Connection?.Dispose();
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                Context?.Dispose();
+                Connection?.Dispose();
+            }
 
             Manager = null;
             Context = null;
-            Connection = null;
         }
 
         #endregion
 
-        private static void CreateDatabaseIfNeeded(string databaseName)
+        private void PrepareDatabase()
         {
-            using (var connection = new SqlConnection(MasterConnectionString))
-            {
-                connection.Open();
-
-                var timeout = connection.ConnectionTimeout;
-
-                var dbId = connection.QuerySingleOrDefault<long?>(
-                    "SELECT DB_ID(@databaseName) as DatabaseId", new
-                    {
-                        databaseName
-                    }, null, timeout);
-                if (dbId == null)
-                    connection.Execute("CREATE DATABASE " + databaseName, null, null, timeout);
-            }
-
             var ct = CancellationToken.None;
             using (var connection = new SqlConnection(ConnectionString))
             using (var context = new MigratorTestContext(connection))

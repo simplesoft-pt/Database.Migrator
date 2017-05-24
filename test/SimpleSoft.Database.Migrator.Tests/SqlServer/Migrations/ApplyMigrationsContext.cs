@@ -1,6 +1,4 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator.Tests.SqlServer.Migrations
 {

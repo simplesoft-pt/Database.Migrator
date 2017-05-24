@@ -1,28 +1,14 @@
-using System;
-using System.Data.Common;
-using System.Data.SqlClient;
-using Dapper;
 using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator.Tests.SqlServer.Migrations
 {
-    public class SqlMigrationDatabaseFixture : IDisposable
+    public class SqlMigrationDatabaseFixture : SqlServerDatabaseFixture
     {
-        public const string DatabaseName = "MigratorTestMigration";
-
-        public const string ConnectionString =
-                "Data Source=.; Initial Catalog=MigratorTestMigration; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer"
-            ;
-
-        private const string MasterConnectionString =
-                "Data Source=.; Initial Catalog=master; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer"
-            ;
-
-        public SqlMigrationDatabaseFixture()
+        public SqlMigrationDatabaseFixture() : base(
+            "Data Source=.; Initial Catalog=master; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer",
+            "Data Source=.; Initial Catalog=MigratorTestMigration; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer",
+            "MigratorTestMigration", true)
         {
-            DropRecreateDatabase(DatabaseName);
-
-            Connection = new SqlConnection(ConnectionString);
             HostBuilder = new MigratorHostBuilder()
                 .ConfigureLogging(p =>
                 {
@@ -43,43 +29,23 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer.Migrations
                 });
         }
 
-        public DbConnection Connection { get; private set; }
-
         public MigratorHostBuilder HostBuilder { get; private set; }
 
-
-        #region Implementation of IDisposable
+        #region Overrides of SqlServerDatabaseFixture
 
         /// <inheritdoc />
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Connection?.Dispose();
-            HostBuilder?.Dispose();
+            base.Dispose(disposing);
 
-            Connection = null;
+            if (disposing)
+            {
+                HostBuilder?.Dispose();
+            }
+
             HostBuilder = null;
         }
 
         #endregion
-
-        private static void DropRecreateDatabase(string databaseName)
-        {
-            using (var connection = new SqlConnection(MasterConnectionString))
-            {
-                connection.Open();
-
-                var timeout = connection.ConnectionTimeout;
-
-                var dbId = connection.QuerySingleOrDefault<long?>(
-                    "SELECT DB_ID(@databaseName) as DatabaseId", new
-                    {
-                        databaseName
-                    }, null, timeout);
-                if (dbId.HasValue)
-                    connection.Execute("DROP DATABASE " + databaseName, null, null, timeout);
-
-                connection.Execute("CREATE DATABASE " + databaseName, null, null, timeout);
-            }
-        }
     }
 }
