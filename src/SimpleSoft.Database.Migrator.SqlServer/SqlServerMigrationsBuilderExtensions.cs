@@ -59,7 +59,7 @@ namespace SimpleSoft.Database.Migrator
             builder.ServiceCollection.AddScoped<ISqlServerMigrationManager<TContext>>(
                 k => k.GetRequiredService<SqlServerMigrationManager<TContext>>());
             builder.ServiceCollection.AddScoped<IMigrationManager<TContext>>(
-                k => k.GetRequiredService<ISqlServerMigrationManager<TContext>>());
+                k => k.GetRequiredService<SqlServerMigrationManager<TContext>>());
             
             return builder;
         }
