@@ -62,7 +62,7 @@ namespace SimpleSoft.Database.Migrator
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
         public SqlServerMigrationManager(TContext context, INamingNormalizer normalizer,
-            ILogger<MigrationManager<TContext>> logger, string contextName)
+            ILogger<SqlServerMigrationManager<TContext>> logger, string contextName)
             : base(context, normalizer, logger, contextName)
         {
 
