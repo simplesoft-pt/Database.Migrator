@@ -9,7 +9,7 @@ namespace SimpleSoft.Database.Migrator
     public static class OracleMigrationsBuilderExtensions
     {
         /// <summary>
-        /// Adds SQL Server support for the given <see cref="IRelationalMigrationContext"/>.
+        /// Adds Oracle support for the given <see cref="IRelationalMigrationContext"/>.
         /// </summary>
         /// <typeparam name="TContext">The context type</typeparam>
         /// <param name="builder">The migration builder</param>
