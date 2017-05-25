@@ -89,12 +89,6 @@ WHERE
                 }
                 MasterConnection.Execute($@"CREATE USER {_userName} IDENTIFIED BY {_userPassword}", null, null, timeout);
                 MasterConnection.Execute($@"GRANT DBA TO {_userName}", null, null, timeout);
-                //MasterConnection.Execute($@"GRANT CREATE TABLE TO {_userName}", null, null, timeout);
-                //MasterConnection.Execute($@"GRANT CREATE VIEW TO {_userName}", null, null, timeout);
-                //MasterConnection.Execute($@"GRANT CREATE ANY TRIGGER TO {_userName}", null, null, timeout);
-                //MasterConnection.Execute($@"GRANT CREATE ANY PROCEDURE TO {_userName}", null, null, timeout);
-                //MasterConnection.Execute($@"GRANT CREATE SEQUENCE TO {_userName}", null, null, timeout);
-                //MasterConnection.Execute($@"GRANT CREATE SYNONYM TO {_userName}", null, null, timeout);
             }
             finally
             {
