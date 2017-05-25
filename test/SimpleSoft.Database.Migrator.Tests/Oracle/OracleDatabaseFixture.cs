@@ -91,7 +91,13 @@ WHERE
 CREATE USER {_userName}
     IDENTIFIED BY {_userPassword};
 
-GRANT DBA TO {_userName};", null, null, timeout);
+GRANT CREATE SESSION TO {_userName};
+GRANT CREATE TABLE TO {_userName};
+GRANT CREATE VIEW TO {_userName};
+GRANT CREATE ANY TRIGGER TO {_userName};
+GRANT CREATE ANY PROCEDURE TO {_userName};
+GRANT CREATE SEQUENCE TO {_userName};
+GRANT CREATE SYNONYM TO {_userName};", null, null, timeout);
             }
             finally
             {
