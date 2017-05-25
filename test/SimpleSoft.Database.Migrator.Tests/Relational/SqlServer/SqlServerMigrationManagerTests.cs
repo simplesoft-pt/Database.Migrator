@@ -51,7 +51,14 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
         [Fact]
         public async Task GivenADatabaseWithMigrationsWhenGettingAllThenSomeMustBeReturned()
         {
-            var migrationIds = await _fixture.Manager.GetAllMigrationsAsync(CancellationToken.None);
+            var ct = CancellationToken.None;
+
+            string migrationId;
+            string className;
+            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+            await _fixture.Manager.AddMigrationAsync(migrationId, className, ct);
+
+            var migrationIds = await _fixture.Manager.GetAllMigrationsAsync(ct);
 
             Assert.NotNull(migrationIds);
             Assert.NotEmpty(migrationIds);
