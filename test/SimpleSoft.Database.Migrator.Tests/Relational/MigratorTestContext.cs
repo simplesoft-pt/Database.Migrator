@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace SimpleSoft.Database.Migrator.Tests.SqlServer
+namespace SimpleSoft.Database.Migrator.Tests.Relational
 {
     public class MigratorTestContext : RelationalMigrationContext
     {

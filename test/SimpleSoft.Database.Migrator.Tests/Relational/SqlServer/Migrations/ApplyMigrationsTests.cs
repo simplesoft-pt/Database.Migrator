@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Xunit;
 
-namespace SimpleSoft.Database.Migrator.Tests.SqlServer.Migrations
+namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations
 {
     public class ApplyMigrationsTests : IClassFixture<SqlMigrationDatabaseFixture>
     {

@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SimpleSoft.Database.Migrator.Tests.SqlServer.Migrations
+namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations
 {
     public class Version003 : Migration<ApplyMigrationsContext>
     {

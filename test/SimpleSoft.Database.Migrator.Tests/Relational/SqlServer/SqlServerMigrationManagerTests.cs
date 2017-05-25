@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace SimpleSoft.Database.Migrator.Tests.SqlServer
+namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
 {
     public class SqlServerMigrationManagerTests : IClassFixture<ExistingDatabaseFixture>
     {

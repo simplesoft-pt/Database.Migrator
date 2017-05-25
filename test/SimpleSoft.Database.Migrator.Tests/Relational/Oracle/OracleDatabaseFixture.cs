@@ -3,7 +3,7 @@ using System.Data.Common;
 using Dapper;
 using Oracle.ManagedDataAccess.Client;
 
-namespace SimpleSoft.Database.Migrator.Tests.Oracle
+namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
 {
     public abstract class OracleDatabaseFixture : IDisposable
     {
@@ -87,17 +87,14 @@ WHERE
                     else
                         return;
                 }
-                MasterConnection.Execute($@"
-CREATE USER {_userName}
-    IDENTIFIED BY {_userPassword};
-
-GRANT CREATE SESSION TO {_userName};
-GRANT CREATE TABLE TO {_userName};
-GRANT CREATE VIEW TO {_userName};
-GRANT CREATE ANY TRIGGER TO {_userName};
-GRANT CREATE ANY PROCEDURE TO {_userName};
-GRANT CREATE SEQUENCE TO {_userName};
-GRANT CREATE SYNONYM TO {_userName};", null, null, timeout);
+                MasterConnection.Execute($@"CREATE USER {_userName} IDENTIFIED BY {_userPassword}", null, null, timeout);
+                MasterConnection.Execute($@"GRANT DBA TO {_userName}", null, null, timeout);
+                //MasterConnection.Execute($@"GRANT CREATE TABLE TO {_userName}", null, null, timeout);
+                //MasterConnection.Execute($@"GRANT CREATE VIEW TO {_userName}", null, null, timeout);
+                //MasterConnection.Execute($@"GRANT CREATE ANY TRIGGER TO {_userName}", null, null, timeout);
+                //MasterConnection.Execute($@"GRANT CREATE ANY PROCEDURE TO {_userName}", null, null, timeout);
+                //MasterConnection.Execute($@"GRANT CREATE SEQUENCE TO {_userName}", null, null, timeout);
+                //MasterConnection.Execute($@"GRANT CREATE SYNONYM TO {_userName}", null, null, timeout);
             }
             finally
             {

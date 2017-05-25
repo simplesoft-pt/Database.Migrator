@@ -2,7 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Threading;
 
-namespace SimpleSoft.Database.Migrator.Tests.SqlServer
+namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
 {
     public class ExistingDatabaseFixture : SqlServerDatabaseFixture
     {

@@ -2,7 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace SimpleSoft.Database.Migrator.Tests.SqlServer
+namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
 {
     public class EmptySqlServerMigrationManagerTests: IClassFixture<EmptyDatabaseFixture>
     {
@@ -19,7 +19,8 @@ namespace SimpleSoft.Database.Migrator.Tests.SqlServer
             var ct = CancellationToken.None;
 
             var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                _fixture.Context, new DefaultNamingNormalizer(), LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
+                _fixture.Context, new DefaultNamingNormalizer(), 
+                LoggingManager.CreateTestLogger<SqlServerMigrationManager<MigratorTestContext>>());
 
             await manager.PrepareDatabaseAsync(ct);
 

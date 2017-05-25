@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Tests.SqlServer.Migrations
+namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations
 {
     public class SqlMigrationDatabaseFixture : SqlServerDatabaseFixture
     {

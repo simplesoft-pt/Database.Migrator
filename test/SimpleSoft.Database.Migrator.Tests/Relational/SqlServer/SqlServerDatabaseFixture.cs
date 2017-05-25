@@ -3,7 +3,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Dapper;
 
-namespace SimpleSoft.Database.Migrator.Tests.SqlServer
+namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
 {
     public abstract class SqlServerDatabaseFixture : IDisposable
     {

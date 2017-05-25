@@ -1,4 +1,4 @@
-namespace SimpleSoft.Database.Migrator.Tests.SqlServer
+namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
 {
     public class EmptyDatabaseFixture : SqlServerDatabaseFixture
     {
