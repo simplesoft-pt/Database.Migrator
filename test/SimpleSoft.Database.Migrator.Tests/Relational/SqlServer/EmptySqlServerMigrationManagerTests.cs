@@ -29,7 +29,8 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
 select count(*) as Total
 from (
 	select 
-        MigrationId, ClassName, AppliedOn
+        --  making sure all columns exist
+        ContextName, MigrationId, ClassName, AppliedOn
 	from __DbMigratorHistory
 ) V"), true, ct);
             Assert.NotNull(tableId);
