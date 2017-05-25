@@ -1,4 +1,4 @@
-﻿namespace SimpleSoft.Database.Migrator.Oracle
+﻿namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// The Oracle migration context

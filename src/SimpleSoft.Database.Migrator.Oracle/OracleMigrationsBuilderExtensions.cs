@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace SimpleSoft.Database.Migrator.Oracle
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// Extensions for <see cref="MigrationsBuilder{TContext}"/> instances.

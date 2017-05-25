@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Oracle
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// Manages migration states for Oracle

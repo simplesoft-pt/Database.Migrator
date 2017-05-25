@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SimpleSoft.Database.Migrator.Oracle
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// Oracle context options

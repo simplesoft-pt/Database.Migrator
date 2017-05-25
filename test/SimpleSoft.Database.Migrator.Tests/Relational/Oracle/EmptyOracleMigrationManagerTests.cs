@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using SimpleSoft.Database.Migrator.Oracle;
 using Xunit;
 
 namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
