@@ -77,14 +77,16 @@ CREATE TABLE DB_MIGRATOR_HISTORY(
         /// <inheritdoc />
         protected override async Task InsertMigrationEntryAsync(string contextName, string migrationId, string className, DateTimeOffset appliedOn, CancellationToken ct)
         {
+            var formattedAppliedOn = appliedOn.ToString("yyyy-MM-dd HH:mm:ss zzz");
+
             await Context.ExecuteAsync(@"
 INSERT INTO DB_MIGRATOR_HISTORY(CONTEXT_NAME, MIGRATION_ID, CLASS_NAME, APPLIED_ON)
-VALUES (:ContextName, :MigrationId, :ClassName, :AppliedOn)", new
+VALUES (:ContextName, :MigrationId, :ClassName, TO_TIMESTAMP_TZ(:AppliedOn,'YYYY-MM-DD HH24:MI:SS TZH:TZM'))", new
                 {
                     ContextName = contextName,
                     MigrationId = migrationId,
                     ClassName = className,
-                    AppliedOn = appliedOn
+                    AppliedOn = formattedAppliedOn
                 })
                 .ConfigureAwait(false);
         }
