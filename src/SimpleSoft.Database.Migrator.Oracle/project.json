@@ -1,5 +1,5 @@
 ﻿{
-    "version": "1.0.0-alpha01",
+    "version": "1.0.0-alpha02",
     "title": "SimpleSoft.Database.Migrator.Oracle",
     "description": "Support for simple database migrations for Oracle.",
     "authors": [ "João Simões" ],
