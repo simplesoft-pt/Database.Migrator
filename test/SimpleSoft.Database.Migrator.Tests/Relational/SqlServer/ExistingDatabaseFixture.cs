@@ -32,7 +32,6 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
             if (disposing)
             {
                 Context?.Dispose();
-                Connection?.Dispose();
             }
 
             Manager = null;
