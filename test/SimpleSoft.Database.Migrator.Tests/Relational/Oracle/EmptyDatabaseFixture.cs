@@ -5,7 +5,7 @@
         public EmptyDatabaseFixture() : base(
             "DATA SOURCE=LocalOracle/xe;USER ID=MIGRATORMASTER;PASSWORD=MIGRATORMASTER;VALIDATE CONNECTION=TRUE;",
             "DATA SOURCE=LocalOracle/xe;USER ID=MIGRATORTESTEMPTY;PASSWORD=MIGRATORTESTEMPTY;VALIDATE CONNECTION=TRUE;",
-            "MIGRATORTESTEMPTY", "MIGRATORTESTEMPTY")
+            "MIGRATORTESTEMPTY", "MIGRATORTESTEMPTY", true)
         {
             Context = new MigratorTestContext(Connection);
         }
