@@ -4,9 +4,9 @@ using System.Threading;
 
 namespace SimpleSoft.Database.Migrator.Tests.SqlServer
 {
-    public class ExistingSqlDatabaseFixture : SqlServerDatabaseFixture
+    public class ExistingDatabaseFixture : SqlServerDatabaseFixture
     {
-        public ExistingSqlDatabaseFixture() : base(
+        public ExistingDatabaseFixture() : base(
             "Data Source=.; Initial Catalog=master; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer",
             "Data Source=.; Initial Catalog=MigratorTest; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer",
             "MigratorTest")

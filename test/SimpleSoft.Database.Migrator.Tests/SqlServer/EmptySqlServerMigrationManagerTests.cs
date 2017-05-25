@@ -4,11 +4,11 @@ using Xunit;
 
 namespace SimpleSoft.Database.Migrator.Tests.SqlServer
 {
-    public class EmptySqlServerMigrationManagerTests: IClassFixture<EmptySqlDatabaseFixture>
+    public class EmptySqlServerMigrationManagerTests: IClassFixture<EmptyDatabaseFixture>
     {
-        private readonly EmptySqlDatabaseFixture _fixture;
+        private readonly EmptyDatabaseFixture _fixture;
 
-        public EmptySqlServerMigrationManagerTests(EmptySqlDatabaseFixture fixture)
+        public EmptySqlServerMigrationManagerTests(EmptyDatabaseFixture fixture)
         {
             _fixture = fixture;
         }

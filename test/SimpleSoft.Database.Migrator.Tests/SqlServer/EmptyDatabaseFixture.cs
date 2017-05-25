@@ -1,8 +1,8 @@
 namespace SimpleSoft.Database.Migrator.Tests.SqlServer
 {
-    public class EmptySqlDatabaseFixture : SqlServerDatabaseFixture
+    public class EmptyDatabaseFixture : SqlServerDatabaseFixture
     {
-        public EmptySqlDatabaseFixture() : base(
+        public EmptyDatabaseFixture() : base(
             "Data Source=.; Initial Catalog=master; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer",
             "Data Source=.; Initial Catalog=MigratorTestEmpty; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer",
             "MigratorTestEmpty", true)
