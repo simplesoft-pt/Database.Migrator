@@ -83,7 +83,7 @@ WHERE
                 if (userCount > 0)
                 {
                     if (_dropUser)
-                        MasterConnection.Execute($"DROP USER {_userName}", null, null, timeout);
+                        MasterConnection.Execute($"DROP USER {_userName} CASCADE", null, null, timeout);
                     else
                         return;
                 }
