@@ -91,7 +91,7 @@ WHERE
 CREATE USER {_userName}
     IDENTIFIED BY {_userPassword};
 
-GRANT DBA TO {_userName}", null, null, timeout);
+GRANT DBA TO {_userName};", null, null, timeout);
             }
             finally
             {
