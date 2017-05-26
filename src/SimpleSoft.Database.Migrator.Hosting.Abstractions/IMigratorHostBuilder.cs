@@ -32,7 +32,7 @@ using SimpleSoft.Database.Migrator.Hosting.Handlers;
 namespace SimpleSoft.Database.Migrator.Hosting
 {
     /// <summary>
-    /// The <see cref="IMigratorHost{TContext}"/> builder
+    /// The <see cref="IMigrationRunner{TContext}"/> builder
     /// </summary>
     public interface IMigratorHostBuilder
     {
@@ -110,23 +110,23 @@ namespace SimpleSoft.Database.Migrator.Hosting
 
         /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
-        /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
+        /// will be used by the <see cref="IMigrationRunner{TContext}"/> to build.
         /// </summary>
         /// <param name="buildServiceProvider">The builder function</param>
         void SetServiceProviderBuilder(Func<ServiceProviderBuilderParam, IServiceProvider> buildServiceProvider);
 
         /// <summary>
         /// Assigns the given <see cref="ILoggerFactory"/> to be used
-        /// by the <see cref="IMigratorHost{TContext}"/>.
+        /// by the <see cref="IMigrationRunner{TContext}"/>.
         /// </summary>
         /// <param name="loggerFactory">The logger factory to use</param>
         void SetLoggerFactory(ILoggerFactory loggerFactory);
 
         /// <summary>
-        /// Builds an instance of <see cref="IMigratorHost{TContext}"/> to run migrations
+        /// Builds an instance of <see cref="IMigrationRunner{TContext}"/> to run migrations
         /// for a given <see cref="IMigrationContext"/>.
         /// </summary>
-        /// <returns>The <see cref="IMigratorHost{TContext}"/> instance</returns>
-        IMigratorHost<TContext> Build<TContext>() where TContext : IMigrationContext;
+        /// <returns>The <see cref="IMigrationRunner{TContext}"/> instance</returns>
+        IMigrationRunner<TContext> Build<TContext>() where TContext : IMigrationContext;
     }
 }

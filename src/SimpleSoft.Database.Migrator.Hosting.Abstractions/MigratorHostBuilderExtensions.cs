@@ -123,7 +123,7 @@ namespace SimpleSoft.Database.Migrator.Hosting
 
         /// <summary>
         /// Uses the given handler to build the <see cref="IServiceProvider"/> that
-        /// will be used by the <see cref="IMigratorHost{TContext}"/> to build.
+        /// will be used by the <see cref="IMigrationRunner{TContext}"/> to build.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
         /// <param name="builder">The builder instance</param>
@@ -158,7 +158,7 @@ namespace SimpleSoft.Database.Migrator.Hosting
 
         /// <summary>
         /// Assigns the given <see cref="ILoggerFactory"/> to be used
-        /// by the <see cref="IMigratorHost{TContext}"/>.
+        /// by the <see cref="IMigrationRunner{TContext}"/>.
         /// </summary>
         /// <typeparam name="TBuilder">The builder type</typeparam>
         /// <param name="builder">The builder instance</param>

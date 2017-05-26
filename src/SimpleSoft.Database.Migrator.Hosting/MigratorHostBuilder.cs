@@ -36,7 +36,7 @@ using SimpleSoft.Database.Migrator.Hosting.Handlers;
 namespace SimpleSoft.Database.Migrator.Hosting
 {
     /// <summary>
-    /// The <see cref="IMigratorHost{TContext}"/> builder
+    /// The <see cref="IMigrationRunner{TContext}"/> builder
     /// </summary>
     public class MigratorHostBuilder : IMigratorHostBuilder, IDisposable
     {
@@ -217,7 +217,7 @@ namespace SimpleSoft.Database.Migrator.Hosting
         }
 
         /// <inheritdoc />
-        public IMigratorHost<TContext> Build<TContext>() 
+        public IMigrationRunner<TContext> Build<TContext>() 
             where TContext : IMigrationContext
         {
             if (_disposed)
@@ -245,9 +245,9 @@ namespace SimpleSoft.Database.Migrator.Hosting
             var migrationImplTypes =
                 ExtractMigrationMetadatas<TContext>(logger, _namingNormalizer, serviceCollection);
 
-            return new MigratorHost<TContext>(
+            return new MigrationRunner<TContext>(
                 serviceProvider, _namingNormalizer, migrationImplTypes,
-                loggerFactory.CreateLogger<MigratorHost<TContext>>());
+                loggerFactory.CreateLogger<MigrationRunner<TContext>>());
         }
 
         #endregion

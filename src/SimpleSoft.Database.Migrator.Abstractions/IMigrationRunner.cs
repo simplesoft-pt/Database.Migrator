@@ -31,7 +31,7 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Represents a configured migrator host
     /// </summary>
-    public interface IMigratorHost<TContext> where TContext : IMigrationContext
+    public interface IMigrationRunner<TContext> where TContext : IMigrationContext
     {
         /// <summary>
         /// The migration metadata information, sorted ascending by <see cref="MigrationMetadata{TContext}.Id"/>.

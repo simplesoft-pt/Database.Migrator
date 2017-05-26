@@ -34,7 +34,7 @@ namespace SimpleSoft.Database.Migrator.Hosting
     /// <summary>
     /// Represents a configured migrator host
     /// </summary>
-    public class MigratorHost<TContext> : IMigratorHost<TContext> where TContext : IMigrationContext
+    public class MigrationRunner<TContext> : IMigrationRunner<TContext> where TContext : IMigrationContext
     {
         private readonly SortedList<string, MigrationMetadata<TContext>> _migrations;
 
@@ -46,9 +46,9 @@ namespace SimpleSoft.Database.Migrator.Hosting
         /// <param name="migrations">The migrations found</param>
         /// <param name="logger"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public MigratorHost(
+        public MigrationRunner(
             IServiceProvider serviceProvider, INamingNormalizer namingNormalizer, 
-            IEnumerable<MigrationMetadata<TContext>> migrations, ILogger<MigratorHost<TContext>> logger)
+            IEnumerable<MigrationMetadata<TContext>> migrations, ILogger<MigrationRunner<TContext>> logger)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -84,7 +84,7 @@ namespace SimpleSoft.Database.Migrator.Hosting
         /// <summary>
         /// The host logger
         /// </summary>
-        protected ILogger<MigratorHost<TContext>> Logger { get; }
+        protected ILogger<MigrationRunner<TContext>> Logger { get; }
 
         /// <summary>
         /// The service provider
