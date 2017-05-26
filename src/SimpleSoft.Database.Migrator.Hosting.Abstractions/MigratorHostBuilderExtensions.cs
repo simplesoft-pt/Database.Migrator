@@ -206,7 +206,7 @@ namespace SimpleSoft.Database.Migrator.Hosting
         /// <returns>The builder instance</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public static IMigratorHostBuilder Use<TStartup>(this IMigratorHostBuilder builder)
-            where TStartup : IStartup, new()
+            where TStartup : IMigratorHostStartup, new()
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
@@ -221,7 +221,7 @@ namespace SimpleSoft.Database.Migrator.Hosting
         /// <param name="startup">The startup instance</param>
         /// <returns>The builder instance</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder Use<TBuilder>(this TBuilder builder, IStartup startup)
+        public static TBuilder Use<TBuilder>(this TBuilder builder, IMigratorHostStartup startup)
             where TBuilder : IMigratorHostBuilder
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
