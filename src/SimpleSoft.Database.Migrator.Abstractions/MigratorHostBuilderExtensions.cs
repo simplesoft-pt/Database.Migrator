@@ -254,12 +254,19 @@ namespace SimpleSoft.Database.Migrator
 
         #region Use
 
+        /// <summary>
+        /// Uses the given class to be used as the startup configurator for the host builder
+        /// </summary>
+        /// <typeparam name="TStartup">The startup type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static IMigratorHostBuilder Use<TStartup>(this IMigratorHostBuilder builder)
             where TStartup : IStartup, new()
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
-            return builder;
+            return builder.Use(new TStartup());
         }
 
         /// <summary>
