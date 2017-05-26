@@ -1,6 +1,6 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using SimpleSoft.Database.Migrator.Handlers;
+using SimpleSoft.Database.Migrator.Hosting.Handlers;
 
 namespace SimpleSoft.Database.Migrator.Hosting
 {

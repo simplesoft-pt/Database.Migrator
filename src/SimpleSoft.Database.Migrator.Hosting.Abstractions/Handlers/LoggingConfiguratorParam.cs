@@ -24,37 +24,46 @@
 
 using System;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Handlers
+namespace SimpleSoft.Database.Migrator.Hosting.Handlers
 {
     /// <summary>
-    /// The parameter for handlers that configure the <see cref="IConfigurationBuilder"/>
+    /// The parameter for handlers that configure the <see cref="ILoggerFactory"/>
     /// for the host builder
     /// </summary>
-    public sealed class ConfigurationBuilderConfiguratorParam
+    public sealed class LoggingConfiguratorParam
     {
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="builder">The configuration builder</param>
+        /// <param name="factory">The logger factory</param>
+        /// <param name="configuration">The configuration</param>
         /// <param name="environment">The hosting environment</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ConfigurationBuilderConfiguratorParam(IConfigurationBuilder builder, IHostingEnvironment environment)
+        public LoggingConfiguratorParam(ILoggerFactory factory, IConfiguration configuration, IHostingEnvironment environment)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (factory == null) throw new ArgumentNullException(nameof(factory));
+            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (environment == null) throw new ArgumentNullException(nameof(environment));
 
-            Builder = builder;
+            Factory = factory;
+            Configuration = configuration;
             Environment = environment;
         }
 
         /// <summary>
-        /// the configuration builder
+        /// The logger factory
         /// </summary>
-        public IConfigurationBuilder Builder { get; }
+        public ILoggerFactory Factory { get; }
 
         /// <summary>
-        /// The hosting environment
+        /// The host builder configuration
+        /// </summary>
+        public IConfiguration Configuration { get; }
+
+        /// <summary>
+        /// The hostinh environment
         /// </summary>
         public IHostingEnvironment Environment { get; }
     }

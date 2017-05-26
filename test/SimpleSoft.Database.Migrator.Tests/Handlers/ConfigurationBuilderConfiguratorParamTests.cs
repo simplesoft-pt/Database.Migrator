@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
-using SimpleSoft.Database.Migrator.Handlers;
 using SimpleSoft.Database.Migrator.Hosting;
+using SimpleSoft.Database.Migrator.Hosting.Handlers;
 using Xunit;
 
 namespace SimpleSoft.Database.Migrator.Tests.Handlers

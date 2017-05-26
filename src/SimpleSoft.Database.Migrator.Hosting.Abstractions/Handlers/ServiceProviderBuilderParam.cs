@@ -1,7 +1,7 @@
-Ôªø#region License
+#region License
 // The MIT License (MIT)
 // 
-// Copyright (c) 2017 Jo√£o Sim√µes
+// Copyright (c) 2017 Jo„o Simıes
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,33 +24,42 @@
 
 using System;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Handlers
+namespace SimpleSoft.Database.Migrator.Hosting.Handlers
 {
     /// <summary>
-    /// The parameter for handlers that configure the <see cref="ILoggerFactory"/>
+    /// The parameter to the <see cref="IServiceProvider"/> builder
     /// for the host builder
     /// </summary>
-    public sealed class LoggingConfiguratorParam
+    public class ServiceProviderBuilderParam
     {
         /// <summary>
         /// Creates a new instance
         /// </summary>
+        /// <param name="serviceCollection">The service collection</param>
         /// <param name="factory">The logger factory</param>
         /// <param name="configuration">The configuration</param>
         /// <param name="environment">The hosting environment</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public LoggingConfiguratorParam(ILoggerFactory factory, IConfiguration configuration, IHostingEnvironment environment)
+        public ServiceProviderBuilderParam(IServiceCollection serviceCollection, ILoggerFactory factory, IConfiguration configuration, IHostingEnvironment environment)
         {
+            if (serviceCollection == null) throw new ArgumentNullException(nameof(serviceCollection));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (environment == null) throw new ArgumentNullException(nameof(environment));
 
+            ServiceCollection = serviceCollection;
             Factory = factory;
             Configuration = configuration;
             Environment = environment;
         }
+
+        /// <summary>
+        /// The service collection
+        /// </summary>
+        public IServiceCollection ServiceCollection { get; }
 
         /// <summary>
         /// The logger factory
@@ -63,7 +72,7 @@ namespace SimpleSoft.Database.Migrator.Handlers
         public IConfiguration Configuration { get; }
 
         /// <summary>
-        /// The hostinh environment
+        /// The hosting environment
         /// </summary>
         public IHostingEnvironment Environment { get; }
     }

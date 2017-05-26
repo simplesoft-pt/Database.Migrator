@@ -27,20 +27,15 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SimpleSoft.Database.Migrator.Handlers;
+using SimpleSoft.Database.Migrator.Hosting.Handlers;
 
-namespace SimpleSoft.Database.Migrator
+namespace SimpleSoft.Database.Migrator.Hosting
 {
     /// <summary>
     /// The <see cref="IMigratorHost{TContext}"/> builder
     /// </summary>
     public interface IMigratorHostBuilder
     {
-        /// <summary>
-        /// The naming normalizer to be used
-        /// </summary>
-        INamingNormalizer NamingNormalizer { get; set; }
-
         /// <summary>
         /// Collection of handlers used to configure the <see cref="IHostingEnvironment"/>.
         /// </summary>

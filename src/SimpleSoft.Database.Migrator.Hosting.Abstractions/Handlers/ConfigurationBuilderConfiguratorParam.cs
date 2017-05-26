@@ -24,52 +24,34 @@
 
 using System;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Handlers
+namespace SimpleSoft.Database.Migrator.Hosting.Handlers
 {
     /// <summary>
-    /// The parameter for handlers that configure the <see cref="IServiceCollection"/>
+    /// The parameter for handlers that configure the <see cref="IConfigurationBuilder"/>
     /// for the host builder
     /// </summary>
-    public sealed class ServiceConfiguratorParam
+    public sealed class ConfigurationBuilderConfiguratorParam
     {
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="serviceCollection">The service collection</param>
-        /// <param name="factory">The logger factory</param>
-        /// <param name="configuration">The configuration</param>
+        /// <param name="builder">The configuration builder</param>
         /// <param name="environment">The hosting environment</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ServiceConfiguratorParam(IServiceCollection serviceCollection, ILoggerFactory factory, IConfiguration configuration, IHostingEnvironment environment)
+        public ConfigurationBuilderConfiguratorParam(IConfigurationBuilder builder, IHostingEnvironment environment)
         {
-            if (serviceCollection == null) throw new ArgumentNullException(nameof(serviceCollection));
-            if (factory == null) throw new ArgumentNullException(nameof(factory));
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (environment == null) throw new ArgumentNullException(nameof(environment));
 
-            ServiceCollection = serviceCollection;
-            Factory = factory;
-            Configuration = configuration;
+            Builder = builder;
             Environment = environment;
         }
 
         /// <summary>
-        /// The service collection
+        /// the configuration builder
         /// </summary>
-        public IServiceCollection ServiceCollection { get; }
-
-        /// <summary>
-        /// The logger factory
-        /// </summary>
-        public ILoggerFactory Factory { get; }
-
-        /// <summary>
-        /// The host builder configuration
-        /// </summary>
-        public IConfiguration Configuration { get; }
+        public IConfigurationBuilder Builder { get; }
 
         /// <summary>
         /// The hosting environment

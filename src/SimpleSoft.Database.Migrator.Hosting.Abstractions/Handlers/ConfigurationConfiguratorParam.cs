@@ -24,51 +24,34 @@
 
 using System;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Handlers
+namespace SimpleSoft.Database.Migrator.Hosting.Handlers
 {
     /// <summary>
-    /// The parameter for handlers that configure the <see cref="IServiceProvider"/>
+    /// The parameter for handlers that configure the <see cref="IConfigurationRoot"/>
     /// for the host builder
     /// </summary>
-    public sealed class ConfigureParam
+    public sealed class ConfigurationConfiguratorParam
     {
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="serviceProvider">The service provider</param>
-        /// <param name="factory">The logger factory</param>
-        /// <param name="configuration">The configuration</param>
-        /// <param name="environment"></param>
+        /// <param name="configuration">The configuration instance</param>
+        /// <param name="environment">The hosting environment</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ConfigureParam(IServiceProvider serviceProvider, ILoggerFactory factory, IConfiguration configuration, IHostingEnvironment environment)
+        public ConfigurationConfiguratorParam(IConfigurationRoot configuration, IHostingEnvironment environment)
         {
-            if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
-            if (factory == null) throw new ArgumentNullException(nameof(factory));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (environment == null) throw new ArgumentNullException(nameof(environment));
 
-            ServiceProvider = serviceProvider;
-            Factory = factory;
             Configuration = configuration;
             Environment = environment;
         }
 
         /// <summary>
-        /// The service collection
-        /// </summary>
-        public IServiceProvider ServiceProvider { get; }
-
-        /// <summary>
-        /// The logger factory
-        /// </summary>
-        public ILoggerFactory Factory { get; }
-
-        /// <summary>
         /// The host builder configuration
         /// </summary>
-        public IConfiguration Configuration { get; }
+        public IConfigurationRoot Configuration { get; }
 
         /// <summary>
         /// The hosting environment

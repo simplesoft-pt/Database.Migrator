@@ -25,71 +25,15 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SimpleSoft.Database.Migrator.Handlers;
+using SimpleSoft.Database.Migrator.Hosting.Handlers;
 
-namespace SimpleSoft.Database.Migrator
+namespace SimpleSoft.Database.Migrator.Hosting
 {
     /// <summary>
     /// Extension methods for <see cref="IMigratorHostBuilder"/>
     /// </summary>
     public static class MigratorHostBuilderExtensions
     {
-        #region NamingNormalizer
-
-        /// <summary>
-        /// Assigns the given <see cref="INamingNormalizer"/> to be used
-        /// by the <see cref="IMigratorHost{TContext}"/>.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <param name="normalizer">The normalizer to use</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseNamingNormalizer<TBuilder>(this TBuilder builder, INamingNormalizer normalizer)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-
-            builder.NamingNormalizer = normalizer;
-            return builder;
-        }
-
-        /// <summary>
-        /// Assigns an instance of <see cref="DefaultNamingNormalizer"/> to be used
-        /// by the <see cref="IMigratorHost{TContext}"/>.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseDefaultNamingNormalizer<TBuilder>(this TBuilder builder)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-
-            builder.NamingNormalizer = new DefaultNamingNormalizer();
-            return builder;
-        }
-
-        /// <summary>
-        /// Assigns an instance of <see cref="TrimNamingNormalizer"/> to be used
-        /// by the <see cref="IMigratorHost{TContext}"/>.
-        /// </summary>
-        /// <typeparam name="TBuilder">The builder type</typeparam>
-        /// <param name="builder">The builder instance</param>
-        /// <returns>The builder instance</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static TBuilder UseTrimNamingNormalizer<TBuilder>(this TBuilder builder)
-            where TBuilder : IMigratorHostBuilder
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-
-            builder.NamingNormalizer = new TrimNamingNormalizer();
-            return builder;
-        }
-
-        #endregion
-
         /// <summary>
         /// Adds the handler to the <see cref="IMigratorHostBuilder.HostingEnvironmentHandlers"/> 
         /// collection.

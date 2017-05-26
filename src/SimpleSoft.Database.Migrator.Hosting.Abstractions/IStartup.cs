@@ -1,7 +1,7 @@
 ﻿using System;
-using SimpleSoft.Database.Migrator.Handlers;
+using SimpleSoft.Database.Migrator.Hosting.Handlers;
 
-namespace SimpleSoft.Database.Migrator
+namespace SimpleSoft.Database.Migrator.Hosting
 {
     /// <summary>
     /// The hosting startup configuration

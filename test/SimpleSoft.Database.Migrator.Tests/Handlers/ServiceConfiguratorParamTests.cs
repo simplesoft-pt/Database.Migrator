@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SimpleSoft.Database.Migrator.Handlers;
 using SimpleSoft.Database.Migrator.Hosting;
+using SimpleSoft.Database.Migrator.Hosting.Handlers;
 using Xunit;
 
 namespace SimpleSoft.Database.Migrator.Tests.Handlers

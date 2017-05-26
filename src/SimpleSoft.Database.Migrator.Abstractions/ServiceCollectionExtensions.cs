@@ -304,6 +304,9 @@ namespace SimpleSoft.Database.Migrator
                 services.AddScoped(typeof(IMigration<TContext>), migrationType);
             }
 
+            //  TODO    this should be a configuration
+            services.AddSingleton<INamingNormalizer>(new DefaultNamingNormalizer());
+
             return services;
         }
     }

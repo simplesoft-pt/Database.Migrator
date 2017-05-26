@@ -1,7 +1,7 @@
-#region License
+Ôªø#region License
 // The MIT License (MIT)
 // 
-// Copyright (c) 2017 Jo„o Simıes
+// Copyright (c) 2017 Jo√£o Sim√µes
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,33 +24,32 @@
 
 using System;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Handlers
+namespace SimpleSoft.Database.Migrator.Hosting.Handlers
 {
     /// <summary>
-    /// The parameter to the <see cref="IServiceProvider"/> builder
+    /// The parameter for handlers that configure the <see cref="IServiceProvider"/>
     /// for the host builder
     /// </summary>
-    public class ServiceProviderBuilderParam
+    public sealed class ConfigureParam
     {
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="serviceCollection">The service collection</param>
+        /// <param name="serviceProvider">The service provider</param>
         /// <param name="factory">The logger factory</param>
         /// <param name="configuration">The configuration</param>
-        /// <param name="environment">The hosting environment</param>
+        /// <param name="environment"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ServiceProviderBuilderParam(IServiceCollection serviceCollection, ILoggerFactory factory, IConfiguration configuration, IHostingEnvironment environment)
+        public ConfigureParam(IServiceProvider serviceProvider, ILoggerFactory factory, IConfiguration configuration, IHostingEnvironment environment)
         {
-            if (serviceCollection == null) throw new ArgumentNullException(nameof(serviceCollection));
+            if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (environment == null) throw new ArgumentNullException(nameof(environment));
 
-            ServiceCollection = serviceCollection;
+            ServiceProvider = serviceProvider;
             Factory = factory;
             Configuration = configuration;
             Environment = environment;
@@ -59,7 +58,7 @@ namespace SimpleSoft.Database.Migrator.Handlers
         /// <summary>
         /// The service collection
         /// </summary>
-        public IServiceCollection ServiceCollection { get; }
+        public IServiceProvider ServiceProvider { get; }
 
         /// <summary>
         /// The logger factory
