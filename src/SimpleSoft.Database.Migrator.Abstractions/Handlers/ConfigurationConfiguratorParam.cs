@@ -37,17 +37,25 @@ namespace SimpleSoft.Database.Migrator.Handlers
         /// Creates a new instance
         /// </summary>
         /// <param name="configuration">The configuration instance</param>
+        /// <param name="environment">The hosting environment</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ConfigurationConfiguratorParam(IConfigurationRoot configuration)
+        public ConfigurationConfiguratorParam(IConfigurationRoot configuration, IHostingEnvironment environment)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            if (environment == null) throw new ArgumentNullException(nameof(environment));
 
             Configuration = configuration;
+            Environment = environment;
         }
 
         /// <summary>
         /// The host builder configuration
         /// </summary>
         public IConfigurationRoot Configuration { get; }
+
+        /// <summary>
+        /// The hosting environment
+        /// </summary>
+        public IHostingEnvironment Environment { get; }
     }
 }

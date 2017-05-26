@@ -10,11 +10,15 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
         [Fact]
         public void GivenANewInstanceThenAllPropertiesReferenceMustBeSameAsParams()
         {
+            var environment = new HostingEnvironment();
             var builder = new ConfigurationBuilder();
-            var param = new ConfigurationBuilderConfiguratorParam(builder);
+            var param = new ConfigurationBuilderConfiguratorParam(builder, environment);
 
             Assert.NotNull(param.Builder);
             Assert.Same(builder, param.Builder);
+
+            Assert.NotNull(param.Environment);
+            Assert.Same(environment, param.Environment);
         }
 
         [Fact]
@@ -23,7 +27,15 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
             ConfigurationBuilderConfiguratorParam param = null;
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                param = new ConfigurationBuilderConfiguratorParam(null);
+                param = new ConfigurationBuilderConfiguratorParam(null, new HostingEnvironment());
+            });
+
+            Assert.NotNull(ex);
+            Assert.Null(param);
+
+            ex = Assert.Throws<ArgumentNullException>(() =>
+            {
+                param = new ConfigurationBuilderConfiguratorParam(new ConfigurationBuilder(), null);
             });
 
             Assert.NotNull(ex);

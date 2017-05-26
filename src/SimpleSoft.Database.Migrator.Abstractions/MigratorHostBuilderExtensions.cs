@@ -91,6 +91,24 @@ namespace SimpleSoft.Database.Migrator
         #endregion
 
         /// <summary>
+        /// Adds the handler to the <see cref="IMigratorHostBuilder.HostingEnvironmentHandlers"/> 
+        /// collection.
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="handler">The handler to add</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder ConfigureHostingEnvironment<TBuilder>(this TBuilder builder, Action<IHostingEnvironment> handler)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            builder.AddHostingEnvironmentConfigurator(handler);
+            return builder;
+        }
+
+        /// <summary>
         /// Adds the handler to the <see cref="IMigratorHostBuilder.ConfigurationBuilderHandlers"/> 
         /// collection.
         /// </summary>

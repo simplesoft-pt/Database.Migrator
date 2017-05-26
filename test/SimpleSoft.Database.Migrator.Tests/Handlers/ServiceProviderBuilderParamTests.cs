@@ -16,8 +16,9 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
             var serviceCollection = new ServiceCollection();
             var factory = new LoggerFactory();
             var configuration = new ConfigurationRoot(new List<IConfigurationProvider>());
+            var environment = new HostingEnvironment();
 
-            var param = new ServiceProviderBuilderParam(serviceCollection, factory, configuration);
+            var param = new ServiceProviderBuilderParam(serviceCollection, factory, configuration, environment);
 
             Assert.NotNull(param.ServiceCollection);
             Assert.Same(serviceCollection, param.ServiceCollection);
@@ -27,6 +28,9 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
 
             Assert.NotNull(param.Configuration);
             Assert.Same(configuration, param.Configuration);
+
+            Assert.NotNull(param.Environment);
+            Assert.Same(environment, param.Environment);
         }
 
         [Fact]
@@ -36,10 +40,11 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
             var serviceCollection = new ServiceCollection();
             var factory = new LoggerFactory();
             var configuration = new ConfigurationRoot(new List<IConfigurationProvider>());
+            var environment = new HostingEnvironment();
 
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                param = new ServiceProviderBuilderParam(null, factory, configuration);
+                param = new ServiceProviderBuilderParam(null, factory, configuration, environment);
             });
 
             Assert.NotNull(ex);
@@ -47,7 +52,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
 
             ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                param = new ServiceProviderBuilderParam(serviceCollection, null, configuration);
+                param = new ServiceProviderBuilderParam(serviceCollection, null, configuration, environment);
             });
 
             Assert.NotNull(ex);
@@ -55,7 +60,15 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
 
             ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                param = new ServiceProviderBuilderParam(serviceCollection, factory, null);
+                param = new ServiceProviderBuilderParam(serviceCollection, factory, null, environment);
+            });
+
+            Assert.NotNull(ex);
+            Assert.Null(param);
+
+            ex = Assert.Throws<ArgumentNullException>(() =>
+            {
+                param = new ServiceProviderBuilderParam(serviceCollection, factory, configuration, null);
             });
 
             Assert.NotNull(ex);

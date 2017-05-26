@@ -29,6 +29,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using SimpleSoft.Database.Migrator.Handlers;
 
@@ -42,6 +43,7 @@ namespace SimpleSoft.Database.Migrator
         private ILoggerFactory _loggerFactory;
         private bool _disposed;
         private INamingNormalizer _namingNormalizer;
+        private readonly List<Action<IHostingEnvironment>> _hostingEnvironmentHandlers;
         private readonly List<Action<ConfigurationBuilderConfiguratorParam>> _configurationBuilderHandlers;
         private readonly List<Action<ConfigurationConfiguratorParam>> _configurationHandlers;
         private readonly List<Action<LoggingConfiguratorParam>> _loggingConfigurationHandlers;
@@ -57,6 +59,7 @@ namespace SimpleSoft.Database.Migrator
             _loggerFactory = new LoggerFactory();
             _namingNormalizer = new DefaultNamingNormalizer();
 
+            _hostingEnvironmentHandlers = new List<Action<IHostingEnvironment>>();
             _configurationBuilderHandlers = new List<Action<ConfigurationBuilderConfiguratorParam>>();
             _configurationHandlers = new List<Action<ConfigurationConfiguratorParam>>();
             _loggingConfigurationHandlers = new List<Action<LoggingConfiguratorParam>>();
@@ -94,6 +97,7 @@ namespace SimpleSoft.Database.Migrator
             
             _loggerFactory = null;
             _namingNormalizer = null;
+            _hostingEnvironmentHandlers.Clear();
             _configurationBuilderHandlers.Clear();
             _configurationHandlers.Clear();
             _loggingConfigurationHandlers.Clear();
@@ -120,6 +124,9 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
+        public IReadOnlyCollection<Action<IHostingEnvironment>> HostingEnvironmentHandlers => _hostingEnvironmentHandlers;
+
+        /// <inheritdoc />
         public IReadOnlyCollection<Action<ConfigurationBuilderConfiguratorParam>> ConfigurationBuilderHandlers => _configurationBuilderHandlers;
 
         /// <inheritdoc />
@@ -143,6 +150,14 @@ namespace SimpleSoft.Database.Migrator
                 if (value == null) throw new ArgumentNullException(nameof(value));
                 _serviceProviderBuilder = value;
             }
+        }
+
+        /// <inheritdoc />
+        public void AddHostingEnvironmentConfigurator(Action<IHostingEnvironment> handler)
+        {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
+            _hostingEnvironmentHandlers.Add(handler);
         }
 
         /// <inheritdoc />
@@ -208,20 +223,22 @@ namespace SimpleSoft.Database.Migrator
             if (_disposed)
                 throw new ObjectDisposedException(nameof(MigratorHostBuilder));
 
-            var configurationBuilder = BuildConfigurationBuilderUsingHandlers();
+            var environment = BuildHostingEnvironment();
+
+            var configurationBuilder = BuildConfigurationBuilderUsingHandlers(environment);
 
             var configuration = 
-                BuidConfigurationRootUsingHandlers(configurationBuilder);
+                BuidConfigurationRootUsingHandlers(configurationBuilder, environment);
 
             var loggerFactory = 
-                BuildLoggerFactoryUsingHandlers(configuration);
+                BuildLoggerFactoryUsingHandlers(configuration, environment);
 
             var logger = loggerFactory.CreateLogger<MigratorHostBuilder>();
-            var serviceCollection = 
-                BuildServiceCollectionUsingHandlers(logger, configuration, loggerFactory);
+            var serviceCollection =
+                BuildServiceCollectionUsingHandlers(logger, environment, configuration, loggerFactory, environment);
 
             var serviceProvider =
-                BuildServiceProviderUsingHandlers(logger, serviceCollection, configuration, loggerFactory);
+                BuildServiceProviderUsingHandlers(logger, serviceCollection, configuration, loggerFactory, environment);
 
             FailIfNoContextExist<TContext>(serviceCollection);
 
@@ -237,34 +254,58 @@ namespace SimpleSoft.Database.Migrator
 
         #region Private
 
-        private IConfigurationBuilder BuildConfigurationBuilderUsingHandlers()
+        private IHostingEnvironment BuildHostingEnvironment()
+        {
+            var contentRootPath = Directory.GetCurrentDirectory();
+
+            var environment =
+                Environment.GetEnvironmentVariable(
+                    "DATABASE_MIGRATOR_" + MigratorHostDefaults.EnvironmentKey);
+            if (string.IsNullOrWhiteSpace(environment))
+                environment = MigratorHostDefaults.DefaultEnvironment;
+
+            var hosting = new HostingEnvironment
+            {
+                ApplicationName = Assembly.GetEntryAssembly().GetName().Name,
+                ContentRootPath = contentRootPath,
+                ContentRootFileProvider = new PhysicalFileProvider(contentRootPath),
+                Name = environment
+            };
+
+            foreach (var handler in _hostingEnvironmentHandlers)
+                handler(hosting);
+
+            return hosting;
+        }
+
+        private IConfigurationBuilder BuildConfigurationBuilderUsingHandlers(IHostingEnvironment environment)
         {
             var cfgBuilderParam = new ConfigurationBuilderConfiguratorParam(new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    {MigratorHostDefaults.EnvironmentKey, MigratorHostDefaults.DefaultEnvironment},
-                    {MigratorHostDefaults.ContentRootKey, Directory.GetCurrentDirectory()}
-                })
-                .AddEnvironmentVariables("DATABASE_MIGRATOR_"));
+                    {MigratorHostDefaults.EnvironmentKey, environment.Name},
+                    {MigratorHostDefaults.ContentRootKey, environment.ContentRootPath}
+                }), environment);
             foreach (var handler in _configurationBuilderHandlers)
                 handler(cfgBuilderParam);
 
             return cfgBuilderParam.Builder;
         }
 
-        private IConfigurationRoot BuidConfigurationRootUsingHandlers(IConfigurationBuilder configurationBuilder)
+        private IConfigurationRoot BuidConfigurationRootUsingHandlers(
+            IConfigurationBuilder configurationBuilder, IHostingEnvironment environment)
         {
-            var cfgParam = new ConfigurationConfiguratorParam(configurationBuilder.Build());
+            var cfgParam = new ConfigurationConfiguratorParam(configurationBuilder.Build(), environment);
             foreach (var handler in _configurationHandlers)
                 handler(cfgParam);
 
             return cfgParam.Configuration;
         }
 
-        private ILoggerFactory BuildLoggerFactoryUsingHandlers(IConfiguration configuration)
+        private ILoggerFactory BuildLoggerFactoryUsingHandlers(IConfiguration configuration, IHostingEnvironment environment)
         {
             var loggerFactory = _loggerFactory;
-            var loggingParam = new LoggingConfiguratorParam(loggerFactory, configuration);
+            var loggingParam = new LoggingConfiguratorParam(loggerFactory, configuration, environment);
             foreach (var handler in _loggingConfigurationHandlers)
                 handler(loggingParam);
 
@@ -272,10 +313,12 @@ namespace SimpleSoft.Database.Migrator
         }
 
         private IServiceCollection BuildServiceCollectionUsingHandlers(
-            ILogger logger, IConfigurationRoot configuration, ILoggerFactory loggerFactory)
+            ILogger logger, IHostingEnvironment hosting, IConfigurationRoot configuration, ILoggerFactory loggerFactory, IHostingEnvironment environment)
         {
             logger.LogDebug("Configuring core services");
             var serviceCollection = new ServiceCollection()
+                .AddSingleton(hosting)
+                .AddSingleton(hosting.ContentRootFileProvider)
                 .AddSingleton(configuration)
                 .AddSingleton<IConfiguration>(configuration)
                 .AddSingleton(loggerFactory)
@@ -290,7 +333,7 @@ namespace SimpleSoft.Database.Migrator
                     "Configuring the host services using a total of {total} handlers",
                     _serviceConfigurationHandlers.Count);
                 var serviceParam =
-                    new ServiceConfiguratorParam(serviceCollection, loggerFactory, configuration);
+                    new ServiceConfiguratorParam(serviceCollection, loggerFactory, configuration, environment);
                 foreach (var handler in _serviceConfigurationHandlers)
                     handler(serviceParam);
             }
@@ -299,11 +342,11 @@ namespace SimpleSoft.Database.Migrator
         }
 
         private IServiceProvider BuildServiceProviderUsingHandlers(
-            ILogger logger, IServiceCollection serviceCollection, IConfiguration configuration, ILoggerFactory loggerFactory)
+            ILogger logger, IServiceCollection serviceCollection, IConfiguration configuration, ILoggerFactory loggerFactory, IHostingEnvironment environment)
         {
             logger.LogDebug("Building services provider");
             var serviceProvider = ServiceProviderBuilder(new ServiceProviderBuilderParam(
-                serviceCollection, loggerFactory, configuration));
+                serviceCollection, loggerFactory, configuration, environment));
 
             if (_configureHandlers.Count == 0)
                 logger.LogWarning("Configuration handlers collection is empty. Default configurations will be used...");
@@ -312,7 +355,7 @@ namespace SimpleSoft.Database.Migrator
                 logger.LogDebug(
                     "Configuring the host using a total of {total} handlers",
                     _configureHandlers.Count);
-                var configureParam = new ConfigureParam(serviceProvider, loggerFactory, configuration);
+                var configureParam = new ConfigureParam(serviceProvider, loggerFactory, configuration, environment);
                 foreach (var handler in _configureHandlers)
                     handler(configureParam);
             }

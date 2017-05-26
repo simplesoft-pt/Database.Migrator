@@ -42,6 +42,11 @@ namespace SimpleSoft.Database.Migrator
         INamingNormalizer NamingNormalizer { get; set; }
 
         /// <summary>
+        /// Collection of handlers used to configure the <see cref="IHostingEnvironment"/>.
+        /// </summary>
+        IReadOnlyCollection<Action<IHostingEnvironment>> HostingEnvironmentHandlers { get; }
+
+        /// <summary>
         /// Collection of handlers used to configure the <see cref="IConfigurationBuilder"/>.
         /// </summary>
         IReadOnlyCollection<Action<ConfigurationBuilderConfiguratorParam>> ConfigurationBuilderHandlers { get; }
@@ -71,6 +76,12 @@ namespace SimpleSoft.Database.Migrator
         /// into the <see cref="IServiceProvider"/>.
         /// </summary>
         IReadOnlyCollection<Action<ConfigureParam>> ConfigureHandlers { get; }
+
+        /// <summary>
+        /// Adds the handler to the <see cref="HostingEnvironmentHandlers"/> collection.
+        /// </summary>
+        /// <param name="handler">The handler to add</param>
+        void AddHostingEnvironmentConfigurator(Action<IHostingEnvironment> handler);
 
         /// <summary>
         /// Adds the handler to the <see cref="ConfigurationBuilderHandlers"/> collection.

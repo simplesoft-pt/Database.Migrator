@@ -41,16 +41,19 @@ namespace SimpleSoft.Database.Migrator.Handlers
         /// <param name="serviceCollection">The service collection</param>
         /// <param name="factory">The logger factory</param>
         /// <param name="configuration">The configuration</param>
+        /// <param name="environment">The hosting environment</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ServiceConfiguratorParam(IServiceCollection serviceCollection, ILoggerFactory factory, IConfiguration configuration)
+        public ServiceConfiguratorParam(IServiceCollection serviceCollection, ILoggerFactory factory, IConfiguration configuration, IHostingEnvironment environment)
         {
             if (serviceCollection == null) throw new ArgumentNullException(nameof(serviceCollection));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            if (environment == null) throw new ArgumentNullException(nameof(environment));
 
             ServiceCollection = serviceCollection;
             Factory = factory;
             Configuration = configuration;
+            Environment = environment;
         }
 
         /// <summary>
@@ -67,5 +70,10 @@ namespace SimpleSoft.Database.Migrator.Handlers
         /// The host builder configuration
         /// </summary>
         public IConfiguration Configuration { get; }
+
+        /// <summary>
+        /// The hosting environment
+        /// </summary>
+        public IHostingEnvironment Environment { get; }
     }
 }

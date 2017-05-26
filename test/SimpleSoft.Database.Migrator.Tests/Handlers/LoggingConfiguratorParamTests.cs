@@ -14,14 +14,18 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
         {
             var factory = new LoggerFactory();
             var configuration = new ConfigurationRoot(new List<IConfigurationProvider>());
+            var environment = new HostingEnvironment();
 
-            var param = new LoggingConfiguratorParam(factory, configuration);
+            var param = new LoggingConfiguratorParam(factory, configuration, environment);
 
             Assert.NotNull(param.Factory);
             Assert.Same(factory, param.Factory);
 
             Assert.NotNull(param.Configuration);
             Assert.Same(configuration, param.Configuration);
+
+            Assert.NotNull(param.Environment);
+            Assert.Same(environment, param.Environment);
         }
 
         [Fact]
@@ -30,10 +34,11 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
             LoggingConfiguratorParam param = null;
             var factory = new LoggerFactory();
             var configuration = new ConfigurationRoot(new List<IConfigurationProvider>());
+            var environment = new HostingEnvironment();
 
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                param = new LoggingConfiguratorParam(null, configuration);
+                param = new LoggingConfiguratorParam(null, configuration, environment);
             });
 
             Assert.NotNull(ex);
@@ -41,7 +46,15 @@ namespace SimpleSoft.Database.Migrator.Tests.Handlers
 
             ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                param = new LoggingConfiguratorParam(factory, null);
+                param = new LoggingConfiguratorParam(factory, null, environment);
+            });
+
+            Assert.NotNull(ex);
+            Assert.Null(param);
+
+            ex = Assert.Throws<ArgumentNullException>(() =>
+            {
+                param = new LoggingConfiguratorParam(factory, configuration, null);
             });
 
             Assert.NotNull(ex);
