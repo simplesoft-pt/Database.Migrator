@@ -301,7 +301,7 @@ namespace SimpleSoft.Database.Migrator
             foreach (var migrationType in builder.Migrations)
             {
                 services.AddScoped(migrationType);
-                services.AddScoped(typeof(IMigration<TContext>), migrationType);
+                services.AddScoped(typeof(IMigration<TContext>), k => k.GetService(migrationType));
             }
 
             //  TODO    this should be a configuration
