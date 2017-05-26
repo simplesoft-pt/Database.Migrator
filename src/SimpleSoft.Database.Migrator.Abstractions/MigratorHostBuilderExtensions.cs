@@ -251,5 +251,42 @@ namespace SimpleSoft.Database.Migrator
             });
             return builder;
         }
+
+        #region Use
+
+        public static IMigratorHostBuilder Use<TStartup>(this IMigratorHostBuilder builder)
+            where TStartup : IStartup, new()
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Uses the given class to be used as the startup configurator for the host builder
+        /// </summary>
+        /// <typeparam name="TBuilder">The builder type</typeparam>
+        /// <param name="builder">The builder instance</param>
+        /// <param name="startup">The startup instance</param>
+        /// <returns>The builder instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TBuilder Use<TBuilder>(this TBuilder builder, IStartup startup)
+            where TBuilder : IMigratorHostBuilder
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (startup == null) throw new ArgumentNullException(nameof(startup));
+
+            builder.AddHostingEnvironmentConfigurator(startup.ConfigureHostingEnvironment);
+            builder.AddConfigurationBuilderConfigurator(startup.ConfigureConfigurationBuilder);
+            builder.AddConfigurationConfigurator(startup.ConfigureConfigurations);
+            builder.AddLoggingConfigurator(startup.ConfigureLogging);
+            builder.AddServiceConfigurator(startup.ConfigureServices);
+            builder.SetServiceProviderBuilder(startup.BuildServiceProvider);
+            builder.AddConfigurator(startup.Configure);
+
+            return builder;
+        }
+
+        #endregion
     }
 }
