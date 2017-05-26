@@ -136,6 +136,113 @@ namespace SimpleSoft.Database.Migrator.Tests
 
         #endregion
 
+        #region HostingEnvironment
+
+        public void GivenAHostBuilderWhenAddingHostingEnvironmentConfiguratorThenParamMustNotBeNull()
+        {
+            IHostingEnvironment environment = null;
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddHostingEnvironmentConfigurator(env =>
+                {
+                    environment = env;
+                });
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+
+                Assert.NotNull(environment);
+            }
+        }
+
+        public void GivenAHostBuilderWhenConfiguringHostingEnvironmentConfiguratorThenParamMustNotBeNull()
+        {
+            IHostingEnvironment environment = null;
+            using (var builder = new MigratorHostBuilder()
+                .ConfigureHostingEnvironment(env =>
+                {
+                    environment = env;
+                }))
+            {
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+
+                Assert.NotNull(environment);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenAddingMultipleHostingEnvironmentConfiguratorThenAllHandlersAreRun()
+        {
+            var runCount = 0;
+
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddHostingEnvironmentConfigurator(env =>
+                {
+                    ++runCount;
+                });
+                builder.AddHostingEnvironmentConfigurator(env =>
+                {
+                    ++runCount;
+                });
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+
+                Assert.NotEmpty(builder.HostingEnvironmentHandlers);
+                Assert.Equal(2, builder.HostingEnvironmentHandlers.Count);
+                Assert.Equal(2, runCount);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenConfiguringMultipleHostingEnvironmentConfiguratorThenAllHandlersAreRun()
+        {
+            var runCount = 0;
+
+            using (var builder = new MigratorHostBuilder()
+                .ConfigureHostingEnvironment(param =>
+                {
+                    ++runCount;
+                })
+                .ConfigureHostingEnvironment(param =>
+                {
+                    ++runCount;
+                }))
+            {
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+
+                Assert.NotEmpty(builder.HostingEnvironmentHandlers);
+                Assert.Equal(2, builder.HostingEnvironmentHandlers.Count);
+                Assert.Equal(2, runCount);
+            }
+        }
+
+        [Fact]
+        public void GivenAHostBuilderWhenRunningTheHostingConfiguratorThenAllPropertiesMustBeAssigned()
+        {
+            IHostingEnvironment environment = null;
+            using (var builder = new MigratorHostBuilder())
+            {
+                builder.AddHostingEnvironmentConfigurator(env =>
+                {
+                    environment = env;
+                });
+                BuildAndIgnoreMissingMigrationManagerException(builder);
+
+                Assert.NotNull(environment);
+
+                Assert.NotNull(environment.ApplicationName);
+                Assert.False(string.IsNullOrWhiteSpace(environment.ApplicationName));
+
+                Assert.NotNull(environment.Name);
+                Assert.False(string.IsNullOrWhiteSpace(environment.Name));
+
+                Assert.NotNull(environment.ContentRootPath);
+                Assert.False(string.IsNullOrWhiteSpace(environment.ContentRootPath));
+
+                Assert.NotNull(environment.ContentRootFileProvider);
+            }
+        }
+
+        #endregion
+
         #region ConfigurationBuilder
 
         [Fact]
