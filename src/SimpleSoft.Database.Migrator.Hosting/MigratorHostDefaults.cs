@@ -22,24 +22,26 @@
 // SOFTWARE.
 #endregion
 
-using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
+namespace SimpleSoft.Database.Migrator.Hosting
+{
+    /// <summary>
+    /// Default values for configurations 
+    /// </summary>
+    public static class MigratorHostDefaults
+    {
+        /// <summary>
+        /// The key for the environment value
+        /// </summary>
+        public const string EnvironmentKey = "environment";
 
-[assembly: AssemblyTitle("SimpleSoft.Database.Migrator")]
-[assembly: AssemblyDescription("Support for simple database migrations.")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("SimpleSoft")]
-[assembly: AssemblyProduct("SimpleSoft.Database")]
-[assembly: AssemblyCopyright("Copyright © 2017 João Simões")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+        /// <summary>
+        /// The key for the content root directory
+        /// </summary>
+        public const string ContentRootKey = "contentRoot";
 
-[assembly: ComVisible(false)]
-[assembly: Guid("ada7c9fd-34f2-493c-92b3-3b2ea237b4a2")]
-
-[assembly: CLSCompliant(false)]
-
-[assembly: AssemblyVersion("1.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.17145")]
-[assembly: AssemblyInformationalVersion("1.0.0-alpha02")]
+        /// <summary>
+        /// The default environment value
+        /// </summary>
+        public const string DefaultEnvironment = "Production";
+    }
+}

@@ -2,7 +2,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleSoft.Database.Migrator.Handlers;
 
-namespace SimpleSoft.Database.Migrator
+namespace SimpleSoft.Database.Migrator.Hosting
 {
     /// <summary>
     /// The hosting startup configuration

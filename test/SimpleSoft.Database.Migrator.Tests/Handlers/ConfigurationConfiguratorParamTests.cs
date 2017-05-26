@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using SimpleSoft.Database.Migrator.Handlers;
+using SimpleSoft.Database.Migrator.Hosting;
 using Xunit;
 
 namespace SimpleSoft.Database.Migrator.Tests.Handlers

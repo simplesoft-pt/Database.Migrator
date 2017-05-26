@@ -1,6 +1,6 @@
 using Microsoft.Extensions.FileProviders;
 
-namespace SimpleSoft.Database.Migrator
+namespace SimpleSoft.Database.Migrator.Hosting
 {
     /// <summary>
     /// Provides information about the hosting environment an application is running in.

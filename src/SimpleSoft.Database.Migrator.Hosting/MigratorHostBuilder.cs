@@ -33,7 +33,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using SimpleSoft.Database.Migrator.Handlers;
 
-namespace SimpleSoft.Database.Migrator
+namespace SimpleSoft.Database.Migrator.Hosting
 {
     /// <summary>
     /// The <see cref="IMigratorHost{TContext}"/> builder
