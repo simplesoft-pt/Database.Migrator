@@ -20,9 +20,7 @@ Write-Host "Making a major cleanup..."
 if(Test-Path $nugetsDestinationPath){
     Remove-Item $nugetsDestinationPath -Recurse
 }
-else{
-    New-Item $nugetsDestinationPath -ItemType Directory
-}
+New-Item $nugetsDestinationPath -ItemType Directory
 
 Get-ChildItem -Path ".." -Recurse | 
 Where-Object {$_.Name -eq "bin" -or $_.Name -eq "obj" -or $_.Name -eq "project.lock.json"} |
@@ -55,11 +53,5 @@ Write-Host "Packing all NuGets..."
 
 $xprojFiles | Where-Object {$_.FullName -like "*src*"} | ForEach-Object  {
     Write-Host "Packing NuGet of $($_.FullName)..."
-    dotnet.exe pack $_.DirectoryName -c Release
-
-    Get-ChildItem -Path $_.DirectoryName -Recurse | Where-Object {$_.Name -like "*.nupkg"} |
-    ForEach-Object{
-        Write-Host "Copying NuGet package $($_.FullName) into $($nugetsDestinationPath)"
-        Copy-Item -Path $_.FullName -Destination "$($nugetsDestinationPath)"
-    }
+    dotnet.exe pack $_.DirectoryName -c Release -o $($nugetsDestinationPath)
 }
