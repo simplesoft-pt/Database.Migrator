@@ -1,8 +1,8 @@
 $ErrorActionPreference = "Stop"
 
 $assemblyVersion = "1.0.0"
-$assemblyFileVersion = "1.0.0.17145"
-$assemblyInformationalVersion = "1.0.0-alpha02"
+$assemblyFileVersion = "1.0.0.17150"
+$assemblyInformationalVersion = "1.0.0-alpha03"
 $nugetsDestinationPath = "..\nuget-builds\$($assemblyInformationalVersion)"
 
 Write-Host @"
