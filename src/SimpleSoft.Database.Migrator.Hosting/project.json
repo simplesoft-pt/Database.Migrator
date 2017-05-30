@@ -1,5 +1,5 @@
 ﻿{
-    "version": "1.0.0-alpha02",
+    "version": "1.0.0-alpha03",
     "title": "SimpleSoft.Database.Migrator.Hosting",
     "description": "Hosting support database migrations.",
     "authors": [ "João Simões" ],
@@ -30,7 +30,7 @@
         "Microsoft.Extensions.FileProviders.Physical": "1.0.1",
         "Microsoft.Extensions.Logging": "1.0.0",
         "SimpleSoft.Database.Migrator.Abstractions": { "target": "project" },
-        "SimpleSoft.Database.Migrator.Hosting.Abstractions": { "target": "project"}
+        "SimpleSoft.Database.Migrator.Hosting.Abstractions": { "target": "project" }
     },
 
     "frameworks": {
