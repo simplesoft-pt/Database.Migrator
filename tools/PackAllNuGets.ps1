@@ -42,7 +42,7 @@ $xprojFiles | ForEach-Object  {
 Write-Host "Building all projects..."
 $xprojFiles | ForEach-Object  {
     Write-Host "Building project $($_.FullName)..."
-    dotnet.exe build $_.DirectoryName
+    dotnet.exe build $_.DirectoryName -c Release
 }
 
 Write-Host "Running all tests..."
@@ -55,7 +55,7 @@ Write-Host "Packing all NuGets..."
 
 $xprojFiles | Where-Object {$_.FullName -like "*src*"} | ForEach-Object  {
     Write-Host "Packing NuGet of $($_.FullName)..."
-    dotnet.exe pack $_.DirectoryName
+    dotnet.exe pack $_.DirectoryName -c Release
 
     Get-ChildItem -Path $_.DirectoryName -Recurse | Where-Object {$_.Name -like "*.nupkg"} |
     ForEach-Object{
