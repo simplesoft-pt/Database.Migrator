@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Hosting
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// Represents a configured migrator host

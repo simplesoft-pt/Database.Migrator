@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -294,6 +296,9 @@ namespace SimpleSoft.Database.Migrator
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (config == null) throw new ArgumentNullException(nameof(config));
 
+            //  TODO    this should be a configuration
+            services.AddSingleton<INamingNormalizer>(new DefaultNamingNormalizer());
+
             var builder = new MigrationsBuilder<TContext>(services);
             config(builder);
 
@@ -303,9 +308,17 @@ namespace SimpleSoft.Database.Migrator
                 services.AddScoped(migrationType);
                 services.AddScoped(typeof(IMigration<TContext>), k => k.GetService(migrationType));
             }
+            services.AddSingleton<IEnumerable<MigrationMetadata<TContext>>>(k =>
+            {
+                var normalizer = k.GetRequiredService<INamingNormalizer>();
 
-            //  TODO    this should be a configuration
-            services.AddSingleton<INamingNormalizer>(new DefaultNamingNormalizer());
+                var list = new List<MigrationMetadata<TContext>>(builder.Migrations.Count);
+                list.AddRange(builder.Migrations.Select(e => new MigrationMetadata<TContext>(
+                    normalizer.Normalize(e.Name), normalizer.Normalize(e.FullName), e)));
+
+                return list;
+            });
+            services.AddScoped<IMigrationRunner<TContext>, MigrationRunner<TContext>>();
 
             return services;
         }

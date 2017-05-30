@@ -242,12 +242,7 @@ namespace SimpleSoft.Database.Migrator.Hosting
 
             FailIfNoContextExist<TContext>(serviceCollection);
 
-            var migrationImplTypes =
-                ExtractMigrationMetadatas<TContext>(logger, _namingNormalizer, serviceCollection);
-
-            return new MigrationRunner<TContext>(
-                serviceProvider, _namingNormalizer, migrationImplTypes,
-                loggerFactory.CreateLogger<MigrationRunner<TContext>>());
+            return serviceProvider.GetRequiredService<IMigrationRunner<TContext>>();
         }
 
         #endregion
@@ -372,47 +367,6 @@ namespace SimpleSoft.Database.Migrator.Hosting
             if (context == null)
                 throw new InvalidOperationException(
                     $"No context of type '{contextType.FullName}' was found in the service collection.");
-        }
-
-        private static IEnumerable<MigrationMetadata<TContext>> ExtractMigrationMetadatas<TContext>(
-            ILogger logger, INamingNormalizer namingNormalizer, IServiceCollection serviceCollection)
-            where TContext : IMigrationContext
-        {
-            logger.LogDebug("Searching for registered migrations");
-
-            var migrationInterfaceType = typeof(IMigration<TContext>).GetTypeInfo();
-
-            var migrationImplTypes = new List<MigrationMetadata<TContext>>(serviceCollection.Count);
-            migrationImplTypes.AddRange(
-                serviceCollection.Where(e =>
-                    {
-                        if (migrationInterfaceType.IsAssignableFrom(e.ServiceType))
-                        {
-                            var type = e.ServiceType.GetTypeInfo();
-                            return type.IsClass && !type.IsAbstract;
-                        }
-                        return false;
-                    })
-                    .Select(e => new MigrationMetadata<TContext>(
-                        namingNormalizer.Normalize(e.ImplementationType.Name),
-                        namingNormalizer.Normalize(e.ImplementationType.FullName),
-                        e.ImplementationType)));
-
-            if (migrationImplTypes.Count == 0)
-            {
-                if (logger.IsEnabled(LogLevel.Warning))
-                    logger.LogWarning(
-                        "No migrations were found for the context '{contextType}'", typeof(TContext).Name);
-            }
-            else
-            {
-                if (logger.IsEnabled(LogLevel.Debug))
-                    logger.LogDebug(
-                        "A total of {totalMigrations} migrations were found for the context '{contextType}'",
-                        migrationImplTypes.Count, typeof(TContext).Name);
-            }
-
-            return migrationImplTypes;
         }
 
         #endregion
