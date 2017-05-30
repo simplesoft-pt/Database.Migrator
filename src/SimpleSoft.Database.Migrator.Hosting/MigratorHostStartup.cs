@@ -7,7 +7,7 @@ namespace SimpleSoft.Database.Migrator.Hosting
     /// <summary>
     /// The hosting startup configuration
     /// </summary>
-    public class MigratorHostStartup : IMigratorHostStartup
+    public abstract class MigratorHostStartup : IMigratorHostStartup
     {
         #region Implementation of IStartup
 
