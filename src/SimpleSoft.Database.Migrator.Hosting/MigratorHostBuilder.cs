@@ -253,18 +253,12 @@ namespace SimpleSoft.Database.Migrator.Hosting
         {
             var contentRootPath = Directory.GetCurrentDirectory();
 
-            var environment =
-                Environment.GetEnvironmentVariable(
-                    "DATABASE_MIGRATOR_" + MigratorHostDefaults.EnvironmentKey);
-            if (string.IsNullOrWhiteSpace(environment))
-                environment = MigratorHostDefaults.DefaultEnvironment;
-
             var hosting = new HostingEnvironment
             {
                 ApplicationName = Assembly.GetEntryAssembly().GetName().Name,
                 ContentRootPath = contentRootPath,
                 ContentRootFileProvider = new PhysicalFileProvider(contentRootPath),
-                Name = environment
+                Name = GetEnvironmentName()
             };
 
             foreach (var handler in _hostingEnvironmentHandlers)
@@ -370,5 +364,16 @@ namespace SimpleSoft.Database.Migrator.Hosting
         }
 
         #endregion
+
+        private static string GetEnvironmentName()
+        {
+            var environment =
+                Environment.GetEnvironmentVariable(
+                    "DATABASE_MIGRATOR_" + MigratorHostDefaults.EnvironmentKey);
+            if (string.IsNullOrWhiteSpace(environment))
+                environment = MigratorHostDefaults.DefaultEnvironment;
+
+            return environment;
+        }
     }
 }
