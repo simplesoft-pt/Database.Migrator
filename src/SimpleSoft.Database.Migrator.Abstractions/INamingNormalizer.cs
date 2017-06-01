@@ -27,7 +27,7 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Normalizes names
     /// </summary>
-    public interface INamingNormalizer
+    public interface INamingNormalizer<TContext> where TContext : IMigrationContext
     {
         /// <summary>
         /// Normalizes the given name

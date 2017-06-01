@@ -45,7 +45,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="normalizer">The naming normalizer</param>
         /// <param name="logger">The logger</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public OracleMigrationManager(TContext context, INamingNormalizer normalizer,
+        public OracleMigrationManager(TContext context, INamingNormalizer<TContext> normalizer,
             ILogger<OracleMigrationManager<TContext>> logger)
             : base(context, normalizer, logger)
         {
@@ -61,7 +61,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="contextName">The context name</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public OracleMigrationManager(TContext context, INamingNormalizer normalizer,
+        public OracleMigrationManager(TContext context, INamingNormalizer<TContext> normalizer,
             ILogger<OracleMigrationManager<TContext>> logger, string contextName)
             : base(context, normalizer, logger, contextName)
         {

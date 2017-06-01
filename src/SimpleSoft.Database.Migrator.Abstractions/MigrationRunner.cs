@@ -47,7 +47,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="logger"></param>
         /// <exception cref="ArgumentNullException"></exception>
         public MigrationRunner(
-            IServiceProvider serviceProvider, INamingNormalizer namingNormalizer, 
+            IServiceProvider serviceProvider, INamingNormalizer<TContext> namingNormalizer, 
             IEnumerable<MigrationMetadata<TContext>> migrations, ILogger<MigrationRunner<TContext>> logger)
         {
             if (serviceProvider == null)
@@ -99,7 +99,7 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// The naming normalized
         /// </summary>
-        protected INamingNormalizer NamingNormalizer { get; }
+        protected INamingNormalizer<TContext> NamingNormalizer { get; }
 
         /// <summary>
         /// The context name

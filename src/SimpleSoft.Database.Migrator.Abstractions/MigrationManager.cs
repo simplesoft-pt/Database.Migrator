@@ -44,7 +44,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="normalizer"></param>
         /// <param name="logger">The class logger</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected MigrationManager(TContext context, INamingNormalizer normalizer, ILogger<MigrationManager<TContext>> logger)
+        protected MigrationManager(TContext context, INamingNormalizer<TContext> normalizer, ILogger<MigrationManager<TContext>> logger)
             : this(context, normalizer, logger, typeof(TContext).Name)
         {
 
@@ -60,7 +60,7 @@ namespace SimpleSoft.Database.Migrator
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
         protected MigrationManager(
-            TContext context, INamingNormalizer normalizer, ILogger<MigrationManager<TContext>> logger, string contextName)
+            TContext context, INamingNormalizer<TContext> normalizer, ILogger<MigrationManager<TContext>> logger, string contextName)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -85,7 +85,7 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// The naming normalizer
         /// </summary>
-        protected INamingNormalizer Normalizer { get; }
+        protected INamingNormalizer<TContext> Normalizer { get; }
 
         /// <summary>
         /// The class logger

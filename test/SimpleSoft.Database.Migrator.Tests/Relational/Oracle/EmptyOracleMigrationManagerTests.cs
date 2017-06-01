@@ -19,7 +19,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
             var ct = CancellationToken.None;
 
             var manager = new OracleMigrationManager<MigratorTestContext>(
-                _fixture.Context, new DefaultNamingNormalizer(), 
+                _fixture.Context, new DefaultNamingNormalizer<MigratorTestContext>(), 
                 LoggingManager.CreateTestLogger<OracleMigrationManager<MigratorTestContext>>());
 
             await manager.PrepareDatabaseAsync(ct);

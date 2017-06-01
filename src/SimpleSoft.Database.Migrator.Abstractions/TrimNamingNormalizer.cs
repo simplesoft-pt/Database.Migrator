@@ -28,7 +28,8 @@ namespace SimpleSoft.Database.Migrator
     /// Normalizes names by only making a <see cref="string.Trim()"/>
     /// transformation
     /// </summary>
-    public class TrimNamingNormalizer : INamingNormalizer
+    public class TrimNamingNormalizer<TContext> : INamingNormalizer<TContext>
+        where TContext : IMigrationContext
     {
         #region Implementation of INamingNormalizer
 

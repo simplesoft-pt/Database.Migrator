@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -296,11 +297,10 @@ namespace SimpleSoft.Database.Migrator
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (config == null) throw new ArgumentNullException(nameof(config));
 
-            //  TODO    this should be a configuration
-            services.AddSingleton<INamingNormalizer>(new DefaultNamingNormalizer());
-
             var builder = new MigrationsBuilder<TContext>(services);
             config(builder);
+
+            services.TryAddSingleton<INamingNormalizer<TContext>>(new DefaultNamingNormalizer<TContext>());
 
             services.AddScoped<TContext>();
             foreach (var migrationType in builder.Migrations)
@@ -310,7 +310,7 @@ namespace SimpleSoft.Database.Migrator
             }
             services.AddSingleton<IEnumerable<MigrationMetadata<TContext>>>(k =>
             {
-                var normalizer = k.GetRequiredService<INamingNormalizer>();
+                var normalizer = k.GetRequiredService<INamingNormalizer<TContext>>();
 
                 var list = new List<MigrationMetadata<TContext>>(builder.Migrations.Count);
                 list.AddRange(builder.Migrations.Select(e => new MigrationMetadata<TContext>(

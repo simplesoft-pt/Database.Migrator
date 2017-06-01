@@ -45,7 +45,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="normalizer">The naming normalizer</param>
         /// <param name="logger">The logger</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public SqlServerMigrationManager(TContext context, INamingNormalizer normalizer,
+        public SqlServerMigrationManager(TContext context, INamingNormalizer<TContext> normalizer,
             ILogger<SqlServerMigrationManager<TContext>> logger)
             : base(context, normalizer, logger)
         {
@@ -61,7 +61,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="contextName">The context name</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public SqlServerMigrationManager(TContext context, INamingNormalizer normalizer,
+        public SqlServerMigrationManager(TContext context, INamingNormalizer<TContext> normalizer,
             ILogger<SqlServerMigrationManager<TContext>> logger, string contextName)
             : base(context, normalizer, logger, contextName)
         {

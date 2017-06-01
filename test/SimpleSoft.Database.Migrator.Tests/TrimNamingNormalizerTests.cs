@@ -7,7 +7,7 @@ namespace SimpleSoft.Database.Migrator.Tests
         [Fact]
         public void GivenANormalizerWhenPassingNullNameThenNullMustBeReturned()
         {
-            var normalizer = new TrimNamingNormalizer();
+            var normalizer = new TrimNamingNormalizer<IMigrationContext>();
 
             var normalizedName = normalizer.Normalize(null);
 
@@ -17,7 +17,7 @@ namespace SimpleSoft.Database.Migrator.Tests
         [Fact]
         public void GivenANormalizerWhenPassingWhitespaceNameThenEmptyMustBeReturned()
         {
-            var normalizer = new TrimNamingNormalizer();
+            var normalizer = new TrimNamingNormalizer<IMigrationContext>();
 
             var normalizedName = normalizer.Normalize("      ");
 
@@ -30,7 +30,7 @@ namespace SimpleSoft.Database.Migrator.Tests
         {
             const string nonNormalizedName = "   !Hello.123.World!   ";
 
-            var normalizer = new TrimNamingNormalizer();
+            var normalizer = new TrimNamingNormalizer<IMigrationContext>();
 
             var normalizedName = normalizer.Normalize(nonNormalizedName);
 
@@ -43,7 +43,7 @@ namespace SimpleSoft.Database.Migrator.Tests
         {
             const string nonNormalizedName = "!Hello.123.World!";
 
-            var normalizer = new TrimNamingNormalizer();
+            var normalizer = new TrimNamingNormalizer<IMigrationContext>();
 
             var normalizedName = normalizer.Normalize(nonNormalizedName);
 

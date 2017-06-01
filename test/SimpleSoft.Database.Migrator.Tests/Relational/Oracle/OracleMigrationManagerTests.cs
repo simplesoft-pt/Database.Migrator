@@ -20,7 +20,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
             Assert.Throws<ArgumentNullException>(() =>
             {
                 var manager = new OracleMigrationManager<MigratorTestContext>(
-                    null, new DefaultNamingNormalizer(), LoggingManager.CreateTestLogger<OracleMigrationManager<MigratorTestContext>>());
+                    null, new DefaultNamingNormalizer<MigratorTestContext>(), LoggingManager.CreateTestLogger<OracleMigrationManager<MigratorTestContext>>());
                 Assert.NotNull(manager);
             });
 
@@ -34,7 +34,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
             Assert.Throws<ArgumentNullException>(() =>
             {
                 var manager = new OracleMigrationManager<MigratorTestContext>(
-                    _fixture.Context, new DefaultNamingNormalizer(), null);
+                    _fixture.Context, new DefaultNamingNormalizer<MigratorTestContext>(), null);
                 Assert.NotNull(manager);
             });
         }
