@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -51,7 +50,7 @@ namespace SimpleSoft.Database.Migrator
             if (services == null) throw new ArgumentNullException(nameof(services));
 
             services.AddScoped<TContext>();
-            services.AddScoped<IMigrationContext, TContext>();
+            services.AddScoped<IMigrationContext>(k => k.GetRequiredService<TContext>());
             return services;
         }
 
@@ -91,7 +90,7 @@ namespace SimpleSoft.Database.Migrator
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
             services.AddScoped(builder);
-            services.AddScoped<IMigrationContext, TContext>(builder);
+            services.AddScoped<IMigrationContext>(k => k.GetRequiredService<TContext>());
             return services;
         }
 
@@ -160,57 +159,6 @@ namespace SimpleSoft.Database.Migrator
             services.AddScoped(builder);
             services.AddScoped<IMigration<TContext>>(builder);
             return services;
-        }
-
-        #endregion
-
-        #region ScanMigrations
-
-        /// <summary>
-        /// Registers all <see cref="IMigration{TContext}"/> found in the given assembly.
-        /// </summary>
-        /// <param name="services">The service collection</param>
-        /// <param name="assembly">The assembly to scan</param>
-        /// <returns>The service collection after registration</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static IServiceCollection ScanMigrations(this IServiceCollection services, Assembly assembly)
-        {
-            if (services == null) throw new ArgumentNullException(nameof(services));
-            if (assembly == null) throw new ArgumentNullException(nameof(assembly));
-
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Registers all <see cref="IMigration{TContext}"/> found in the given assemblies.
-        /// </summary>
-        /// <param name="services">The service collection</param>
-        /// <param name="assemblies">The assemblies to scan</param>
-        /// <returns>The service collection after registration</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static IServiceCollection ScanMigrations(this IServiceCollection services, params Assembly[] assemblies)
-        {
-            if (services == null) throw new ArgumentNullException(nameof(services));
-            if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
-
-            foreach (var assembly in assemblies)
-                services.ScanMigrations(assembly);
-
-            return services;
-        }
-
-        /// <summary>
-        /// Registers all <see cref="IMigration{TContext}"/> found in the assembly of the given type.
-        /// </summary>
-        /// <typeparam name="T">The type to use</typeparam>
-        /// <param name="services">The service collection</param>
-        /// <returns>The service collection after registration</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static IServiceCollection ScanMigrations<T>(this IServiceCollection services)
-        {
-            if (services == null) throw new ArgumentNullException(nameof(services));
-
-            return services.ScanMigrations(typeof(T).GetTypeInfo().Assembly);
         }
 
         #endregion
@@ -302,7 +250,7 @@ namespace SimpleSoft.Database.Migrator
 
             services.TryAddSingleton<INamingNormalizer<TContext>>(new DefaultNamingNormalizer<TContext>());
 
-            services.AddScoped<TContext>();
+            services.AddMigrationContext<TContext>();
             foreach (var migrationType in builder.Migrations)
             {
                 services.AddScoped(migrationType);
