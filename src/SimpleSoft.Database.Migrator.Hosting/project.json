@@ -29,7 +29,6 @@
         "Microsoft.Extensions.DependencyInjection": "1.0.0",
         "Microsoft.Extensions.FileProviders.Physical": "1.0.1",
         "Microsoft.Extensions.Logging": "1.0.0",
-        "SimpleSoft.Database.Migrator.Abstractions": { "target": "project" },
         "SimpleSoft.Database.Migrator.Hosting.Abstractions": { "target": "project" }
     },
 
