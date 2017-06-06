@@ -253,10 +253,10 @@ namespace SimpleSoft.Database.Migrator
             services.AddMigrationContext<TContext>();
             foreach (var migrationType in builder.Migrations)
             {
-                services.AddScoped(migrationType);
-                services.AddScoped(typeof(IMigration<TContext>), k => k.GetService(migrationType));
+                services.TryAddScoped(migrationType);
+                services.TryAddScoped(typeof(IMigration<TContext>), k => k.GetService(migrationType));
             }
-            services.AddSingleton<IEnumerable<MigrationMetadata<TContext>>>(k =>
+            services.TryAddSingleton<IEnumerable<MigrationMetadata<TContext>>>(k =>
             {
                 var normalizer = k.GetRequiredService<INamingNormalizer<TContext>>();
 
@@ -266,7 +266,7 @@ namespace SimpleSoft.Database.Migrator
 
                 return list;
             });
-            services.AddScoped<IMigrationRunner<TContext>, MigrationRunner<TContext>>();
+            services.TryAddScoped<IMigrationRunner<TContext>, MigrationRunner<TContext>>();
 
             return services;
         }
