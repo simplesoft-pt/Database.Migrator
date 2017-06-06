@@ -350,7 +350,13 @@ namespace SimpleSoft.Database.Migrator.Hosting
 
         #endregion
 
-        private static string GetEnvironmentName()
+        /// <summary>
+        /// Gets the environment name from the machine environment keys. If
+        /// the key is not present, <see cref="MigratorHostDefaults.DefaultEnvironment"/>
+        /// will be returned.
+        /// </summary>
+        /// <returns>The environment name.</returns>
+        public static string GetEnvironmentName()
         {
             var environment =
                 Environment.GetEnvironmentVariable(
