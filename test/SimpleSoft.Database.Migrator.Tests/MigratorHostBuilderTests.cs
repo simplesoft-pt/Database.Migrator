@@ -30,16 +30,19 @@ namespace SimpleSoft.Database.Migrator.Tests
         }
 
         [Fact]
-        public void GivenAHostBuilderWithRegisteredMigrationManagerWhenBuildThenNoExceptionIsThrown()
+        public void GivenAHostBuilderWithRegisteredMigrationWhenBuildThenNoExceptionIsThrown()
         {
             using (var builder = new MigratorHostBuilder())
             {
                 builder.AddServiceConfigurator(param =>
                 {
-                    param.ServiceCollection
-                        .AddMigrationManager<TestMigrationManager, IMigrationContext>();
+                    param.ServiceCollection.AddMigrations<TestMigrationContext>(options =>
+                    {
+                        options.ServiceCollection
+                            .AddScoped<IMigrationRunner<TestMigrationContext>, TestMigrationRunner>();
+                    });
                 });
-                BuildAndIgnoreMissingMigrationManagerException(builder);
+                builder.Build<TestMigrationContext>();
             }
         }
 
@@ -619,12 +622,12 @@ namespace SimpleSoft.Database.Migrator.Tests
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local
-        private class TestMigrationManager : IMigrationManager<IMigrationContext>
+        private class TestMigrationManager : IMigrationManager<TestMigrationContext>
         {
             #region Implementation of IMigrationManager<out IMigrationContext>
 
             /// <inheritdoc />
-            public IMigrationContext Context { get; } = null;
+            public TestMigrationContext Context { get; } = null;
 
             /// <inheritdoc />
             public string ContextName { get; } = null;
@@ -657,6 +660,53 @@ namespace SimpleSoft.Database.Migrator.Tests
             public Task<bool> RemoveMostRecentMigrationAsync(CancellationToken ct)
             {
                 return Task.FromResult(false);
+            }
+
+            #endregion
+        }
+
+        private class TestMigrationContext : IMigrationContext
+        {
+            #region Implementation of IMigrationContext
+
+            /// <inheritdoc />
+            public Task PrepareAsync(bool openTransaction, CancellationToken ct)
+            {
+                return Task.CompletedTask;
+            }
+
+            /// <inheritdoc />
+            public Task PersistAsync(CancellationToken ct)
+            {
+                return Task.CompletedTask;
+            }
+
+            /// <inheritdoc />
+            public Task RollbackAsync(CancellationToken ct)
+            {
+                return Task.CompletedTask;
+            }
+
+            #endregion
+        }
+
+        private class TestMigrationRunner : IMigrationRunner<TestMigrationContext>
+        {
+            #region Implementation of IMigrationRunner<TestMigrationContext>
+
+            /// <inheritdoc />
+            public IEnumerable<MigrationMetadata<TestMigrationContext>> MigrationMetadatas { get; } = new MigrationMetadata<TestMigrationContext>[0];
+
+            /// <inheritdoc />
+            public Task ApplyMigrationsAsync(CancellationToken ct)
+            {
+                return Task.CompletedTask;
+            }
+
+            /// <inheritdoc />
+            public Task ApplyMigrationsAsync(string migrationId, CancellationToken ct)
+            {
+                return Task.CompletedTask;
             }
 
             #endregion
