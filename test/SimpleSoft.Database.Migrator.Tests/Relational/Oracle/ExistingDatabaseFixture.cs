@@ -62,7 +62,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
                     DateTimeOffset.UtcNow, out migrationId, out className);
 
                 //  Existing static migration
-                manager.AddMigrationAsync(migrationId, className, ct)
+                manager.AddMigrationAsync(migrationId, className, null, ct)
                     .ConfigureAwait(false)
                     .GetAwaiter()
                     .GetResult();

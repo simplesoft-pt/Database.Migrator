@@ -53,19 +53,12 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// Adds the given migration information to the database.
         /// </summary>
-        /// <typeparam name="T">The migration type</typeparam>
-        /// <param name="ct">The cancellation token</param>
-        /// <returns>A task to be awaited</returns>
-        Task AddMigrationAsync<T>(CancellationToken ct);
-
-        /// <summary>
-        /// Adds the given migration information to the database.
-        /// </summary>
         /// <param name="migrationId">The migration identifier</param>
         /// <param name="className">The migration class name</param>
+        /// <param name="description">The migration description</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
-        Task AddMigrationAsync(string migrationId, string className, CancellationToken ct);
+        Task AddMigrationAsync(string migrationId, string className, string description, CancellationToken ct);
 
         /// <summary>
         /// Returns a collection of all migrations currently applied
@@ -84,7 +77,7 @@ namespace SimpleSoft.Database.Migrator
 
         /// <summary>
         /// Removes the most recent migration from the database indicating success if
-        /// the any migration was found.
+        /// any migration was found.
         /// </summary>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited for the result</returns>

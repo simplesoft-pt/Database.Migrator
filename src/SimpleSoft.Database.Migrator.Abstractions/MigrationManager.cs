@@ -118,14 +118,7 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
-        public async Task AddMigrationAsync<T>(CancellationToken ct)
-        {
-            var classType = typeof(T);
-            await AddMigrationAsync(classType.Name, classType.FullName, ct).ConfigureAwait(false);
-        }
-
-        /// <inheritdoc />
-        public async Task AddMigrationAsync(string migrationId, string className, CancellationToken ct)
+        public async Task AddMigrationAsync(string migrationId, string className, string description, CancellationToken ct)
         {
             if (migrationId == null)
                 throw new ArgumentNullException(nameof(migrationId));
@@ -149,7 +142,8 @@ namespace SimpleSoft.Database.Migrator
                 if (string.IsNullOrWhiteSpace(mostRecentMigrationId) ||
                     string.CompareOrdinal(migrationId, mostRecentMigrationId) > 0)
                 {
-                    await InsertMigrationEntryAsync(ContextName, migrationId, className, DateTimeOffset.Now, ct)
+                    await InsertMigrationEntryAsync(
+                            ContextName, migrationId, className, description, DateTimeOffset.Now, ct)
                         .ConfigureAwait(false);
                     return;
                 }
@@ -248,11 +242,12 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="contextName">The migration context name</param>
         /// <param name="migrationId">The migration identifier</param>
         /// <param name="className">The class responsible for this migration</param>
+        /// <param name="description">The migration description</param>
         /// <param name="appliedOn">The date the migration was applied</param>
         /// <param name="ct">The cancellation token</param>
         /// <returns>A task to be awaited</returns>
         protected abstract Task InsertMigrationEntryAsync(
-            string contextName, string migrationId, string className, DateTimeOffset appliedOn, CancellationToken ct);
+            string contextName, string migrationId, string className, string description, DateTimeOffset appliedOn, CancellationToken ct);
 
         /// <summary>
         /// Returns a collection of all migrations ids currently applied.

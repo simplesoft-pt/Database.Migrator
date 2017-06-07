@@ -92,6 +92,7 @@ CREATE TABLE DB_MIGRATOR_HISTORY(
     CONTEXT_NAME VARCHAR(256) NOT NULL,
     MIGRATION_ID VARCHAR(128) NOT NULL,
     CLASS_NAME VARCHAR(512) NOT NULL,
+    DESCRIPTION VARCHAR(4000) NULL,
     APPLIED_ON TIMESTAMP WITH TIME ZONE NOT NULL,
     PRIMARY KEY (CONTEXT_NAME, MIGRATION_ID)
 )")
@@ -99,15 +100,17 @@ CREATE TABLE DB_MIGRATOR_HISTORY(
         }
 
         /// <inheritdoc />
-        protected override async Task InsertMigrationEntryAsync(string contextName, string migrationId, string className, DateTimeOffset appliedOn, CancellationToken ct)
+        protected override async Task InsertMigrationEntryAsync(string contextName, string migrationId, 
+            string className, string description, DateTimeOffset appliedOn, CancellationToken ct)
         {
             await Context.ExecuteAsync(@"
-INSERT INTO DB_MIGRATOR_HISTORY(CONTEXT_NAME, MIGRATION_ID, CLASS_NAME, APPLIED_ON)
-VALUES (:ContextName, :MigrationId, :ClassName, TO_TIMESTAMP_TZ(:AppliedOn,'YYYY-MM-DD""T""HH24:MI:SS.FF7TZH:TZM'))", new
+INSERT INTO DB_MIGRATOR_HISTORY(CONTEXT_NAME, MIGRATION_ID, CLASS_NAME, DESCRIPTION, APPLIED_ON)
+VALUES (:ContextName, :MigrationId, :ClassName, :Description, TO_TIMESTAMP_TZ(:AppliedOn,'YYYY-MM-DD""T""HH24:MI:SS.FF7TZH:TZM'))", new
                 {
                     ContextName = contextName,
                     MigrationId = migrationId,
                     ClassName = className,
+                    Description = description,
                     AppliedOn = appliedOn.ToString("O")
             })
                 .ConfigureAwait(false);

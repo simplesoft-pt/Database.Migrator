@@ -56,7 +56,8 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
             string migrationId;
             string className;
             MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
-            await _fixture.Manager.AddMigrationAsync(migrationId, className, ct);
+            await _fixture.Manager.AddMigrationAsync(
+                migrationId, className, $"Description for migration {migrationId}", ct);
 
             var migrationIds = await _fixture.Manager.GetAllMigrationsAsync(ct);
 
@@ -71,12 +72,12 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync(null, "...", ct);
+                await _fixture.Manager.AddMigrationAsync(null, "...", null, ct);
             });
 
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync("...", null, ct);
+                await _fixture.Manager.AddMigrationAsync("...", null, null, ct);
             });
         }
 
@@ -87,12 +88,12 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
 
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync(string.Empty, "...", ct);
+                await _fixture.Manager.AddMigrationAsync(string.Empty, "...", null, ct);
             });
 
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync("...", string.Empty, ct);
+                await _fixture.Manager.AddMigrationAsync("...", string.Empty, null, ct);
             });
         }
 
@@ -103,13 +104,12 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
 
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync(
-                    "    ", "...", ct);
+                await _fixture.Manager.AddMigrationAsync("    ", "...", null, ct);
             });
 
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync("...", "    ", ct);
+                await _fixture.Manager.AddMigrationAsync("...", "    ", null, ct);
             });
         }
 
@@ -120,7 +120,8 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
             string className;
             MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
 
-            await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
+            await _fixture.Manager.AddMigrationAsync(
+                migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
         }
 
         [Fact]
@@ -130,14 +131,16 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
             string className;
             MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
 
-            await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
+            await _fixture.Manager.AddMigrationAsync(
+                migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
                 MigrationsTestHelper.GenerateMigrationInfo(
                     DateTimeOffset.UtcNow.AddDays(-1), out migrationId, out className);
 
-                await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
+                await _fixture.Manager.AddMigrationAsync(
+                    migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
             });
         }
 
@@ -148,11 +151,13 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
             string className;
             MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
 
-            await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
+            await _fixture.Manager.AddMigrationAsync(
+                migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
-                await _fixture.Manager.AddMigrationAsync(migrationId, className, CancellationToken.None);
+                await _fixture.Manager.AddMigrationAsync(
+                    migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
             });
         }
 

@@ -30,7 +30,7 @@ select count(*) as Total
 from (
 	select 
         --  making sure all columns exist
-        ContextName, MigrationId, ClassName, AppliedOn
+        ContextName, MigrationId, ClassName, Description, AppliedOn
 	from __DbMigratorHistory
 ) V"), true, ct);
             Assert.NotNull(tableId);

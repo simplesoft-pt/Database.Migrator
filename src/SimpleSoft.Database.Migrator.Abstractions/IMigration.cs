@@ -35,6 +35,11 @@ namespace SimpleSoft.Database.Migrator
         where TContext : IMigrationContext
     {
         /// <summary>
+        /// The migration description
+        /// </summary>
+        string Description { get; set; }
+
+        /// <summary>
         /// The migration options
         /// </summary>
         TContext Context { get; }

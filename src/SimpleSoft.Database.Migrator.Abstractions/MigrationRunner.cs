@@ -167,6 +167,8 @@ namespace SimpleSoft.Database.Migrator
                         var migrationMeta = _migrations.Values[migrationStartIdx];
                         using (Logger.BeginScope("CurrentMigrationId:{currentmigrationId}", migrationMeta.Id))
                         {
+                            string migrationDescription = null;
+
                             await UsingMigrationAsync(migrationMeta.Type, async migration =>
                             {
                                 Logger.LogDebug(
@@ -178,9 +180,11 @@ namespace SimpleSoft.Database.Migrator
                                     await migration.ApplyAsync(ct).ConfigureAwait(false);
                                 }, migration.RunInTransaction, ct).ConfigureAwait(false);
 
+                                migrationDescription = migration.Description;
                             }).ConfigureAwait(false);
-                            
-                            await manager.AddMigrationAsync(migrationMeta.Id, migrationMeta.ClassName, ct)
+
+                            await manager.AddMigrationAsync(
+                                    migrationMeta.Id, migrationMeta.ClassName, migrationDescription, ct)
                                 .ConfigureAwait(false);
 
                             Logger.LogInformation("Migration applied to the database");

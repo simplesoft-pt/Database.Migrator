@@ -88,6 +88,7 @@ CREATE TABLE __DbMigratorHistory
     ContextName NVARCHAR(256) NOT NULL,
     MigrationId NVARCHAR(128) NOT NULL,
     ClassName NVARCHAR(512) NOT NULL,
+    Description NVARCHAR(MAX) NULL,
     AppliedOn DATETIME2 NOT NULL,
     PRIMARY KEY (ContextName, MigrationId)
 )")
@@ -96,15 +97,16 @@ CREATE TABLE __DbMigratorHistory
 
         /// <inheritdoc />
         protected override async Task InsertMigrationEntryAsync(string contextName, string migrationId,
-            string className, DateTimeOffset appliedOn, CancellationToken ct)
+            string className, string description, DateTimeOffset appliedOn, CancellationToken ct)
         {
             await Context.ExecuteAsync(@"
-INSERT INTO __DbMigratorHistory(ContextName, MigrationId, ClassName, AppliedOn) 
-VALUES (@ContextName, @MigrationId, @ClassName, @AppliedOn)", new
+INSERT INTO __DbMigratorHistory(ContextName, MigrationId, ClassName, Description, AppliedOn) 
+VALUES (@ContextName, @MigrationId, @ClassName, @Description, @AppliedOn)", new
                 {
                     ContextName = contextName,
                     MigrationId = migrationId,
                     ClassName = className,
+                    Description = description,
                     AppliedOn = appliedOn
                 })
                 .ConfigureAwait(false);

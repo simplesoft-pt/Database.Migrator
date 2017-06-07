@@ -48,6 +48,9 @@ namespace SimpleSoft.Database.Migrator
         }
 
         /// <inheritdoc />
+        public string Description { get; set; }
+
+        /// <inheritdoc />
         public TContext Context { get; }
 
         /// <inheritdoc />
