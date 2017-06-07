@@ -86,8 +86,8 @@ namespace SimpleSoft.Database.Migrator
 CREATE TABLE __DbMigratorHistory
 (
     ContextName NVARCHAR(256) NOT NULL,
-    MigrationId NVARCHAR(128) NOT NULL,
-    ClassName NVARCHAR(512) NOT NULL,
+    MigrationId NVARCHAR(256) NOT NULL,
+    ClassName NVARCHAR(1024) NOT NULL,
     Description NVARCHAR(MAX) NULL,
     AppliedOn DATETIME2 NOT NULL,
     PRIMARY KEY (ContextName, MigrationId)
