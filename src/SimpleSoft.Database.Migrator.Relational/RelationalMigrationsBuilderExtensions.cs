@@ -15,7 +15,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="connectionString">The connection string to be used</param>
         /// <param name="config">The configuration handler</param>
         /// <returns></returns>
-        public static RelationalMigrationsBuilder<TContext> AddRelational<TContext>(
+        public static MigrationsBuilder<TContext> AddRelational<TContext>(
             this MigrationsBuilder<TContext> builder, string connectionString, Action<RelationalMigrationsBuilder<TContext>> config)
             where TContext : IRelationalMigrationContext
         {
@@ -29,12 +29,11 @@ namespace SimpleSoft.Database.Migrator
                 throw new ArgumentException("Value cannot be whitespace.", nameof(connectionString));
 
             var relationalBuilder = new RelationalMigrationsBuilder<TContext>(builder.ServiceCollection, connectionString);
-            foreach (var migrationType in builder.Migrations)
-                relationalBuilder.AddMigration(migrationType);
-
             config(relationalBuilder);
+            foreach (var migrationType in relationalBuilder.Migrations)
+                builder.AddMigration(migrationType);
 
-            return relationalBuilder;
+            return builder;
         }
     }
 }
