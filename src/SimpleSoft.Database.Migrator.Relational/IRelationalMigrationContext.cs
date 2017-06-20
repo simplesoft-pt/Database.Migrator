@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SimpleSoft.Database.Migrator
@@ -58,9 +59,11 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="param"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         Task<IEnumerable<T>> QueryAsync<T>(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null,
+            CancellationToken ct = default(CancellationToken));
 
         /// <summary>
         /// Queries the first or default value from the database
@@ -70,9 +73,11 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="param"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         Task<T> QuerySingleOrDefaultAsync<T>(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null,
+            CancellationToken ct = default(CancellationToken));
 
         /// <summary>
         /// Queries a single result from the database
@@ -82,9 +87,11 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="param"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         Task<T> QuerySingleAsync<T>(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null,
+            CancellationToken ct = default(CancellationToken));
 
         /// <summary>
         /// Queries the first value from the database
@@ -94,9 +101,11 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="param"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         Task<T> QueryFirstAsync<T>(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null,
+            CancellationToken ct = default(CancellationToken));
 
         /// <summary>
         /// Queries the first or default value from the database
@@ -106,9 +115,11 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="param"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         Task<T> QueryFirstOrDefaultAsync<T>(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null,
+            CancellationToken ct = default(CancellationToken));
 
         #endregion
 
@@ -121,9 +132,11 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="param"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         Task<int> ExecuteAsync(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null,
+            CancellationToken ct = default(CancellationToken));
 
         /// <summary>
         /// Executes the SQL into the database returning a data reader
@@ -132,9 +145,11 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="param"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         Task<IDataReader> ExecuteReaderAsync(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null,
+            CancellationToken ct = default(CancellationToken));
 
         /// <summary>
         /// Executes the SQL as a scalar into the database
@@ -144,9 +159,11 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="param"></param>
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
+        /// <param name="ct"></param>
         /// <returns></returns>
         Task<T> ExecuteScalarAsync<T>(
-            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
+            string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null,
+            CancellationToken ct = default(CancellationToken));
 
         #endregion
     }
