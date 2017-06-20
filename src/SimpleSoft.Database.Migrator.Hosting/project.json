@@ -1,5 +1,5 @@
 ﻿{
-    "version": "1.0.0-alpha04",
+    "version": "1.0.0-alpha05",
     "title": "SimpleSoft.Database.Migrator.Hosting",
     "description": "Hosting support database migrations.",
     "authors": [ "João Simões" ],
