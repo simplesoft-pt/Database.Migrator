@@ -19,7 +19,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations
 create table Version001Table(
 	Id bigint primary key,
 	Value nvarchar(256) not null
-)");
+)", ct: ct);
         }
 
         #endregion

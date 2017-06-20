@@ -74,7 +74,7 @@ namespace SimpleSoft.Database.Migrator
         protected override async Task<bool> MigrationsHistoryExistAsync(CancellationToken ct)
         {
             var tableId = await Context.QuerySingleAsync<long?>(
-                    "SELECT OBJECT_ID('__DbMigratorHistory', 'U') as TableId")
+                    "SELECT OBJECT_ID('__DbMigratorHistory', 'U') as TableId", ct: ct)
                 .ConfigureAwait(false);
             return tableId.HasValue;
         }
@@ -91,7 +91,7 @@ CREATE TABLE __DbMigratorHistory
     Description NVARCHAR(MAX) NULL,
     AppliedOn DATETIME2 NOT NULL,
     PRIMARY KEY (ContextName, MigrationId)
-)")
+)", ct: ct)
                 .ConfigureAwait(false);
         }
 
@@ -108,7 +108,7 @@ VALUES (@ContextName, @MigrationId, @ClassName, @Description, @AppliedOn)", new
                     ClassName = className,
                     Description = description,
                     AppliedOn = appliedOn
-                })
+                }, ct: ct)
                 .ConfigureAwait(false);
         }
 
@@ -125,7 +125,7 @@ ORDER BY
     ContextName ASC, MigrationId DESC", new
                 {
                     ContextName = contextName
-                })
+                }, ct: ct)
                 .ConfigureAwait(false);
 
             return result as IReadOnlyCollection<string> ?? result.ToList();
@@ -144,7 +144,7 @@ ORDER BY
     ContextName ASC, MigrationId DESC", new
                 {
                     ContextName = contextName
-                })
+                }, ct: ct)
                 .ConfigureAwait(false);
 
             return migrationId;
@@ -161,7 +161,7 @@ WHERE
                 {
                     ContextName = contextName,
                     MigrationId = migrationId
-                })
+                }, ct: ct)
                 .ConfigureAwait(false);
         }
 

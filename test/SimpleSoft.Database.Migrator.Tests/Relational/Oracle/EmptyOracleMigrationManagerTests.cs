@@ -32,7 +32,7 @@ FROM(
     --  making sure all columns exist
     CONTEXT_NAME, MIGRATION_ID, CLASS_NAME, DESCRIPTION, APPLIED_ON
   FROM MIGRATORTESTEMPTY.DB_MIGRATOR_HISTORY
-)"), true, ct);
+)", ct: ct), true, ct);
             Assert.NotNull(tableId);
             Assert.Equal(0L, tableId);
         }

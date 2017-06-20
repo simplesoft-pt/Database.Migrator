@@ -79,7 +79,7 @@ FROM SYS.ALL_OBJECTS
 WHERE
   OBJECT_TYPE = 'TABLE'
   AND OWNER = SYS_CONTEXT ('USERENV', 'SESSION_USER')
-  AND OBJECT_NAME = 'DB_MIGRATOR_HISTORY'").ConfigureAwait(false);
+  AND OBJECT_NAME = 'DB_MIGRATOR_HISTORY'", ct: ct).ConfigureAwait(false);
 
             return tableCount > 0;
         }
@@ -95,7 +95,7 @@ CREATE TABLE DB_MIGRATOR_HISTORY(
     DESCRIPTION VARCHAR(4000) NULL,
     APPLIED_ON TIMESTAMP WITH TIME ZONE NOT NULL,
     PRIMARY KEY (CONTEXT_NAME, MIGRATION_ID)
-)")
+)", ct: ct)
                 .ConfigureAwait(false);
         }
 
@@ -112,7 +112,7 @@ VALUES (:ContextName, :MigrationId, :ClassName, :Description, TO_TIMESTAMP_TZ(:A
                     ClassName = className,
                     Description = description,
                     AppliedOn = appliedOn.ToString("O")
-            })
+            }, ct: ct)
                 .ConfigureAwait(false);
         }
 
@@ -129,7 +129,7 @@ ORDER BY
   CONTEXT_NAME ASC, MIGRATION_ID DESC", new
                 {
                     ContextName = contextName
-                })
+                }, ct: ct)
                 .ConfigureAwait(false);
 
             return result as IReadOnlyCollection<string> ?? result.ToList();
@@ -153,7 +153,7 @@ WHERE
   ROWNUM < 2", new
                 {
                     ContextName = contextName
-                })
+                }, ct: ct)
                 .ConfigureAwait(false);
 
             return migrationId;
@@ -170,7 +170,7 @@ WHERE
                 {
                     ContextName = contextName,
                     MigrationId = migrationId
-                })
+                }, ct: ct)
                 .ConfigureAwait(false);
         }
 

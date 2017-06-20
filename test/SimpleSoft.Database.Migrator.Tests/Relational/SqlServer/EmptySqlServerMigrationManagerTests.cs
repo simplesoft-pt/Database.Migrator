@@ -32,7 +32,7 @@ from (
         --  making sure all columns exist
         ContextName, MigrationId, ClassName, Description, AppliedOn
 	from __DbMigratorHistory
-) V"), true, ct);
+) V", ct: ct), true, ct);
             Assert.NotNull(tableId);
             Assert.Equal(0L, tableId);
         }

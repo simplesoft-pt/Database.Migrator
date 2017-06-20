@@ -17,7 +17,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations
         {
             await Context.ExecuteAsync(@"
 alter table Version001Table 
-add Description nvarchar(1024) not null default 'hello world'");
+add Description nvarchar(1024) not null default 'hello world'", ct: ct);
         }
 
         #endregion

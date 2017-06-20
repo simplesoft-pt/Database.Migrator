@@ -23,7 +23,7 @@ values (@id, @value)", new
                 {
                     id = i,
                     value = "Some value " + i.ToString("D3")
-                });
+                }, ct: ct);
             }
         }
 
