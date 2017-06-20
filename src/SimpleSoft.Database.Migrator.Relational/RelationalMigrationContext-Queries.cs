@@ -8,7 +8,7 @@ namespace SimpleSoft.Database.Migrator
     public partial class RelationalMigrationContext
     {
         /// <inheritdoc />
-        public async Task<IEnumerable<T>> Query<T>(
+        public async Task<IEnumerable<T>> QueryAsync<T>(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null)
         {
             FailIfDisposed();

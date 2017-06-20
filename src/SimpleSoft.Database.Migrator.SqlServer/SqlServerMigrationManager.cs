@@ -115,7 +115,7 @@ VALUES (@ContextName, @MigrationId, @ClassName, @Description, @AppliedOn)", new
         /// <inheritdoc />
         protected override async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(string contextName, CancellationToken ct)
         {
-            var result = await Context.Query<string>(@"
+            var result = await Context.QueryAsync<string>(@"
 SELECT 
     MigrationId
 FROM __DbMigratorHistory

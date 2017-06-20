@@ -59,7 +59,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="commandTimeout"></param>
         /// <param name="commandType"></param>
         /// <returns></returns>
-        Task<IEnumerable<T>> Query<T>(
+        Task<IEnumerable<T>> QueryAsync<T>(
             string sql, object param = null, int? commandTimeout = null, CommandType? commandType = null);
 
         /// <summary>

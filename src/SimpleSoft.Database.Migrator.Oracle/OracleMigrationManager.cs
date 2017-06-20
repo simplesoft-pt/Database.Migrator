@@ -119,7 +119,7 @@ VALUES (:ContextName, :MigrationId, :ClassName, :Description, TO_TIMESTAMP_TZ(:A
         /// <inheritdoc />
         protected override async Task<IReadOnlyCollection<string>> GetAllMigrationsAsync(string contextName, CancellationToken ct)
         {
-            var result = await Context.Query<string>(@"
+            var result = await Context.QueryAsync<string>(@"
 SELECT 
   MIGRATION_ID
 FROM DB_MIGRATOR_HISTORY
