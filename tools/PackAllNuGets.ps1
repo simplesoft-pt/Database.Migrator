@@ -31,6 +31,22 @@ ForEach-Object{
 
 $xprojFiles = Get-ChildItem -Path ".." -Recurse | Where-Object {$_.Name -like "*.xproj"}
 
+Write-Host "Generating AssemblyInfoVersions files..."
+$assemblyInfoVersionsContentText = @"
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+
+[assembly: AssemblyVersion("$($assemblyVersion)")]
+[assembly: AssemblyFileVersion("$($assemblyFileVersion)")]
+[assembly: AssemblyInformationalVersion("$($assemblyInformationalVersion)")]
+"@
+$xprojFiles | Where-Object {$_.FullName -like "*src*"} | ForEach-Object {
+    $assemblyInfoVersionsFilePath = "$($_.Directory.FullName)/Properties/AssemblyInfoVersions.cs"
+    Write-Host "Creating file $($assemblyInfoVersionsFilePath) with assembly file version..."
+    $assemblyInfoVersionsContentText | Set-Content $assemblyInfoVersionsFilePath
+}
+
 Write-Host "Restoring all packages..."
 $xprojFiles | ForEach-Object  {
     Write-Host "Restoring packages for $($_.FullName)..."
@@ -50,7 +66,6 @@ $xprojFiles | Where-Object {$_.FullName -like "*test*"} | ForEach-Object  {
 }
 
 Write-Host "Packing all NuGets..."
-
 $xprojFiles | Where-Object {$_.FullName -like "*src*"} | ForEach-Object  {
     Write-Host "Packing NuGet of $($_.FullName)..."
     dotnet.exe pack $_.DirectoryName -c Release -o $($nugetsDestinationPath)
