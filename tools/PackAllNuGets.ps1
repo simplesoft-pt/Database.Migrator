@@ -5,16 +5,6 @@ $assemblyFileVersion = "1.0.0.17171"
 $assemblyInformationalVersion = "1.0.0-alpha05"
 $nugetsDestinationPath = "..\nuget-builds\$($assemblyInformationalVersion)"
 
-Write-Host @"
-
-Packing all solution as NuGets:
-    AssemblyVersion: $($assemblyVersion)
-    AssemblyFileVersion: $($assemblyFileVersion)
-    AssemblyInformationalVersion: $($assemblyInformationalVersion)
-    NuGetsDestinationFolder: $($nugetsDestinationPath)
-
-"@
-
 Write-Host "Making a major cleanup..."
 
 if(Test-Path $nugetsDestinationPath){
@@ -40,8 +30,18 @@ $assemblyInfoVersionsContentText = @"
 //     Used to define the assembly version information.
 // </auto-generated>
 //------------------------------------------------------------------------------
-
+using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("SimpleSoft")]
+[assembly: AssemblyProduct("SimpleSoft.Database")]
+[assembly: AssemblyCopyright("Copyright © 2017 João Simões")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+[assembly: ComVisible(false)]
+[assembly: CLSCompliant(false)]
 
 
 [assembly: AssemblyVersion("$($assemblyVersion)")]
@@ -49,9 +49,15 @@ using System.Reflection;
 [assembly: AssemblyInformationalVersion("$($assemblyInformationalVersion)")]
 "@
 $xprojFiles | Where-Object {$_.FullName -like "*src*"} | ForEach-Object {
-    $assemblyInfoVersionsFilePath = "$($_.Directory.FullName)/Properties/AssemblyInfoVersions.cs"
+    $assemblyInfoVersionsFilePath = "$($_.Directory.FullName)/Properties/AssemblyInfoBase.cs"
     Write-Host "Creating file $($assemblyInfoVersionsFilePath) with assembly file version..."
     $assemblyInfoVersionsContentText | Set-Content $assemblyInfoVersionsFilePath
+
+    $projectJsonFilePath = "$($_.Directory.FullName)/project.json"
+    Write-Host "Changing version in file $($projectJsonFilePath)..."
+    $projectJson = Get-Content $projectJsonFilePath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $projectJson.version = $assemblyInformationalVersion
+    $projectJson | ConvertTo-Json | Set-Content $projectJsonFilePath -Encoding UTF8
 }
 
 Write-Host "Restoring all packages..."

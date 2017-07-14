@@ -22,20 +22,10 @@
 // SOFTWARE.
 #endregion
 
-using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
+
 [assembly: AssemblyTitle("SimpleSoft.Database.Migrator.SqlServer")]
 [assembly: AssemblyDescription("Support for simple database migrations for SQL Server.")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("SimpleSoft")]
-[assembly: AssemblyProduct("SimpleSoft.Database")]
-[assembly: AssemblyCopyright("Copyright © 2017 João Simões")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-
-[assembly: ComVisible(false)]
 [assembly: Guid("31bfb593-5a38-429e-a553-5d7ec950dd93")]
-
-[assembly: CLSCompliant(false)]

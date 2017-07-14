@@ -22,20 +22,10 @@
 // SOFTWARE.
 #endregion
 
-using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
+
 [assembly: AssemblyTitle("SimpleSoft.Database.Migrator.Oracle")]
 [assembly: AssemblyDescription("Support for simple database migrations for Oracle.")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("SimpleSoft")]
-[assembly: AssemblyProduct("SimpleSoft.Database")]
-[assembly: AssemblyCopyright("Copyright © 2017 João Simões")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-
-[assembly: ComVisible(false)]
 [assembly: Guid("d635935a-26a7-4fe6-b1cc-d8091a8806eb")]
-
-[assembly: CLSCompliant(false)]
