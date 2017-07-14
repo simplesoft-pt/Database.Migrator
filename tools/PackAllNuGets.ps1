@@ -56,9 +56,7 @@ $xprojFiles | Where-Object {$_.FullName -like "*src*"} | ForEach-Object {
     $projectJsonFilePath = "$($_.Directory.FullName)/project.json"
     Write-Host "Changing version in file $($projectJsonFilePath)..."
     $projectJsonContent = Get-Content $projectJsonFilePath -Raw -Encoding UTF8
-    $projectJsonContent -replace '"version": "[0-9a-zA-Z.-]+",', """version"": ""$($assemblyInformationalVersion)""," | ForEach-Object{ 
-        $_.Trim() 
-    } | Set-Content $projectJsonFilePath -Encoding UTF8
+    ($projectJsonContent -replace '"version": "[0-9a-zA-Z.-]+",', """version"": ""$($assemblyInformationalVersion)"",").Trim() | Set-Content $projectJsonFilePath -Encoding UTF8
 }
 
 Write-Host "Restoring all packages..."
