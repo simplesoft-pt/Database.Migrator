@@ -27,12 +27,12 @@
     },
 
     "frameworks": {
-        "net4.5.1": {
+        "net451": {
             "frameworkAssemblies": {
                 "System.Data": { "type": "build" }
             }
         },
-        "netstandard1.6": {
+        "netstandard16": {
             "dependencies": {
                 "System.Data.SqlClient": "4.1.0"
             }

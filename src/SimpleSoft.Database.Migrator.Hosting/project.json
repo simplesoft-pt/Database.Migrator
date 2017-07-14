@@ -32,12 +32,12 @@
     },
 
     "frameworks": {
-        "net4.5.1": {
+        "net451": {
             "frameworkAssemblies": {
                 "System.Runtime": { "type": "build" }
             }
         },
-        "netstandard1.6": {
+        "netstandard16": {
 
         }
     }
