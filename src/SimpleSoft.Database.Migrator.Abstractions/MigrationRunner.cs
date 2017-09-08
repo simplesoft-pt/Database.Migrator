@@ -187,6 +187,12 @@ namespace SimpleSoft.Database.Migrator
                                     migrationMeta.Id, migrationMeta.ClassName, migrationDescription, ct)
                                 .ConfigureAwait(false);
 
+                            if (string.CompareOrdinal(migrationId, migrationMeta.Id) == 0)
+                            {
+                                Logger.LogInformation("Final migration applied to the database");
+                                break;
+                            }
+
                             Logger.LogInformation("Migration applied to the database");
                         }
                     }
