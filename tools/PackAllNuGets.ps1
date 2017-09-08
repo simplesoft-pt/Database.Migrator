@@ -1,8 +1,8 @@
 $ErrorActionPreference = "Stop"
 
 $assemblyVersion = "1.0.0"
-$assemblyFileVersion = "1.0.0.17171"
-$assemblyInformationalVersion = "1.0.0-alpha05"
+$assemblyFileVersion = "1.0.0.17251"
+$assemblyInformationalVersion = "1.0.0-dev001"
 $nugetsDestinationPath = "..\nuget-builds\$($assemblyInformationalVersion)"
 
 Write-Host "Making a major cleanup..."
