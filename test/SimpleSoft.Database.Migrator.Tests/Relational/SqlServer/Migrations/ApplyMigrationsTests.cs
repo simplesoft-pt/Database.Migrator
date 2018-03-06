@@ -6,6 +6,7 @@ using Xunit;
 
 namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations
 {
+    /*
     public class ApplyMigrationsTests : IClassFixture<SqlMigrationDatabaseFixture>
     {
         private readonly SqlMigrationDatabaseFixture _fixture;
@@ -54,4 +55,5 @@ from Version001Table")).ToList();
             }
         }
     }
+    //*/
 }

@@ -7,7 +7,6 @@
         "Microsoft.Extensions.Logging": "1.1.1",
         "Microsoft.Extensions.Logging.Console": "1.1.1",
         "Microsoft.Extensions.Logging.Debug": "1.1.1",
-        "SimpleSoft.Database.Migrator.Hosting": { "target": "project" },
         "SimpleSoft.Database.Migrator.Oracle": { "target": "project" },
         "SimpleSoft.Database.Migrator.SqlServer": { "target": "project" },
         "xunit": "2.2.0"

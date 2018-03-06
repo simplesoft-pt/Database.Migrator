@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Logging;
-using SimpleSoft.Database.Migrator.Hosting;
+//using SimpleSoft.Database.Migrator.Hosting;
 
 namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations
 {
+    /*
     public class SqlMigrationDatabaseFixture : SqlServerDatabaseFixture
     {
         public SqlMigrationDatabaseFixture() : base(
@@ -49,4 +50,5 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations
 
         #endregion
     }
+    //*/
 }
