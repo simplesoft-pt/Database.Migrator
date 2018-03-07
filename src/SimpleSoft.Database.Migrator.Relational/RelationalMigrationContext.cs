@@ -28,7 +28,6 @@ using System.Data.Common;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -45,15 +44,15 @@ namespace SimpleSoft.Database.Migrator
         /// Creates a new instance.
         /// </summary>
         /// <param name="connection">The connection to use</param>
-        /// <param name="logger">The logger to use</param>
+        /// <param name="loggerFactory">The logger factory to use</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected RelationalMigrationContext(IDbConnection connection, ILogger<RelationalMigrationContext> logger)
+        protected RelationalMigrationContext(IDbConnection connection, IMigrationLoggerFactory loggerFactory)
         {
             if (connection == null) throw new ArgumentNullException(nameof(connection));
-            if (logger == null) throw new ArgumentNullException(nameof(logger));
+            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
 
             Connection = connection;
-            Logger = logger;
+            Logger = loggerFactory.Get(GetType().FullName);
         }
 
         /// <inheritdoc />
@@ -65,7 +64,7 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// The logger used by this instance
         /// </summary>
-        protected ILogger<RelationalMigrationContext> Logger { get; }
+        protected IMigrationLogger Logger { get; }
 
         /// <inheritdoc />
         public IDbConnection Connection { get; private set; }
@@ -158,15 +157,15 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="commandTimeout">The command timeout</param>
         protected void LogQuery(string query, int commandTimeout)
         {
-            if (Logger.IsEnabled(LogLevel.Debug))
-                Logger.LogDebug(@"
+            if (Logger.IsEnabled(MigrationLogLevel.Debug))
+                Logger.LogDebug(null, @"
 Executing sql statement in database.
     Is in transaction? {isInTransaction}
     Command Timeout: {commandTimeout}
 
 SQL to execute:
 {sqlStatement}",
-                    Transaction != null, commandTimeout, query);
+                    (Transaction != null).ToString(), commandTimeout.ToString(), query);
         }
 
         /// <summary>

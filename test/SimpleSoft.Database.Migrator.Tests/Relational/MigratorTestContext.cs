@@ -6,7 +6,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational
     {
         /// <inheritdoc />
         public MigratorTestContext(IDbConnection connection) 
-            : base(connection, LoggingManager.CreateTestLogger<MigratorTestContext>())
+            : base(connection, LoggingManager.LoggerFactory)
         {
 
         }

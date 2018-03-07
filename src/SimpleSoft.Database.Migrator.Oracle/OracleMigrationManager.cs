@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -43,11 +42,11 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         /// <param name="context">The migration context</param>
         /// <param name="normalizer">The naming normalizer</param>
-        /// <param name="logger">The logger</param>
+        /// <param name="loggerFactory">The logger factory</param>
         /// <exception cref="ArgumentNullException"></exception>
         public OracleMigrationManager(TContext context, INamingNormalizer<TContext> normalizer,
-            ILogger<OracleMigrationManager<TContext>> logger)
-            : base(context, normalizer, logger)
+            IMigrationLoggerFactory loggerFactory)
+            : base(context, normalizer, loggerFactory)
         {
 
         }
@@ -57,13 +56,13 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         /// <param name="context">The migration context</param>
         /// <param name="normalizer">The naming normalizer</param>
-        /// <param name="logger">The logger</param>
+        /// <param name="loggerFactory">The logger factory</param>
         /// <param name="contextName">The context name</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
         public OracleMigrationManager(TContext context, INamingNormalizer<TContext> normalizer,
-            ILogger<OracleMigrationManager<TContext>> logger, string contextName)
-            : base(context, normalizer, logger, contextName)
+            IMigrationLoggerFactory loggerFactory, string contextName)
+            : base(context, normalizer, loggerFactory, contextName)
         {
 
         }

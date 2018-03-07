@@ -15,8 +15,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
 
             Context = new MigratorTestContext(Connection);
             Manager = new OracleMigrationManager<MigratorTestContext>(
-                Context, new DefaultNamingNormalizer<MigratorTestContext>(),
-                LoggingManager.CreateTestLogger<OracleMigrationManager<MigratorTestContext>>());
+                Context, new DefaultNamingNormalizer<MigratorTestContext>(), LoggingManager.LoggerFactory);
         }
 
         public MigratorTestContext Context { get; private set; }
@@ -48,8 +47,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
             using (var context = new MigratorTestContext(connection))
             {
                 var manager = new OracleMigrationManager<MigratorTestContext>(
-                    context, new DefaultNamingNormalizer<MigratorTestContext>(),
-                    LoggingManager.CreateTestLogger<OracleMigrationManager<MigratorTestContext>>());
+                    context, new DefaultNamingNormalizer<MigratorTestContext>(), LoggingManager.LoggerFactory);
 
                 manager.PrepareDatabaseAsync(ct)
                     .ConfigureAwait(false)

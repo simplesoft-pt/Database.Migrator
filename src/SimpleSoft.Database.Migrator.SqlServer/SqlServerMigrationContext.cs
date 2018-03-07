@@ -24,7 +24,6 @@
 
 using System;
 using System.Data.SqlClient;
-using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -35,8 +34,8 @@ namespace SimpleSoft.Database.Migrator
         where TOptions : SqlServerContextOptions
     {
         /// <inheritdoc />
-        public SqlServerMigrationContext(TOptions options, ILogger<SqlServerMigrationContext<TOptions>> logger) 
-            : base(new SqlConnection(options.ConnectionString), logger)
+        public SqlServerMigrationContext(TOptions options, IMigrationLoggerFactory loggerFactory) 
+            : base(new SqlConnection(options.ConnectionString), loggerFactory)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
 

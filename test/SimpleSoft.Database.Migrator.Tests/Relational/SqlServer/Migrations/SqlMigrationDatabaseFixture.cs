@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+
 //using SimpleSoft.Database.Migrator.Hosting;
 
 namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations

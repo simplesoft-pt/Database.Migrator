@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -39,10 +38,10 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         /// <param name="context">The migration context</param>
         /// <param name="normalizer">The naming normalizer</param>
-        /// <param name="logger">The logger</param>
+        /// <param name="loggerFactory">The logger factory</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected RelationalMigrationManager(TContext context, INamingNormalizer<TContext> normalizer, ILogger<RelationalMigrationManager<TContext>> logger)
-            : base(context, normalizer, logger)
+        protected RelationalMigrationManager(TContext context, INamingNormalizer<TContext> normalizer, IMigrationLoggerFactory loggerFactory)
+            : base(context, normalizer, loggerFactory)
         {
 
         }
@@ -52,12 +51,12 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         /// <param name="context">The migration context</param>
         /// <param name="normalizer">The naming normalizer</param>
-        /// <param name="logger">The logger</param>
+        /// <param name="loggerFactory">The logger factory</param>
         /// <param name="contextName">The context name</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        protected RelationalMigrationManager(TContext context, INamingNormalizer<TContext> normalizer, ILogger<MigrationManager<TContext>> logger, string contextName) 
-            : base(context, normalizer, logger, contextName)
+        protected RelationalMigrationManager(TContext context, INamingNormalizer<TContext> normalizer, IMigrationLoggerFactory loggerFactory, string contextName) 
+            : base(context, normalizer, loggerFactory, contextName)
         {
 
         }

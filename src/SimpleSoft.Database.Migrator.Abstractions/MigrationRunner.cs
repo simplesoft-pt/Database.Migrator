@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -44,11 +43,11 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="serviceProvider">The service provider</param>
         /// <param name="namingNormalizer">The naming normalizer</param>
         /// <param name="migrations">The migrations found</param>
-        /// <param name="logger"></param>
+        /// <param name="loggerFactory">The logger factory</param>
         /// <exception cref="ArgumentNullException"></exception>
         public MigrationRunner(
             IServiceProvider serviceProvider, INamingNormalizer<TContext> namingNormalizer, 
-            IEnumerable<MigrationMetadata<TContext>> migrations, ILogger<MigrationRunner<TContext>> logger)
+            IEnumerable<MigrationMetadata<TContext>> migrations, IMigrationLoggerFactory loggerFactory)
         {
             if (serviceProvider == null)
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -56,10 +55,10 @@ namespace SimpleSoft.Database.Migrator
                 throw new ArgumentNullException(nameof(namingNormalizer));
             if (migrations == null)
                 throw new ArgumentNullException(nameof(migrations));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
+            if (loggerFactory == null)
+                throw new ArgumentNullException(nameof(loggerFactory));
 
-            Logger = logger;
+            Logger = loggerFactory.Get(GetType().FullName) ?? NullMigrationLogger.Default;
             ContextName = namingNormalizer.Normalize(typeof(TContext).Name);
             NamingNormalizer = namingNormalizer;
             ServiceProvider = serviceProvider;
@@ -84,7 +83,7 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// The host logger
         /// </summary>
-        protected ILogger<MigrationRunner<TContext>> Logger { get; }
+        protected IMigrationLogger Logger { get; }
 
         /// <summary>
         /// The service provider
@@ -114,7 +113,7 @@ namespace SimpleSoft.Database.Migrator
         {
             if (_migrations.Count == 0)
             {
-                Logger.LogWarning(
+                Logger.LogWarning(null,
                     "The migration collection for '{contextName}' context is empty. Nothing to be done.",
                     ContextName);
                 return;
@@ -132,10 +131,10 @@ namespace SimpleSoft.Database.Migrator
             if (string.IsNullOrWhiteSpace(migrationId))
                 throw new ArgumentException("Value cannot be whitespace.", nameof(migrationId));
 
-            using (Logger.BeginScope("Context:{contextName} TargetMigrationId:{migrationId}", ContextName, migrationId))
+            using (Logger.Scope("Context:{contextName} TargetMigrationId:{migrationId}", ContextName, migrationId))
             {
                 migrationId = NamingNormalizer.Normalize(migrationId);
-                Logger.LogInformation("About to apply migration", migrationId);
+                Logger.LogInformation(null, "About to apply migration", migrationId);
 
                 if (!_migrations.ContainsKey(migrationId))
                     throw new InvalidOperationException(
@@ -143,7 +142,7 @@ namespace SimpleSoft.Database.Migrator
 
                 if (_migrations.Count == 0)
                 {
-                    Logger.LogWarning("The migration collection is empty. Nothing to be done.");
+                    Logger.LogWarning(null, "The migration collection is empty. Nothing to be done.");
                     return;
                 }
 
@@ -155,25 +154,25 @@ namespace SimpleSoft.Database.Migrator
                         await CalculateMigrationStartIndexAsync(migrationId, manager, ct).ConfigureAwait(false);
                     if (migrationStartIdx == -1)
                     {
-                        Logger.LogInformation("Migration is already applied. Nothing to be done.", migrationId);
+                        Logger.LogInformation(null, "Migration is already applied. Nothing to be done.", migrationId);
                         return;
                     }
 
-                    Logger.LogDebug(
+                    Logger.LogDebug(null,
                         "Migrations starting at position {migrationStartIdx} for a total of {migrationCount} migrations",
-                        migrationStartIdx, _migrations.Count);
+                        migrationStartIdx.ToString(), _migrations.Count.ToString());
                     for (; migrationStartIdx < _migrations.Count; migrationStartIdx++)
                     {
                         var migrationMeta = _migrations.Values[migrationStartIdx];
-                        using (Logger.BeginScope("CurrentMigrationId:{currentmigrationId}", migrationMeta.Id))
+                        using (Logger.Scope("CurrentMigrationId:{currentmigrationId}", migrationMeta.Id))
                         {
                             string migrationDescription = null;
 
                             await UsingMigrationAsync(migrationMeta.Type, async migration =>
                             {
-                                Logger.LogDebug(
+                                Logger.LogDebug(null,
                                     "Applying migration [RunInsideScope: {runInsideScope}]",
-                                    migration.RunInTransaction);
+                                    migration.RunInTransaction.ToString());
 
                                 await migration.Context.RunAsync(async () =>
                                 {
@@ -189,11 +188,11 @@ namespace SimpleSoft.Database.Migrator
 
                             if (string.CompareOrdinal(migrationId, migrationMeta.Id) == 0)
                             {
-                                Logger.LogInformation("Final migration applied to the database");
+                                Logger.LogInformation(null, "Final migration applied to the database");
                                 break;
                             }
 
-                            Logger.LogInformation("Migration applied to the database");
+                            Logger.LogInformation(null, "Migration applied to the database");
                         }
                     }
 
@@ -213,7 +212,7 @@ namespace SimpleSoft.Database.Migrator
         {
             using (var managerScope = ServiceScopeFactory.CreateScope())
             {
-                Logger.LogDebug("Resolving migration manager from service collection");
+                Logger.LogDebug(null, "Resolving migration manager from service collection");
                 var manager =
                     managerScope.ServiceProvider.GetRequiredService<IMigrationManager<TContext>>();
 
@@ -232,9 +231,9 @@ namespace SimpleSoft.Database.Migrator
         {
             using (var migrationScope = ServiceScopeFactory.CreateScope())
             {
-                Logger.LogDebug(
+                Logger.LogDebug(null,
                     "Resolving migration of type '{migrationType}' from service collection",
-                    migrationType);
+                    migrationType.ToString());
                 var migration = (IMigration<TContext>)
                     migrationScope.ServiceProvider.GetRequiredService(migrationType);
 

@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -42,10 +41,10 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         /// <param name="context">The migration context</param>
         /// <param name="normalizer"></param>
-        /// <param name="logger">The class logger</param>
+        /// <param name="loggerFactory">The logger factory</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected MigrationManager(TContext context, INamingNormalizer<TContext> normalizer, ILogger<MigrationManager<TContext>> logger)
-            : this(context, normalizer, logger, typeof(TContext).Name)
+        protected MigrationManager(TContext context, INamingNormalizer<TContext> normalizer, IMigrationLoggerFactory loggerFactory)
+            : this(context, normalizer, loggerFactory, typeof(TContext).Name)
         {
 
         }
@@ -55,19 +54,19 @@ namespace SimpleSoft.Database.Migrator
         /// </summary>
         /// <param name="context">The migration context</param>
         /// <param name="normalizer"></param>
-        /// <param name="logger">The class logger</param>
+        /// <param name="loggerFactory">The class logger factory</param>
         /// <param name="contextName">The context name</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
         protected MigrationManager(
-            TContext context, INamingNormalizer<TContext> normalizer, ILogger<MigrationManager<TContext>> logger, string contextName)
+            TContext context, INamingNormalizer<TContext> normalizer, IMigrationLoggerFactory loggerFactory, string contextName)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
             if (normalizer == null)
                 throw new ArgumentNullException(nameof(normalizer));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
+            if (loggerFactory == null)
+                throw new ArgumentNullException(nameof(loggerFactory));
             if (contextName == null)
                 throw new ArgumentNullException(nameof(contextName));
             if (string.IsNullOrWhiteSpace(contextName))
@@ -76,7 +75,7 @@ namespace SimpleSoft.Database.Migrator
             ContextName = normalizer.Normalize(contextName);
             Normalizer = normalizer;
             Context = context;
-            Logger = logger;
+            Logger = loggerFactory.Get(GetType().FullName) ?? NullMigrationLogger.Default;
         }
 
         /// <inheritdoc />
@@ -90,7 +89,7 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// The class logger
         /// </summary>
-        protected ILogger<MigrationManager<TContext>> Logger { get; }
+        protected IMigrationLogger Logger { get; }
 
         #region Implementation of IMigrationManager<out TContext>
 
@@ -100,19 +99,19 @@ namespace SimpleSoft.Database.Migrator
         /// <inheritdoc />
         public async Task PrepareDatabaseAsync(CancellationToken ct)
         {
-            Logger.LogDebug(
+            Logger.LogDebug(null,
                 "Preparing context '{contextName}' database to support migrations.", ContextName);
 
             await Context.RunAsync(async () =>
             {
                 if (await MigrationsHistoryExistAsync(ct).ConfigureAwait(false))
                 {
-                    Logger.LogInformation(
+                    Logger.LogInformation(null,
                         "Migrations history was detected in the database. No changes need to be done.");
                     return;
                 }
 
-                Logger.LogWarning("Migrations history does not exist. Trying to create...");
+                Logger.LogWarning(null, "Migrations history does not exist. Trying to create...");
                 await CreateMigrationsHistoryAsync(ct).ConfigureAwait(false);
             }, true, ct).ConfigureAwait(false);
         }
@@ -131,7 +130,7 @@ namespace SimpleSoft.Database.Migrator
 
             migrationId = Normalizer.Normalize(migrationId);
             className = Normalizer.Normalize(className);
-            Logger.LogDebug(
+            Logger.LogDebug(null,
                 "Adding '{migrationId}' to the history of '{contextName}' context.",
                 migrationId, ContextName);
 
@@ -148,7 +147,7 @@ namespace SimpleSoft.Database.Migrator
                     return;
                 }
 
-                Logger.LogWarning(
+                Logger.LogWarning(null,
                     "The history of '{contextName}' context has the migration '{mostRecentMigrationId}', which is considered more recent than '{migrationId}'.",
                     ContextName, mostRecentMigrationId, migrationId);
                 throw new InvalidOperationException(
@@ -164,9 +163,9 @@ namespace SimpleSoft.Database.Migrator
                         await GetAllMigrationsAsync(ContextName, ct).ConfigureAwait(false), true, ct)
                     .ConfigureAwait(false);
 
-            Logger.LogDebug(
+            Logger.LogDebug(null,
                 "A total of {migrationCount} migrations have been found for the '{contextName}' context",
-                migrationIds.Count, ContextName);
+                migrationIds.Count.ToString(), ContextName);
             return migrationIds;
         }
 
@@ -180,12 +179,12 @@ namespace SimpleSoft.Database.Migrator
 
             if (string.IsNullOrWhiteSpace(migrationId))
             {
-                Logger.LogDebug(
+                Logger.LogDebug(null,
                     "No migrations have yet been applied to the '{contextName}' context.", ContextName);
                 return null;
             }
 
-            Logger.LogDebug(
+            Logger.LogDebug(null,
                 "The migration '{migrationId}' is the most recent from the history of '{contextName}' context.",
                 migrationId, ContextName);
             return migrationId;
@@ -194,7 +193,7 @@ namespace SimpleSoft.Database.Migrator
         /// <inheritdoc />
         public async Task<bool> RemoveMostRecentMigrationAsync(CancellationToken ct)
         {
-            Logger.LogDebug(
+            Logger.LogDebug(null,
                 "Removing most recent migration from the history of '{contextName}' context.",
                 ContextName);
 
@@ -204,13 +203,13 @@ namespace SimpleSoft.Database.Migrator
                     .ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(migrationId))
                 {
-                    Logger.LogWarning(
+                    Logger.LogWarning(null,
                         "No migrations were found in history of '{contextName}' context. No changes will be made.",
                         ContextName);
                     return false;
                 }
 
-                Logger.LogDebug(
+                Logger.LogDebug(null,
                     "Removing migration '{migradionId}' from the history of '{contextName}' context",
                     migrationId, ContextName);
                 await DeleteMigrationEntryByIdAsync(ContextName, migrationId, ct).ConfigureAwait(false);

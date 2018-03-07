@@ -1,6 +1,6 @@
 ﻿{
   "version": "1.0.0-dev001",
-  "title": "SimpleSoft.Database.Migrator.Abstractions",
+  "title": "SimpleSoft.Database.Migrator",
   "description": "Support for simple database migrations.",
   "authors": [ "João Simões" ],
   "copyright": "Copyright © 2017 João Simões",
@@ -24,8 +24,7 @@
   },
 
   "dependencies": {
-    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
-    "Microsoft.Extensions.FileProviders.Abstractions": "1.0.1"
+    "SimpleSoft.Database.Migrator.Abstractions": { "target": "project" }
   },
 
   "frameworks": {

@@ -22,31 +22,10 @@
 // SOFTWARE.
 #endregion
 
-using System;
-using Oracle.ManagedDataAccess.Client;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
-namespace SimpleSoft.Database.Migrator
-{
-    /// <summary>
-    /// The Oracle migration context
-    /// </summary>
-    public class OracleMigrationContext<TOptions> : RelationalMigrationContext, IOracleMigrationContext<TOptions> 
-        where TOptions : OracleContextOptions
-    {
-        /// <inheritdoc />
-        public OracleMigrationContext(TOptions options, IMigrationLoggerFactory loggerFactory) 
-            : base(new OracleConnection(options.ConnectionString), loggerFactory)
-        {
-            if (options == null) throw new ArgumentNullException(nameof(options));
 
-            Options = options;
-        }
-
-        #region Implementation of IOracleMigrationContext<out TOptions>
-
-        /// <inheritdoc />
-        public TOptions Options { get; }
-
-        #endregion
-    }
-}
+[assembly: AssemblyTitle("SimpleSoft.Database.Migrator")]
+[assembly: AssemblyDescription("Support for simple database migrations.")]
+[assembly: Guid("a0ce1591-237d-4b48-aa17-845bd3b589df")]
