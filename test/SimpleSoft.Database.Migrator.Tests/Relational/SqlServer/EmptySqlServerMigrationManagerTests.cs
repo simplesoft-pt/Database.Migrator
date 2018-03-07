@@ -33,7 +33,6 @@ from (
         ContextName, MigrationId, ClassName, Description, AppliedOn
 	from __DbMigratorHistory
 ) V", ct: ct), true, ct);
-            Assert.NotNull(tableId);
             Assert.Equal(0L, tableId);
         }
     }

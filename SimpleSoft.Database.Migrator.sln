@@ -1,49 +1,46 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5A8C6A81-2596-4E02-9424-78F4F45580A4}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7FFC43C5-08AC-402A-924E-ABBFB47D68D1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{46B9714E-D412-4819-8065-DCC2CF65EBEB}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleSoft.Database.Migrator.Abstractions", "src\SimpleSoft.Database.Migrator.Abstractions\SimpleSoft.Database.Migrator.Abstractions.csproj", "{8945B4F5-6360-40F4-8F16-F8C399CC7E57}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{7964E107-C7C2-4C6E-9681-96DD9E6F529E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator", "src\SimpleSoft.Database.Migrator\SimpleSoft.Database.Migrator.csproj", "{8791C441-1D4A-4E51-BD9F-3D18A46CFBED}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "relational", "relational", "{CA498CE6-3BDE-40D1-8C09-485B5DFF6983}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator.Relational", "src\SimpleSoft.Database.Migrator.Relational\SimpleSoft.Database.Migrator.Relational.csproj", "{5D1553F9-73CF-4686-809D-EC68C4D6B3A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator.Oracle", "src\SimpleSoft.Database.Migrator.Oracle\SimpleSoft.Database.Migrator.Oracle.csproj", "{EA64C148-BA1C-4D2B-9D93-95D4307E693A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator.SqlServer", "src\SimpleSoft.Database.Migrator.SqlServer\SimpleSoft.Database.Migrator.SqlServer.csproj", "{10A74315-199A-46C4-BBA3-29D7D09CAAA3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F425B0CE-B701-4323-8D41-7E78F3DC0432}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator.Tests", "test\SimpleSoft.Database.Migrator.Tests\SimpleSoft.Database.Migrator.Tests.csproj", "{13463A12-2E2C-4441-B69D-59AF652822F6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "items", "items", "{7BA79F3D-FABD-478A-8FAE-ABB86E4BC17E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{CE416A61-9733-4279-A4D7-E40A8998D02B}"
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "other", "other", "{25967BBA-0F5C-437E-9CAB-8DC00E0536E5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "other", "other", "{0C5CF702-5421-4122-B8C9-F091C918EF58}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SimpleSoft.Database.Migrator.Abstractions", "src\SimpleSoft.Database.Migrator.Abstractions\SimpleSoft.Database.Migrator.Abstractions.xproj", "{A0CE1591-237D-4B48-AA17-845BD3B589DF}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{9F7E53A5-9F41-41F5-BDF0-606EDF4C4A52}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SimpleSoft.Database.Migrator.Tests", "test\SimpleSoft.Database.Migrator.Tests\SimpleSoft.Database.Migrator.Tests.xproj", "{2AA53A67-2C70-4F2E-A050-FD8AB353E8F1}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SimpleSoft.Database.Migrator.Relational", "src\SimpleSoft.Database.Migrator.Relational\SimpleSoft.Database.Migrator.Relational.xproj", "{BA158840-913C-4313-8DE1-26B505B904E5}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{5B7C7FE1-C7B2-4333-972D-5F75BF9B4363}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{A31DF7D4-8B7F-4E05-B566-5E33C63519C9}"
 	ProjectSection(SolutionItems) = preProject
 		tools\PackAllNuGets.ps1 = tools\PackAllNuGets.ps1
 		tools\SimpleSoft.Database.PublicKey = tools\SimpleSoft.Database.PublicKey
 		tools\SimpleSoft.Database.snk = tools\SimpleSoft.Database.snk
 	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SimpleSoft.Database.Migrator.SqlServer", "src\SimpleSoft.Database.Migrator.SqlServer\SimpleSoft.Database.Migrator.SqlServer.xproj", "{31BFB593-5A38-429E-A553-5D7EC950DD93}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SimpleSoft.Database.Migrator.Oracle", "src\SimpleSoft.Database.Migrator.Oracle\SimpleSoft.Database.Migrator.Oracle.xproj", "{D635935A-26A7-4FE6-B1CC-D8091A8806EB}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Relational", "Relational", "{36511498-B4B8-44AA-B18F-2A9A25386D24}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SimpleSoft.Database.Migrator", "src\SimpleSoft.Database.Migrator\SimpleSoft.Database.Migrator.xproj", "{2576D774-76E2-414F-89AD-058D66DC446F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,44 +48,47 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A0CE1591-237D-4B48-AA17-845BD3B589DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A0CE1591-237D-4B48-AA17-845BD3B589DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A0CE1591-237D-4B48-AA17-845BD3B589DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A0CE1591-237D-4B48-AA17-845BD3B589DF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2AA53A67-2C70-4F2E-A050-FD8AB353E8F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2AA53A67-2C70-4F2E-A050-FD8AB353E8F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2AA53A67-2C70-4F2E-A050-FD8AB353E8F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AA53A67-2C70-4F2E-A050-FD8AB353E8F1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BA158840-913C-4313-8DE1-26B505B904E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA158840-913C-4313-8DE1-26B505B904E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA158840-913C-4313-8DE1-26B505B904E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA158840-913C-4313-8DE1-26B505B904E5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{31BFB593-5A38-429E-A553-5D7EC950DD93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{31BFB593-5A38-429E-A553-5D7EC950DD93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{31BFB593-5A38-429E-A553-5D7EC950DD93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{31BFB593-5A38-429E-A553-5D7EC950DD93}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D635935A-26A7-4FE6-B1CC-D8091A8806EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D635935A-26A7-4FE6-B1CC-D8091A8806EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D635935A-26A7-4FE6-B1CC-D8091A8806EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D635935A-26A7-4FE6-B1CC-D8091A8806EB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2576D774-76E2-414F-89AD-058D66DC446F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2576D774-76E2-414F-89AD-058D66DC446F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2576D774-76E2-414F-89AD-058D66DC446F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2576D774-76E2-414F-89AD-058D66DC446F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8945B4F5-6360-40F4-8F16-F8C399CC7E57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8945B4F5-6360-40F4-8F16-F8C399CC7E57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8945B4F5-6360-40F4-8F16-F8C399CC7E57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8945B4F5-6360-40F4-8F16-F8C399CC7E57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8791C441-1D4A-4E51-BD9F-3D18A46CFBED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8791C441-1D4A-4E51-BD9F-3D18A46CFBED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8791C441-1D4A-4E51-BD9F-3D18A46CFBED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8791C441-1D4A-4E51-BD9F-3D18A46CFBED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D1553F9-73CF-4686-809D-EC68C4D6B3A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D1553F9-73CF-4686-809D-EC68C4D6B3A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D1553F9-73CF-4686-809D-EC68C4D6B3A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D1553F9-73CF-4686-809D-EC68C4D6B3A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA64C148-BA1C-4D2B-9D93-95D4307E693A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA64C148-BA1C-4D2B-9D93-95D4307E693A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA64C148-BA1C-4D2B-9D93-95D4307E693A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA64C148-BA1C-4D2B-9D93-95D4307E693A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10A74315-199A-46C4-BBA3-29D7D09CAAA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A74315-199A-46C4-BBA3-29D7D09CAAA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A74315-199A-46C4-BBA3-29D7D09CAAA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A74315-199A-46C4-BBA3-29D7D09CAAA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13463A12-2E2C-4441-B69D-59AF652822F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13463A12-2E2C-4441-B69D-59AF652822F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13463A12-2E2C-4441-B69D-59AF652822F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13463A12-2E2C-4441-B69D-59AF652822F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7964E107-C7C2-4C6E-9681-96DD9E6F529E} = {46B9714E-D412-4819-8065-DCC2CF65EBEB}
-		{25967BBA-0F5C-437E-9CAB-8DC00E0536E5} = {46B9714E-D412-4819-8065-DCC2CF65EBEB}
-		{A0CE1591-237D-4B48-AA17-845BD3B589DF} = {5A8C6A81-2596-4E02-9424-78F4F45580A4}
-		{2AA53A67-2C70-4F2E-A050-FD8AB353E8F1} = {9F7E53A5-9F41-41F5-BDF0-606EDF4C4A52}
-		{BA158840-913C-4313-8DE1-26B505B904E5} = {36511498-B4B8-44AA-B18F-2A9A25386D24}
-		{5B7C7FE1-C7B2-4333-972D-5F75BF9B4363} = {46B9714E-D412-4819-8065-DCC2CF65EBEB}
-		{31BFB593-5A38-429E-A553-5D7EC950DD93} = {36511498-B4B8-44AA-B18F-2A9A25386D24}
-		{D635935A-26A7-4FE6-B1CC-D8091A8806EB} = {36511498-B4B8-44AA-B18F-2A9A25386D24}
-		{36511498-B4B8-44AA-B18F-2A9A25386D24} = {5A8C6A81-2596-4E02-9424-78F4F45580A4}
-		{2576D774-76E2-414F-89AD-058D66DC446F} = {5A8C6A81-2596-4E02-9424-78F4F45580A4}
+		{8945B4F5-6360-40F4-8F16-F8C399CC7E57} = {7FFC43C5-08AC-402A-924E-ABBFB47D68D1}
+		{8791C441-1D4A-4E51-BD9F-3D18A46CFBED} = {7FFC43C5-08AC-402A-924E-ABBFB47D68D1}
+		{CA498CE6-3BDE-40D1-8C09-485B5DFF6983} = {7FFC43C5-08AC-402A-924E-ABBFB47D68D1}
+		{5D1553F9-73CF-4686-809D-EC68C4D6B3A9} = {CA498CE6-3BDE-40D1-8C09-485B5DFF6983}
+		{EA64C148-BA1C-4D2B-9D93-95D4307E693A} = {CA498CE6-3BDE-40D1-8C09-485B5DFF6983}
+		{10A74315-199A-46C4-BBA3-29D7D09CAAA3} = {CA498CE6-3BDE-40D1-8C09-485B5DFF6983}
+		{13463A12-2E2C-4441-B69D-59AF652822F6} = {F425B0CE-B701-4323-8D41-7E78F3DC0432}
+		{CE416A61-9733-4279-A4D7-E40A8998D02B} = {7BA79F3D-FABD-478A-8FAE-ABB86E4BC17E}
+		{0C5CF702-5421-4122-B8C9-F091C918EF58} = {7BA79F3D-FABD-478A-8FAE-ABB86E4BC17E}
+		{A31DF7D4-8B7F-4E05-B566-5E33C63519C9} = {7BA79F3D-FABD-478A-8FAE-ABB86E4BC17E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B4CE8A40-EF16-4A32-AFE7-588468DB59EB}
 	EndGlobalSection
 EndGlobal

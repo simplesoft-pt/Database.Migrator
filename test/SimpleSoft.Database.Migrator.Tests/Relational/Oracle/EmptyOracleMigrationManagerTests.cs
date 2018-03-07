@@ -33,7 +33,6 @@ FROM(
     CONTEXT_NAME, MIGRATION_ID, CLASS_NAME, DESCRIPTION, APPLIED_ON
   FROM MIGRATORTESTEMPTY.DB_MIGRATOR_HISTORY
 )", ct: ct), true, ct);
-            Assert.NotNull(tableId);
             Assert.Equal(0L, tableId);
         }
     }
