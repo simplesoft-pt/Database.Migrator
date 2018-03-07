@@ -7,19 +7,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7FFC43C5-08A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleSoft.Database.Migrator.Abstractions", "src\SimpleSoft.Database.Migrator.Abstractions\SimpleSoft.Database.Migrator.Abstractions.csproj", "{8945B4F5-6360-40F4-8F16-F8C399CC7E57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator", "src\SimpleSoft.Database.Migrator\SimpleSoft.Database.Migrator.csproj", "{8791C441-1D4A-4E51-BD9F-3D18A46CFBED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleSoft.Database.Migrator", "src\SimpleSoft.Database.Migrator\SimpleSoft.Database.Migrator.csproj", "{8791C441-1D4A-4E51-BD9F-3D18A46CFBED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "relational", "relational", "{CA498CE6-3BDE-40D1-8C09-485B5DFF6983}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator.Relational", "src\SimpleSoft.Database.Migrator.Relational\SimpleSoft.Database.Migrator.Relational.csproj", "{5D1553F9-73CF-4686-809D-EC68C4D6B3A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleSoft.Database.Migrator.Relational", "src\SimpleSoft.Database.Migrator.Relational\SimpleSoft.Database.Migrator.Relational.csproj", "{5D1553F9-73CF-4686-809D-EC68C4D6B3A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator.Oracle", "src\SimpleSoft.Database.Migrator.Oracle\SimpleSoft.Database.Migrator.Oracle.csproj", "{EA64C148-BA1C-4D2B-9D93-95D4307E693A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleSoft.Database.Migrator.Oracle", "src\SimpleSoft.Database.Migrator.Oracle\SimpleSoft.Database.Migrator.Oracle.csproj", "{EA64C148-BA1C-4D2B-9D93-95D4307E693A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator.SqlServer", "src\SimpleSoft.Database.Migrator.SqlServer\SimpleSoft.Database.Migrator.SqlServer.csproj", "{10A74315-199A-46C4-BBA3-29D7D09CAAA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleSoft.Database.Migrator.SqlServer", "src\SimpleSoft.Database.Migrator.SqlServer\SimpleSoft.Database.Migrator.SqlServer.csproj", "{10A74315-199A-46C4-BBA3-29D7D09CAAA3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F425B0CE-B701-4323-8D41-7E78F3DC0432}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSoft.Database.Migrator.Tests", "test\SimpleSoft.Database.Migrator.Tests\SimpleSoft.Database.Migrator.Tests.csproj", "{13463A12-2E2C-4441-B69D-59AF652822F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleSoft.Database.Migrator.Tests", "test\SimpleSoft.Database.Migrator.Tests\SimpleSoft.Database.Migrator.Tests.csproj", "{13463A12-2E2C-4441-B69D-59AF652822F6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "items", "items", "{7BA79F3D-FABD-478A-8FAE-ABB86E4BC17E}"
 EndProject
@@ -37,7 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "other", "other", "{0C5CF702
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{A31DF7D4-8B7F-4E05-B566-5E33C63519C9}"
 	ProjectSection(SolutionItems) = preProject
-		tools\PackAllNuGets.ps1 = tools\PackAllNuGets.ps1
+		tools\assemblymetadata.ps1 = tools\assemblymetadata.ps1
 		tools\SimpleSoft.Database.PublicKey = tools\SimpleSoft.Database.PublicKey
 		tools\SimpleSoft.Database.snk = tools\SimpleSoft.Database.snk
 	EndProjectSection
