@@ -24,13 +24,14 @@
   },
 
   "dependencies": {
-    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
-    "Microsoft.Extensions.FileProviders.Abstractions": "1.0.1"
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0"
   },
 
   "frameworks": {
     "net451": {
-
+      "frameworkAssemblies": {
+        "System.Runtime": { "type": "build" }
+      }
     },
     "netstandard16": {
       "dependencies": {
