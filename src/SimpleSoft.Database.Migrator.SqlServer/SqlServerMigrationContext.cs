@@ -37,9 +37,7 @@ namespace SimpleSoft.Database.Migrator
         public SqlServerMigrationContext(TOptions options, IMigrationLoggerFactory loggerFactory) 
             : base(new SqlConnection(options.ConnectionString), loggerFactory)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-
-            Options = options;
+            Options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         #region Implementation of ISqlServerMigrationContext<out TOptions>

@@ -49,8 +49,6 @@ namespace SimpleSoft.Database.Migrator
             IServiceProvider serviceProvider, INamingNormalizer<TContext> namingNormalizer, 
             IEnumerable<MigrationMetadata<TContext>> migrations, IMigrationLoggerFactory loggerFactory)
         {
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
             if (namingNormalizer == null)
                 throw new ArgumentNullException(nameof(namingNormalizer));
             if (migrations == null)
@@ -61,7 +59,7 @@ namespace SimpleSoft.Database.Migrator
             Logger = loggerFactory.Get(GetType().FullName) ?? NullMigrationLogger.Default;
             ContextName = namingNormalizer.Normalize(typeof(TContext).Name);
             NamingNormalizer = namingNormalizer;
-            ServiceProvider = serviceProvider;
+            ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             ServiceScopeFactory = ServiceProvider.GetRequiredService<IServiceScopeFactory>();
 
             _migrations = new SortedList<string, MigrationMetadata<TContext>>();

@@ -45,7 +45,6 @@ namespace SimpleSoft.Database.Migrator
                 throw new ArgumentNullException(nameof(className));
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
-            if (type == null) throw new ArgumentNullException(nameof(type));
             if (string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("Value cannot be whitespace.", nameof(id));
             if (string.IsNullOrWhiteSpace(className))
@@ -53,7 +52,7 @@ namespace SimpleSoft.Database.Migrator
 
             Id = id;
             ClassName = className;
-            Type = type;
+            Type = type ?? throw new ArgumentNullException(nameof(type));
         }
 
         /// <summary>

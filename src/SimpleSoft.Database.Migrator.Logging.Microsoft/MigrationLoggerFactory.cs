@@ -18,8 +18,7 @@ namespace SimpleSoft.Database.Migrator.Logging.Microsoft
         /// <param name="loggerFactory"></param>
         public MigrationLoggerFactory(ILoggerFactory loggerFactory)
         {
-            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-            _loggerFactory = loggerFactory;
+            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         /// <summary>

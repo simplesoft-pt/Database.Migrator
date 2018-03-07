@@ -44,9 +44,7 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="serviceCollection">The service collection</param>
         public MigrationsBuilder(IServiceCollection serviceCollection)
         {
-            if (serviceCollection == null) throw new ArgumentNullException(nameof(serviceCollection));
-
-            ServiceCollection = serviceCollection;
+            ServiceCollection = serviceCollection ?? throw new ArgumentNullException(nameof(serviceCollection));
         }
 
         /// <summary>

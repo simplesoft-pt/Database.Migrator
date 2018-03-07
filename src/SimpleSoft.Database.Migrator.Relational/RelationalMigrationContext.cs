@@ -48,10 +48,9 @@ namespace SimpleSoft.Database.Migrator
         /// <exception cref="ArgumentNullException"></exception>
         protected RelationalMigrationContext(IDbConnection connection, IMigrationLoggerFactory loggerFactory)
         {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
 
-            Connection = connection;
+            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
             Logger = loggerFactory.Get(GetType().FullName);
         }
 
