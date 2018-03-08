@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using Microsoft.Extensions.Logging;
 
-namespace SimpleSoft.Database.Migrator.Logging.Microsoft
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// Class that represents a migration log.
