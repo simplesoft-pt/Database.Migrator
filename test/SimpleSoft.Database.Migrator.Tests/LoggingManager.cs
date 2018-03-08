@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
-using SimpleSoft.Database.Migrator.Logging.Microsoft;
 
 namespace SimpleSoft.Database.Migrator.Tests
 {
