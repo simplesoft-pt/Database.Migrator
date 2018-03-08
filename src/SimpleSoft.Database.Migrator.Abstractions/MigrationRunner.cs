@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace SimpleSoft.Database.Migrator
 {
@@ -40,13 +39,13 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="serviceProvider">The service provider</param>
+        /// <param name="instanceScopeFactory">The instance scope factory</param>
         /// <param name="namingNormalizer">The naming normalizer</param>
         /// <param name="migrations">The migrations found</param>
         /// <param name="loggerFactory">The logger factory</param>
         /// <exception cref="ArgumentNullException"></exception>
         public MigrationRunner(
-            IServiceProvider serviceProvider, INamingNormalizer<TContext> namingNormalizer, 
+            IMigrationInstanceScopeFactory instanceScopeFactory, INamingNormalizer<TContext> namingNormalizer, 
             IEnumerable<MigrationMetadata<TContext>> migrations, IMigrationLoggerFactory loggerFactory)
         {
             if (namingNormalizer == null)
@@ -59,8 +58,7 @@ namespace SimpleSoft.Database.Migrator
             Logger = loggerFactory.Get(GetType().FullName) ?? NullMigrationLogger.Default;
             ContextName = namingNormalizer.Normalize(typeof(TContext).Name);
             NamingNormalizer = namingNormalizer;
-            ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            ServiceScopeFactory = ServiceProvider.GetRequiredService<IServiceScopeFactory>();
+            InstanceScopeFactory = instanceScopeFactory ?? throw new ArgumentNullException(nameof(instanceScopeFactory));
 
             _migrations = new SortedList<string, MigrationMetadata<TContext>>();
             foreach (var migration in migrations)
@@ -84,14 +82,9 @@ namespace SimpleSoft.Database.Migrator
         protected IMigrationLogger Logger { get; }
 
         /// <summary>
-        /// The service provider
+        /// The instance scope factory
         /// </summary>
-        protected IServiceProvider ServiceProvider { get; }
-
-        /// <summary>
-        /// The service scope factory
-        /// </summary>
-        protected IServiceScopeFactory ServiceScopeFactory { get; }
+        protected IMigrationInstanceScopeFactory InstanceScopeFactory { get; }
 
         /// <summary>
         /// The naming normalized
@@ -208,11 +201,10 @@ namespace SimpleSoft.Database.Migrator
         /// <returns>A task to be awaited</returns>
         protected async Task UsingManagerAsync(Func<IMigrationManager<TContext>, Task> handler)
         {
-            using (var managerScope = ServiceScopeFactory.CreateScope())
+            using (var scope = InstanceScopeFactory.Build())
             {
                 Logger.LogDebug(null, "Resolving migration manager from service collection");
-                var manager =
-                    managerScope.ServiceProvider.GetRequiredService<IMigrationManager<TContext>>();
+                var manager = scope.GetRequiredInstance<IMigrationManager<TContext>>();
 
                 await handler(manager).ConfigureAwait(false);
             }
@@ -227,13 +219,12 @@ namespace SimpleSoft.Database.Migrator
         /// <returns>A task to be awaited</returns>
         protected async Task UsingMigrationAsync(Type migrationType, Func<IMigration<TContext>, Task> handler)
         {
-            using (var migrationScope = ServiceScopeFactory.CreateScope())
+            using (var scope = InstanceScopeFactory.Build())
             {
                 Logger.LogDebug(null,
                     "Resolving migration of type '{migrationType}' from service collection",
                     migrationType.ToString());
-                var migration = (IMigration<TContext>)
-                    migrationScope.ServiceProvider.GetRequiredService(migrationType);
+                var migration = (IMigration<TContext>) scope.GetRequiredInstance(migrationType);
 
                 await handler(migration).ConfigureAwait(false);
             }
