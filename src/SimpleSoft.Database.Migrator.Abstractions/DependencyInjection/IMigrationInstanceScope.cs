@@ -1,6 +1,7 @@
 ﻿using System;
 
-namespace SimpleSoft.Database.Migrator.DependencyInjection
+// ReSharper disable once CheckNamespace
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// Scope used to resolve instances

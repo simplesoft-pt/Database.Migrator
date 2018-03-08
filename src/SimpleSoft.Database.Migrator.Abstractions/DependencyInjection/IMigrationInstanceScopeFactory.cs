@@ -1,4 +1,5 @@
-﻿namespace SimpleSoft.Database.Migrator.DependencyInjection
+﻿// ReSharper disable once CheckNamespace
+namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
     /// Factory used to build <see cref="IMigrationInstanceScope"/> instances.
