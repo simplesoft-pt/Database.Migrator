@@ -34,9 +34,9 @@ namespace SimpleSoft.Database.Migrator
     public interface IMigrationRunner<TContext> where TContext : IMigrationContext
     {
         /// <summary>
-        /// The migration metadata information, sorted ascending by <see cref="MigrationMetadata{TContext}.Id"/>.
+        /// The migration metadata information, sorted ascending by <see cref="MigrationNormalizedMeta.Id"/>.
         /// </summary>
-        IEnumerable<MigrationMetadata<TContext>> MigrationMetadatas { get; }
+        IEnumerable<MigrationNormalizedMeta> MigrationMetadatas { get; }
 
         /// <summary>
         /// Applies all the missing migrations to the database, up to the most recent one.

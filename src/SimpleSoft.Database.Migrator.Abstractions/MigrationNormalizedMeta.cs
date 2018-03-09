@@ -29,34 +29,17 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Medadata used to identify a migration
     /// </summary>
-    public sealed class MigrationMetadata<TContext> where TContext : IMigrationContext
+    public sealed class MigrationNormalizedMeta
     {
-        /// <summary>
-        /// Creates a new instance
-        /// </summary>
-        /// <param name="id">The migration name</param>
-        /// <param name="className">The migration class name</param>
-        /// <param name="type">The migration type</param>
-        public MigrationMetadata(string id, string className, Type type)
+        private MigrationNormalizedMeta(string id, string className, Type type)
         {
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
-            if (className == null)
-                throw new ArgumentNullException(nameof(className));
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-            if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("Value cannot be whitespace.", nameof(id));
-            if (string.IsNullOrWhiteSpace(className))
-                throw new ArgumentException("Value cannot be whitespace.", nameof(className));
-
             Id = id;
             ClassName = className;
-            Type = type ?? throw new ArgumentNullException(nameof(type));
+            Type = type;
         }
 
         /// <summary>
-        /// The migration name
+        /// The migration unique identifier
         /// </summary>
         public string Id { get; }
 
@@ -69,5 +52,25 @@ namespace SimpleSoft.Database.Migrator
         /// The migration type
         /// </summary>
         public Type Type { get; }
+
+        /// <summary>
+        /// Builds a normalized migration metadata for the given type
+        /// </summary>
+        /// <typeparam name="TContext">The context type</typeparam>
+        /// <param name="normalizer">The normalizer to be used</param>
+        /// <param name="type">The migration type</param>
+        /// <returns>Normalized migration metadata instance</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static MigrationNormalizedMeta Build<TContext>(INamingNormalizer<TContext> normalizer, Type type)
+            where TContext : IMigrationContext
+        {
+            if (normalizer == null) throw new ArgumentNullException(nameof(normalizer));
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            return new MigrationNormalizedMeta(
+                normalizer.Normalize(type.Name),
+                normalizer.Normalize(type.FullName),
+                type);
+        }
     }
 }

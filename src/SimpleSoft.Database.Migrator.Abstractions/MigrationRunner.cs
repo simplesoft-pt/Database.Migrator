@@ -34,7 +34,7 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public class MigrationRunner<TContext> : IMigrationRunner<TContext> where TContext : IMigrationContext
     {
-        private readonly SortedList<string, MigrationMetadata<TContext>> _migrations;
+        private readonly SortedList<string, MigrationNormalizedMeta> _migrations;
 
         /// <summary>
         /// Creates a new instance
@@ -46,7 +46,7 @@ namespace SimpleSoft.Database.Migrator
         /// <exception cref="ArgumentNullException"></exception>
         public MigrationRunner(
             IMigrationInstanceScopeFactory instanceScopeFactory, INamingNormalizer<TContext> namingNormalizer, 
-            IEnumerable<MigrationMetadata<TContext>> migrations, IMigrationLoggerFactory loggerFactory)
+            IEnumerable<MigrationNormalizedMeta> migrations, IMigrationLoggerFactory loggerFactory)
         {
             if (namingNormalizer == null)
                 throw new ArgumentNullException(nameof(namingNormalizer));
@@ -60,17 +60,16 @@ namespace SimpleSoft.Database.Migrator
             NamingNormalizer = namingNormalizer;
             InstanceScopeFactory = instanceScopeFactory ?? throw new ArgumentNullException(nameof(instanceScopeFactory));
 
-            _migrations = new SortedList<string, MigrationMetadata<TContext>>();
+            _migrations = new SortedList<string, MigrationNormalizedMeta>();
             foreach (var migration in migrations)
             {
-                var name = namingNormalizer.Normalize(migration.Id);
-                if (_migrations.ContainsKey(name))
+                var meta = MigrationNormalizedMeta.Build(namingNormalizer, migration.Type);
+                if (_migrations.ContainsKey(meta.Id))
                     throw new ArgumentException(
-                        $"Collection contains duplicated migrations with name '{name}' for context '{ContextName}'",
+                        $"Collection contains duplicated migrations with name '{meta.Id}' for context '{ContextName}'",
                         nameof(migrations));
 
-                _migrations.Add(migration.Id, new MigrationMetadata<TContext>(
-                    name, namingNormalizer.Normalize(migration.ClassName), migration.Type));
+                _migrations.Add(migration.Id, meta);
             }
         }
 
@@ -97,7 +96,7 @@ namespace SimpleSoft.Database.Migrator
         protected string ContextName { get; }
 
         /// <inheritdoc />
-        public IEnumerable<MigrationMetadata<TContext>> MigrationMetadatas => _migrations.Values;
+        public IEnumerable<MigrationNormalizedMeta> MigrationMetadatas => _migrations.Values;
 
         /// <inheritdoc />
         public async Task ApplyMigrationsAsync(CancellationToken ct)
