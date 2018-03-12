@@ -32,24 +32,36 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public abstract class MigrationContext : IMigrationContext
     {
-        #region Implementation of IMigrationContext
+#region Implementation of IMigrationContext
 
         /// <inheritdoc />
         public virtual Task PrepareAsync(bool openTransaction, CancellationToken ct)
         {
-            return Task.FromResult(true);
+#if NET451
+            return TaskEx.CompletedTask;
+#else
+            return Task.CompletedTask;
+#endif
         }
 
         /// <inheritdoc />
         public virtual Task PersistAsync(CancellationToken ct)
         {
-            return Task.FromResult(true);
+#if NET451
+            return TaskEx.CompletedTask;
+#else
+            return Task.CompletedTask;
+#endif
         }
 
         /// <inheritdoc />
         public virtual Task RollbackAsync(CancellationToken ct)
         {
-            return Task.FromResult(true);
+#if NET451
+            return TaskEx.CompletedTask;
+#else
+            return Task.CompletedTask;
+#endif
         }
 
         #endregion
