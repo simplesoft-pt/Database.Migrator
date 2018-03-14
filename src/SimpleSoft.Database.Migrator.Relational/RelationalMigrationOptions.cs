@@ -29,9 +29,36 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Options for a relational migration context.
     /// </summary>
+    public class RelationalMigrationOptions : MigrationOptions, IRelationalMigrationOptions
+    {
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        /// <param name="contextName">The context name</param>
+        /// <param name="connectionString">The database connection string</param>
+        /// <param name="tableName">The table name</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public RelationalMigrationOptions(string contextName, string connectionString, string tableName)
+            : base(contextName)
+        {
+            ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
+        }
+
+        /// <inheritdoc />
+        public string ConnectionString { get; }
+
+        /// <inheritdoc />
+        public string TableName { get; }
+    }
+
+    /// <summary>
+    /// Options for a relational migration context.
+    /// </summary>
     /// <typeparam name="TContext">The context type</typeparam>
-    public class RelationalMigrationOptions<TContext> : MigrationOptions<TContext>
-        where TContext : IMigrationContext
+    public class RelationalMigrationOptions<TContext> : RelationalMigrationOptions, IRelationalMigrationOptions<TContext>
+        where TContext : IRelationalMigrationContext
     {
         /// <summary>
         /// Creates a new instance.
@@ -39,20 +66,16 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="connectionString">The database connection string</param>
         /// <param name="tableName">The table name</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public RelationalMigrationOptions(string connectionString, string tableName = "__DBMIGRATORHISTORY")
+        public RelationalMigrationOptions(string connectionString, string tableName) 
+            : base(typeof(TContext).Name, connectionString, tableName)
         {
-            ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-            TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
+
         }
 
-        /// <summary>
-        /// The database connection string.
-        /// </summary>
-        public string ConnectionString { get; }
-
-        /// <summary>
-        /// The table name.
-        /// </summary>
-        public string TableName { get; }
+        /// <inheritdoc />
+        public void AddMigration<TMigration>() where TMigration : IMigration<TContext>
+        {
+            base.AddMigration(typeof(TMigration));
+        }
     }
 }

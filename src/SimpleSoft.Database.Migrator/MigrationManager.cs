@@ -34,73 +34,37 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     /// <typeparam name="TContext">The migration context</typeparam>
     public abstract class MigrationManager<TContext> : IMigrationManager<TContext> 
-        where TContext : IMigrationContext
+        where TContext : class, IMigrationContext
     {
         /// <summary>
         /// Creates a new instance
         /// </summary>
         /// <param name="context">The migration context</param>
-        /// <param name="normalizer"></param>
-        /// <param name="loggerFactory">The logger factory</param>
+        /// <param name="loggerFactory">An optional class logger factory</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected MigrationManager(TContext context, INamingNormalizer<TContext> normalizer, IMigrationLoggerFactory loggerFactory)
-            : this(context, normalizer, loggerFactory, typeof(TContext).Name)
+        protected MigrationManager(TContext context, IMigrationLoggerFactory loggerFactory = null)
         {
-
+            Context = context ?? throw new ArgumentNullException(nameof(context));
+            Logger = loggerFactory?.Get(GetType().FullName) ?? NullMigrationLogger.Default;
         }
 
         /// <summary>
-        /// Creates a new instance
+        /// The migration context.
         /// </summary>
-        /// <param name="context">The migration context</param>
-        /// <param name="normalizer"></param>
-        /// <param name="loggerFactory">The class logger factory</param>
-        /// <param name="contextName">The context name</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        protected MigrationManager(
-            TContext context, INamingNormalizer<TContext> normalizer, IMigrationLoggerFactory loggerFactory, string contextName)
-        {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-            if (normalizer == null)
-                throw new ArgumentNullException(nameof(normalizer));
-            if (loggerFactory == null)
-                throw new ArgumentNullException(nameof(loggerFactory));
-            if (contextName == null)
-                throw new ArgumentNullException(nameof(contextName));
-            if (string.IsNullOrWhiteSpace(contextName))
-                throw new ArgumentException("Value cannot be whitespace.", nameof(contextName));
-
-            ContextName = normalizer.Normalize(contextName);
-            Normalizer = normalizer;
-            Context = context;
-            Logger = loggerFactory.Get(GetType().FullName) ?? NullMigrationLogger.Default;
-        }
-
-        /// <inheritdoc />
-        public string ContextName { get; }
+        protected TContext Context { get; }
 
         /// <summary>
-        /// The naming normalizer
-        /// </summary>
-        protected INamingNormalizer<TContext> Normalizer { get; }
-
-        /// <summary>
-        /// The class logger
+        /// The class logger.
         /// </summary>
         protected IMigrationLogger Logger { get; }
 
         #region Implementation of IMigrationManager<out TContext>
 
         /// <inheritdoc />
-        public TContext Context { get; }
-
-        /// <inheritdoc />
         public async Task PrepareDatabaseAsync(CancellationToken ct)
         {
             Logger.LogDebug(null,
-                "Preparing context '{contextName}' database to support migrations.", ContextName);
+                "Preparing context '{contextName}' database to support migrations.", Context.NormalizedName);
 
             await Context.RunAsync(async () =>
             {
@@ -128,28 +92,28 @@ namespace SimpleSoft.Database.Migrator
             if (string.IsNullOrWhiteSpace(className))
                 throw new ArgumentException("Value cannot be whitespace.", nameof(className));
 
-            migrationId = Normalizer.Normalize(migrationId);
-            className = Normalizer.Normalize(className);
+            migrationId = Context.Normalizer.Normalize(migrationId);
+            className = Context.Normalizer.Normalize(className);
             Logger.LogDebug(null,
                 "Adding '{migrationId}' to the history of '{contextName}' context.",
-                migrationId, ContextName);
+                migrationId, Context.NormalizedName);
 
             await Context.RunAsync(async () =>
             {
                 var mostRecentMigrationId =
-                    await GetMostRecentMigrationEntryIdAsync(ContextName, ct).ConfigureAwait(false);
+                    await GetMostRecentMigrationEntryIdAsync(Context.NormalizedName, ct).ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(mostRecentMigrationId) ||
                     string.CompareOrdinal(migrationId, mostRecentMigrationId) > 0)
                 {
                     await InsertMigrationEntryAsync(
-                            ContextName, migrationId, className, description, DateTimeOffset.Now, ct)
+                            Context.NormalizedName, migrationId, className, description, DateTimeOffset.Now, ct)
                         .ConfigureAwait(false);
                     return;
                 }
 
                 Logger.LogWarning(null,
                     "The history of '{contextName}' context has the migration '{mostRecentMigrationId}', which is considered more recent than '{migrationId}'.",
-                    ContextName, mostRecentMigrationId, migrationId);
+                    Context.NormalizedName, mostRecentMigrationId, migrationId);
                 throw new InvalidOperationException(
                     $"The database already has the migration '{mostRecentMigrationId}' which is more recent than '{migrationId}'");
             }, true, ct).ConfigureAwait(false);
@@ -160,12 +124,12 @@ namespace SimpleSoft.Database.Migrator
         {
             var migrationIds =
                 await Context.RunAsync(async () =>
-                        await GetAllMigrationsAsync(ContextName, ct).ConfigureAwait(false), true, ct)
+                        await GetAllMigrationsAsync(Context.NormalizedName, ct).ConfigureAwait(false), true, ct)
                     .ConfigureAwait(false);
 
             Logger.LogDebug(null,
                 "A total of {migrationCount} migrations have been found for the '{contextName}' context",
-                migrationIds.Count.ToString(), ContextName);
+                migrationIds.Count.ToString(), Context.NormalizedName);
             return migrationIds;
         }
 
@@ -174,19 +138,19 @@ namespace SimpleSoft.Database.Migrator
         {
             var migrationId =
                 await Context.RunAsync(async () =>
-                        await GetMostRecentMigrationEntryIdAsync(ContextName, ct).ConfigureAwait(false), true, ct)
+                        await GetMostRecentMigrationEntryIdAsync(Context.NormalizedName, ct).ConfigureAwait(false), true, ct)
                     .ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(migrationId))
             {
                 Logger.LogDebug(null,
-                    "No migrations have yet been applied to the '{contextName}' context.", ContextName);
+                    "No migrations have yet been applied to the '{contextName}' context.", Context.NormalizedName);
                 return null;
             }
 
             Logger.LogDebug(null,
                 "The migration '{migrationId}' is the most recent from the history of '{contextName}' context.",
-                migrationId, ContextName);
+                migrationId, Context.NormalizedName);
             return migrationId;
         }
 
@@ -195,24 +159,24 @@ namespace SimpleSoft.Database.Migrator
         {
             Logger.LogDebug(null,
                 "Removing most recent migration from the history of '{contextName}' context.",
-                ContextName);
+                Context.NormalizedName);
 
             var result = await Context.RunAsync(async () =>
             {
-                var migrationId = await GetMostRecentMigrationEntryIdAsync(ContextName, ct)
+                var migrationId = await GetMostRecentMigrationEntryIdAsync(Context.NormalizedName, ct)
                     .ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(migrationId))
                 {
                     Logger.LogWarning(null,
                         "No migrations were found in history of '{contextName}' context. No changes will be made.",
-                        ContextName);
+                        Context.NormalizedName);
                     return false;
                 }
 
                 Logger.LogDebug(null,
                     "Removing migration '{migradionId}' from the history of '{contextName}' context",
-                    migrationId, ContextName);
-                await DeleteMigrationEntryByIdAsync(ContextName, migrationId, ct).ConfigureAwait(false);
+                    migrationId, Context.NormalizedName);
+                await DeleteMigrationEntryByIdAsync(Context.NormalizedName, migrationId, ct).ConfigureAwait(false);
                 return true;
             }, true, ct).ConfigureAwait(false);
 

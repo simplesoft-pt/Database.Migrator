@@ -7,10 +7,10 @@
             "DATA SOURCE=LocalOracle/xe;USER ID=MIGRATORTESTEMPTY;PASSWORD=MIGRATORTESTEMPTY;VALIDATE CONNECTION=TRUE;",
             "MIGRATORTESTEMPTY", "MIGRATORTESTEMPTY", true)
         {
-            Context = new MigratorTestContext(Connection);
+            Context = new OracleMigratorTestContext(Options);
         }
 
-        public MigratorTestContext Context { get; private set; }
+        public OracleMigratorTestContext Context { get; private set; }
 
         #region Overrides of OracleDatabaseFixture
 

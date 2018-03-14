@@ -27,7 +27,7 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Normalizes names
     /// </summary>
-    public interface INamingNormalizer<TContext> where TContext : IMigrationContext
+    public interface INamingNormalizer
     {
         /// <summary>
         /// Normalizes the given name
@@ -35,5 +35,15 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="name">The name to normalize</param>
         /// <returns>The name normalized</returns>
         string Normalize(string name);
+    }
+
+    /// <summary>
+    /// Normalizes names
+    /// </summary>
+    /// <typeparam name="TContext">The context type</typeparam>
+    public interface INamingNormalizer<TContext> : INamingNormalizer
+        where TContext : IMigrationContext
+    {
+
     }
 }

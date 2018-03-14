@@ -27,11 +27,31 @@ using System;
 namespace SimpleSoft.Database.Migrator
 {
     /// <summary>
-    /// Options for a SQL Server migration context.
+    /// Options for an Oracle migration context.
+    /// </summary>
+    public class OracleMigrationOptions : RelationalMigrationOptions, IOracleMigrationOptions
+    {
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        /// <param name="contextName">The context name</param>
+        /// <param name="connectionString">The database connection string</param>
+        /// <param name="tableName">The table name</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public OracleMigrationOptions(string contextName, string connectionString, string tableName = "DB_MIGRATOR_HISTORY")
+            : base(contextName, connectionString, tableName)
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// Options for an Oracle migration context.
     /// </summary>
     /// <typeparam name="TContext">The context type</typeparam>
-    public class OracleMigrationOptions<TContext> : RelationalMigrationOptions<TContext>
-        where TContext : IMigrationContext
+    public class OracleMigrationOptions<TContext> : OracleMigrationOptions, IOracleMigrationOptions<TContext>
+        where TContext : IOracleMigrationContext
     {
         /// <summary>
         /// Creates a new instance.
@@ -40,9 +60,15 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="tableName">The table name</param>
         /// <exception cref="ArgumentNullException"></exception>
         public OracleMigrationOptions(string connectionString, string tableName = "DB_MIGRATOR_HISTORY")
-            : base(connectionString, tableName)
+            : base(typeof(TContext).Name, connectionString, tableName)
         {
 
+        }
+
+        /// <inheritdoc />
+        public void AddMigration<TMigration>() where TMigration : IMigration<TContext>
+        {
+            base.AddMigration(typeof(TMigration));
         }
     }
 }

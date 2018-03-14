@@ -17,26 +17,15 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
         [Fact]
         public void GivenANewManagerWhenPassingNullParametersThenArgumentNullExceptionMustBeThrown()
         {
+            OracleMigrationManager<OracleMigratorTestContext> manager;
             Assert.Throws<ArgumentNullException>(() =>
             {
-                var manager = new OracleMigrationManager<MigratorTestContext>(
-                    null, new DefaultNamingNormalizer<MigratorTestContext>(), LoggingManager.LoggerFactory);
+                manager = new OracleMigrationManager<OracleMigratorTestContext>(null, LoggingManager.LoggerFactory);
                 Assert.NotNull(manager);
             });
 
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                var manager = new OracleMigrationManager<MigratorTestContext>(
-                    _fixture.Context, null, LoggingManager.LoggerFactory);
-                Assert.NotNull(manager);
-            });
-
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                var manager = new OracleMigrationManager<MigratorTestContext>(
-                    _fixture.Context, new DefaultNamingNormalizer<MigratorTestContext>(), null);
-                Assert.NotNull(manager);
-            });
+            manager = new OracleMigrationManager<OracleMigratorTestContext>(_fixture.Context);
+            Assert.NotNull(manager);
         }
 
         [Fact]
@@ -52,10 +41,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
         public async Task GivenADatabaseWithMigrationsWhenGettingAllThenSomeMustBeReturned()
         {
             var ct = CancellationToken.None;
-
-            string migrationId;
-            string className;
-            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+            MigrationsTestHelper.GenerateMigrationInfo(out string migrationId, out string className);
             await _fixture.Manager.AddMigrationAsync(
                 migrationId, className, $"Description for migration {migrationId}", ct);
 
@@ -116,9 +102,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
         [Fact]
         public async Task GivenADatabaseWithMigrationsWhenAddingANewOneThenNoExceptionIsThrown()
         {
-            string migrationId;
-            string className;
-            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+            MigrationsTestHelper.GenerateMigrationInfo(out string migrationId, out string className);
 
             await _fixture.Manager.AddMigrationAsync(
                 migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
@@ -127,9 +111,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
         [Fact]
         public async Task GivenADatabaseWithMigrationsWhenAddingAnOlderOneThenAnInvalidOperationExceptionMustBeThrown()
         {
-            string migrationId;
-            string className;
-            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+            MigrationsTestHelper.GenerateMigrationInfo(out string migrationId, out string className);
 
             await _fixture.Manager.AddMigrationAsync(
                 migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
@@ -147,9 +129,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
         [Fact]
         public async Task GivenADatabaseWithMigrationsWhenAddingAnExistingOneThenAnInvalidOperationExceptionMustBeThrown()
         {
-            string migrationId;
-            string className;
-            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+            MigrationsTestHelper.GenerateMigrationInfo(out string migrationId, out string className);
 
             await _fixture.Manager.AddMigrationAsync(
                 migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);

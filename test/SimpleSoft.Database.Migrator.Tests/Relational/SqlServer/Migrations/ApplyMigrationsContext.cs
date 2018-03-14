@@ -1,11 +1,11 @@
 ﻿namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer.Migrations
 {
-    public class ApplyMigrationsContext : SqlServerMigrationContext<SqlServerContextOptions<ApplyMigrationsContext>>
+    public class ApplyMigrationsContext : SqlServerMigrationContext
     {
         /// <inheritdoc />
         public ApplyMigrationsContext(
-            SqlServerContextOptions<ApplyMigrationsContext> options, IMigrationLoggerFactory loggerFactory)
-            : base(options, loggerFactory)
+            SqlServerMigrationOptions options, INamingNormalizer normalizer, IMigrationLoggerFactory loggerFactory)
+            : base(options, normalizer, loggerFactory)
         {
 
         }

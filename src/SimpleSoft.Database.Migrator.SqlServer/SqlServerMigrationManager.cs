@@ -35,34 +35,16 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     /// <typeparam name="TContext">The context type</typeparam>
     public class SqlServerMigrationManager<TContext> : RelationalMigrationManager<TContext>, ISqlServerMigrationManager<TContext>
-        where TContext : IRelationalMigrationContext
+        where TContext : class, ISqlServerMigrationContext
     {
         /// <summary>
         /// Creates a new instance
         /// </summary>
         /// <param name="context">The migration context</param>
-        /// <param name="normalizer">The naming normalizer</param>
-        /// <param name="loggerFactory">The logger factory</param>
+        /// <param name="loggerFactory">An optional class logger factory</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public SqlServerMigrationManager(TContext context, INamingNormalizer<TContext> normalizer,
-            IMigrationLoggerFactory loggerFactory)
-            : base(context, normalizer, loggerFactory)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new instance
-        /// </summary>
-        /// <param name="context">The migration context</param>
-        /// <param name="normalizer">The naming normalizer</param>
-        /// <param name="loggerFactory">The logger factory</param>
-        /// <param name="contextName">The context name</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        public SqlServerMigrationManager(TContext context, INamingNormalizer<TContext> normalizer,
-            IMigrationLoggerFactory loggerFactory, string contextName)
-            : base(context, normalizer, loggerFactory, contextName)
+        public SqlServerMigrationManager(TContext context, IMigrationLoggerFactory loggerFactory = null)
+            : base(context, loggerFactory)
         {
 
         }

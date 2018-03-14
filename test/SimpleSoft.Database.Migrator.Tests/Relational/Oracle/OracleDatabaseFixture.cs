@@ -19,13 +19,13 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
             _userPassword = userPassword;
             _dropUser = dropUser;
 
-            MasterConnectionString = masterConnectionString;
-            MasterConnection = new OracleConnection(MasterConnectionString);
+            MasterOptions = new OracleMigrationOptions<OracleMigratorTestContext>(masterConnectionString);
+            MasterConnection = new OracleConnection(MasterOptions.ConnectionString);
 
             PrepareDatabase();
 
-            ConnectionString = connectionString;
-            Connection = new OracleConnection(ConnectionString);
+            Options = new OracleMigrationOptions<OracleMigratorTestContext>(connectionString);
+            Connection = new OracleConnection(Options.ConnectionString);
         }
 
         ~OracleDatabaseFixture()
@@ -33,11 +33,15 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
             Dispose(false);
         }
 
-        public string MasterConnectionString { get; }
+        public OracleMigrationOptions MasterOptions { get; }
+
+        public string MasterConnectionString => MasterOptions.ConnectionString;
 
         public DbConnection MasterConnection { get; private set; }
 
-        public string ConnectionString { get; }
+        public OracleMigrationOptions Options { get; }
+
+        public string ConnectionString => Options.ConnectionString;
 
         public DbConnection Connection { get; private set; }
 

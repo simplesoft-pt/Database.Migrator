@@ -31,36 +31,49 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Options for a migration context.
     /// </summary>
-    /// <typeparam name="TContext">The context type</typeparam>
-    public class MigrationOptions<TContext> where TContext : IMigrationContext
+    public class MigrationOptions : IMigrationOptions
     {
-        private static readonly TypeInfo MigrationType = typeof(IMigration<TContext>).GetTypeInfo();
 #if NET451
         private readonly List<Type> _migrationTypes = new List<Type>();
 #else
         private readonly HashSet<Type> _migrationTypes = new HashSet<Type>();
 #endif
+        private string _contextName;
 
         /// <summary>
-        /// The context name.
-        /// Defaults to context class name.
+        /// Creates a new instance
         /// </summary>
-        public string ContextName { get; set; } = typeof(TContext).Name;
+        /// <param name="contextName">The context name</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public MigrationOptions(string contextName)
+        {
+            ContextName = contextName;
+        }
 
-        /// <summary>
-        /// The collection of known migrations.
-        /// </summary>
+        /// <inheritdoc />
+        public string ContextName
+        {
+            get => _contextName;
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException(nameof(value));
+                if(string.IsNullOrWhiteSpace(value))
+                    throw new ArgumentException("Value cannot be whitespace.", nameof(value));
+
+                _contextName = value;
+            }
+        }
+
+        /// <inheritdoc />
         public IReadOnlyCollection<Type> MigrationTypes => _migrationTypes;
 
-        /// <summary>
-        /// Adds the migration to the collection.
-        /// </summary>
-        /// <typeparam name="TMigration">The migration type</typeparam>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        public void AddMigration<TMigration>() where TMigration : IMigration<TContext>
+        /// <inheritdoc />
+        public virtual void AddMigration(Type type)
         {
-            var type = typeof(TMigration);
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
             var typeInfo = type.GetTypeInfo();
 
             if (!typeInfo.IsClass || typeInfo.IsAbstract)
@@ -73,33 +86,40 @@ namespace SimpleSoft.Database.Migrator
 
             _migrationTypes.Add(type);
         }
+    }
+
+    /// <summary>
+    /// Options for a migration context.
+    /// </summary>
+    /// <typeparam name="TContext">The context type</typeparam>
+    public class MigrationOptions<TContext> : MigrationOptions, IMigrationOptions<TContext> 
+        where TContext : IMigrationContext
+    {
+        private static readonly TypeInfo MigrationType = typeof(IMigration<TContext>).GetTypeInfo();
 
         /// <summary>
-        /// Adds the migration to the collection.
+        /// Creates a new instance
         /// </summary>
-        /// <param name="type">The migration type</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        public void AddMigration(Type type)
+        public MigrationOptions() : base(typeof(TContext).Name)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
 
-            var typeInfo = type.GetTypeInfo();
+        }
 
-            if (!typeInfo.IsClass || typeInfo.IsAbstract)
+        /// <inheritdoc />
+        public virtual void AddMigration<TMigration>() where TMigration : IMigration<TContext>
+        {
+            base.AddMigration(typeof(TMigration));
+        }
+
+        /// <inheritdoc />
+        public override void AddMigration(Type type)
+        {
+            if (type != null && !MigrationType.IsAssignableFrom(type))
                 throw new ArgumentException(
-                    $"The migration of type '{type.FullName}' must be a not abstract class", nameof(type));
+                    $"The migration of type '{type.FullName}' must be assignable to {MigrationType.FullName}",
+                    nameof(type));
 
-            if (!MigrationType.IsAssignableFrom(typeInfo))
-                throw new ArgumentException(
-                    $"The migration of type '{type.FullName}' must be assignable to {MigrationType.FullName}", nameof(type));
-
-            if (_migrationTypes.Contains(type))
-                throw new InvalidOperationException(
-                    $"The migration of type '{type.FullName}' is already registered");
-
-            _migrationTypes.Add(type);
+            base.AddMigration(type);
         }
     }
 }

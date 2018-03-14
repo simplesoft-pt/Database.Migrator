@@ -18,14 +18,13 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.Oracle
         {
             var ct = CancellationToken.None;
 
-            var manager = new OracleMigrationManager<MigratorTestContext>(
-                _fixture.Context, new DefaultNamingNormalizer<MigratorTestContext>(),
-                LoggingManager.LoggerFactory);
+            var manager = new OracleMigrationManager<OracleMigratorTestContext>(
+                _fixture.Context, LoggingManager.LoggerFactory);
 
             await manager.PrepareDatabaseAsync(ct);
 
-            var tableId = await manager.Context.RunAsync(async () =>
-                await manager.Context.QuerySingleAsync<long>(@"
+            var tableId = await _fixture.Context.RunAsync(async () =>
+                await _fixture.Context.QuerySingleAsync<long>(@"
 SELECT COUNT(*) TOTAL
 FROM(
   SELECT 

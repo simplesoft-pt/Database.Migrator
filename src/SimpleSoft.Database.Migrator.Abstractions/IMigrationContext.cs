@@ -33,6 +33,21 @@ namespace SimpleSoft.Database.Migrator
     public interface IMigrationContext
     {
         /// <summary>
+        /// The migration options.
+        /// </summary>
+        IMigrationOptions Options { get; }
+
+        /// <summary>
+        /// The naming normalizer
+        /// </summary>
+        INamingNormalizer Normalizer { get; }
+
+        /// <summary>
+        /// The normalized context name.
+        /// </summary>
+        string NormalizedName { get; }
+
+        /// <summary>
         /// Prepares the context to perform database work
         /// </summary>
         /// <param name="openTransaction">Should a transaction be open?</param>

@@ -28,11 +28,8 @@ namespace SimpleSoft.Database.Migrator
     /// Normalizes names by applying a <see cref="string.Trim()"/>
     /// and <see cref="string.ToUpperInvariant"/> transformation
     /// </summary>
-    public class DefaultNamingNormalizer<TContext> : INamingNormalizer<TContext>
-        where TContext : IMigrationContext
+    public class DefaultNamingNormalizer : INamingNormalizer
     {
-        #region Implementation of INamingNormalizer
-
         /// <inheritdoc />
         public string Normalize(string name)
         {
@@ -42,7 +39,16 @@ namespace SimpleSoft.Database.Migrator
                     ? string.Empty
                     : name.Trim().ToUpperInvariant());
         }
+    }
 
-        #endregion
+    /// <summary>
+    /// Normalizes names by applying a <see cref="string.Trim()"/>
+    /// and <see cref="string.ToUpperInvariant"/> transformation
+    /// </summary>
+    /// <typeparam name="TContext">The context type</typeparam>
+    public class DefaultNamingNormalizer<TContext> : DefaultNamingNormalizer, INamingNormalizer<TContext>
+        where TContext : IMigrationContext
+    {
+
     }
 }

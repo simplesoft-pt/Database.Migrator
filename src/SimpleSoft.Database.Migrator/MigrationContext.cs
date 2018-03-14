@@ -22,6 +22,7 @@
 // SOFTWARE.
 #endregion
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,7 +33,35 @@ namespace SimpleSoft.Database.Migrator
     /// </summary>
     public abstract class MigrationContext : IMigrationContext
     {
-#region Implementation of IMigrationContext
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        /// <param name="options">The context options</param>
+        /// <param name="normalizer">The naming normalizer</param>
+        /// <param name="loggerFactory">An optional class logger factory</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        protected MigrationContext(IMigrationOptions options, INamingNormalizer normalizer, IMigrationLoggerFactory loggerFactory = null)
+        {
+            Options = options ?? throw new ArgumentNullException(nameof(options));
+            Normalizer = normalizer ?? throw new ArgumentNullException(nameof(normalizer));
+            Logger = loggerFactory?.Get(GetType().FullName) ?? NullMigrationLogger.Default;
+
+            NormalizedName = normalizer.Normalize(options.ContextName);
+        }
+
+        /// <summary>
+        /// The logger used by this instance
+        /// </summary>
+        protected IMigrationLogger Logger { get; }
+
+        /// <inheritdoc />
+        public IMigrationOptions Options { get; }
+
+        /// <inheritdoc />
+        public INamingNormalizer Normalizer { get; }
+
+        /// <inheritdoc />
+        public string NormalizedName { get; }
 
         /// <inheritdoc />
         public virtual Task PrepareAsync(bool openTransaction, CancellationToken ct)
@@ -63,7 +92,5 @@ namespace SimpleSoft.Database.Migrator
             return Task.CompletedTask;
 #endif
         }
-
-        #endregion
     }
 }

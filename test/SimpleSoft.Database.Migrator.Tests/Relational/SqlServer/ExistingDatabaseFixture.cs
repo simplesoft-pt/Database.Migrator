@@ -1,5 +1,4 @@
 using System;
-using System.Data.SqlClient;
 using System.Threading;
 
 namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
@@ -13,14 +12,14 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
         {
             PrepareDatabase();
 
-            Context = new MigratorTestContext(Connection);
-            Manager = new SqlServerMigrationManager<MigratorTestContext>(
-                Context, new DefaultNamingNormalizer<MigratorTestContext>(), LoggingManager.LoggerFactory);
+            Context = new SqlServerMigratorTestContext(Options);
+            Manager = new SqlServerMigrationManager<SqlServerMigratorTestContext>(
+                Context, LoggingManager.LoggerFactory);
         }
 
-        public MigratorTestContext Context { get; private set; }
+        public SqlServerMigratorTestContext Context { get; private set; }
 
-        public SqlServerMigrationManager<MigratorTestContext> Manager { get; private set; }
+        public SqlServerMigrationManager<SqlServerMigratorTestContext> Manager { get; private set; }
 
         #region Overrides of SqlServerDatabaseFixture
 
@@ -43,21 +42,17 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
         private void PrepareDatabase()
         {
             var ct = CancellationToken.None;
-            using (var connection = new SqlConnection(ConnectionString))
-            using (var context = new MigratorTestContext(connection))
+            using (var context = new SqlServerMigratorTestContext(Options))
             {
-                var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                    context, new DefaultNamingNormalizer<MigratorTestContext>(), LoggingManager.LoggerFactory);
+                var manager = new SqlServerMigrationManager<SqlServerMigratorTestContext>(context, LoggingManager.LoggerFactory);
 
                 manager.PrepareDatabaseAsync(ct)
                     .ConfigureAwait(false)
                     .GetAwaiter()
                     .GetResult();
 
-                string migrationId;
-                string className;
                 MigrationsTestHelper.GenerateMigrationInfo(
-                    DateTimeOffset.UtcNow, out migrationId, out className);
+                    DateTimeOffset.UtcNow, out var migrationId, out var className);
 
                 //  Existing static migration
                 manager.AddMigrationAsync(migrationId, className, null, ct)

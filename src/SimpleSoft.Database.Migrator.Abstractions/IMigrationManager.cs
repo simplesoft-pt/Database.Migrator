@@ -34,16 +34,6 @@ namespace SimpleSoft.Database.Migrator
     public interface IMigrationManager<out TContext> where TContext : IMigrationContext
     {
         /// <summary>
-        /// The migration context
-        /// </summary>
-        TContext Context { get; }
-
-        /// <summary>
-        /// The context name
-        /// </summary>
-        string ContextName { get; }
-
-        /// <summary>
         /// Prepares the database for migrations support.
         /// </summary>
         /// <param name="ct">The cancellation token</param>

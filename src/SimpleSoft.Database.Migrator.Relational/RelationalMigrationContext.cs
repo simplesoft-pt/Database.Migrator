@@ -43,15 +43,15 @@ namespace SimpleSoft.Database.Migrator
         /// <summary>
         /// Creates a new instance.
         /// </summary>
-        /// <param name="connection">The connection to use</param>
+        /// <param name="options">The relational context options</param>
+        /// <param name="normalizer">The naming normalizer</param>
         /// <param name="loggerFactory">The logger factory to use</param>
         /// <exception cref="ArgumentNullException"></exception>
-        protected RelationalMigrationContext(IDbConnection connection, IMigrationLoggerFactory loggerFactory)
+        protected RelationalMigrationContext(
+            IRelationalMigrationOptions options, INamingNormalizer normalizer, IMigrationLoggerFactory loggerFactory = null)
+            : base(options, normalizer, loggerFactory)
         {
-            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-
-            Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-            Logger = loggerFactory.Get(GetType().FullName);
+            Options = options;
         }
 
         /// <inheritdoc />
@@ -60,13 +60,11 @@ namespace SimpleSoft.Database.Migrator
             Dispose(false);
         }
 
-        /// <summary>
-        /// The logger used by this instance
-        /// </summary>
-        protected IMigrationLogger Logger { get; }
+        /// <inheritdoc />
+        public new IRelationalMigrationOptions Options { get; }
 
         /// <inheritdoc />
-        public IDbConnection Connection { get; private set; }
+        public abstract IDbConnection Connection { get; protected set; }
 
         /// <inheritdoc />
         public IDbTransaction Transaction { get; private set; }
@@ -108,8 +106,7 @@ namespace SimpleSoft.Database.Migrator
         {
             FailIfDisposed();
 
-            var dbConnection = Connection as DbConnection;
-            if (dbConnection == null)
+            if (!(Connection is DbConnection dbConnection))
                 Connection.Open();
             else
                 await dbConnection.OpenAsync(ct).ConfigureAwait(false);

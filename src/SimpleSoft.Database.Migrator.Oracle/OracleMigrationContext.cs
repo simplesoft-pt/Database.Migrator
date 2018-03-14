@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Data;
 using Oracle.ManagedDataAccess.Client;
 
 namespace SimpleSoft.Database.Migrator
@@ -30,21 +31,31 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// The Oracle migration context
     /// </summary>
-    public class OracleMigrationContext<TOptions> : RelationalMigrationContext, IOracleMigrationContext<TOptions> 
-        where TOptions : OracleContextOptions
+    public class OracleMigrationContext : RelationalMigrationContext, IOracleMigrationContext
     {
-        /// <inheritdoc />
-        public OracleMigrationContext(TOptions options, IMigrationLoggerFactory loggerFactory) 
-            : base(new OracleConnection(options.ConnectionString), loggerFactory)
+        private IDbConnection _connection;
+
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        /// <param name="options">The context options</param>
+        /// <param name="normalizer">The naming normalizer</param>
+        /// <param name="loggerFactory">An optional class logger factory</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public OracleMigrationContext(IOracleMigrationOptions options, INamingNormalizer normalizer, IMigrationLoggerFactory loggerFactory = null) 
+            : base(options, normalizer, loggerFactory)
         {
-            Options = options ?? throw new ArgumentNullException(nameof(options));
+            Options = options;
         }
 
-        #region Implementation of IOracleMigrationContext<out TOptions>
+        /// <inheritdoc />
+        public new IOracleMigrationOptions Options { get; }
 
         /// <inheritdoc />
-        public TOptions Options { get; }
-
-        #endregion
+        public override IDbConnection Connection
+        {
+            get => _connection ?? (_connection = new OracleConnection(Options.ConnectionString));
+            protected set => _connection = value;
+        }
     }
 }

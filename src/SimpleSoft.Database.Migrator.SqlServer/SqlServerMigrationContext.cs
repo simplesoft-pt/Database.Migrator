@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace SimpleSoft.Database.Migrator
@@ -30,21 +31,31 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// The SQL Server migration context
     /// </summary>
-    public class SqlServerMigrationContext<TOptions> : RelationalMigrationContext, ISqlServerMigrationContext<TOptions>
-        where TOptions : SqlServerContextOptions
+    public class SqlServerMigrationContext : RelationalMigrationContext, ISqlServerMigrationContext
     {
-        /// <inheritdoc />
-        public SqlServerMigrationContext(TOptions options, IMigrationLoggerFactory loggerFactory) 
-            : base(new SqlConnection(options.ConnectionString), loggerFactory)
+        private IDbConnection _connection;
+
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        /// <param name="options">The context options</param>
+        /// <param name="normalizer">The naming normalizer</param>
+        /// <param name="loggerFactory">An optional class logger factory</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public SqlServerMigrationContext(ISqlServerMigrationOptions options, INamingNormalizer normalizer, IMigrationLoggerFactory loggerFactory = null) 
+            : base(options, normalizer, loggerFactory)
         {
-            Options = options ?? throw new ArgumentNullException(nameof(options));
+            Options = options;
         }
 
-        #region Implementation of ISqlServerMigrationContext<out TOptions>
+        /// <inheritdoc />
+        public new ISqlServerMigrationOptions Options { get; }
 
         /// <inheritdoc />
-        public TOptions Options { get; }
-
-        #endregion
+        public override IDbConnection Connection
+        {
+            get => _connection ?? (_connection = new SqlConnection(Options.ConnectionString));
+            protected set => _connection = value;
+        }
     }
 }

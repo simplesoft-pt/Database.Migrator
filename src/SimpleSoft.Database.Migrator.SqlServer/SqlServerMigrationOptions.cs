@@ -29,9 +29,29 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// Options for a SQL Server migration context.
     /// </summary>
+    public class SqlServerMigrationOptions : RelationalMigrationOptions, ISqlServerMigrationOptions
+    {
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        /// <param name="contextName">The context name</param>
+        /// <param name="connectionString">The database connection string</param>
+        /// <param name="tableName">The table name</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public SqlServerMigrationOptions(string contextName, string connectionString, string tableName = "__DbMigratorHistory") 
+            : base(contextName, connectionString, tableName)
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// Options for a SQL Server migration context.
+    /// </summary>
     /// <typeparam name="TContext">The context type</typeparam>
-    public class SqlServerMigrationOptions<TContext> : RelationalMigrationOptions<TContext>
-        where TContext : IMigrationContext
+    public class SqlServerMigrationOptions<TContext> : SqlServerMigrationOptions, ISqlServerMigrationOptions<TContext>
+        where TContext : ISqlServerMigrationContext
     {
         /// <summary>
         /// Creates a new instance.
@@ -39,10 +59,16 @@ namespace SimpleSoft.Database.Migrator
         /// <param name="connectionString">The database connection string</param>
         /// <param name="tableName">The table name</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public SqlServerMigrationOptions(string connectionString, string tableName = "__DbMigratorHistory") 
-            : base(connectionString, tableName)
+        public SqlServerMigrationOptions(string connectionString, string tableName = "__DbMigratorHistory")
+            : base(typeof(TContext).Name, connectionString, tableName)
         {
 
+        }
+
+        /// <inheritdoc />
+        public void AddMigration<TMigration>() where TMigration : IMigration<TContext>
+        {
+            base.AddMigration(typeof(TMigration));
         }
     }
 }

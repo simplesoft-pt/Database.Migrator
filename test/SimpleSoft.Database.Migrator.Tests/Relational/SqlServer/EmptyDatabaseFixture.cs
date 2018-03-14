@@ -7,10 +7,10 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
             "Data Source=.; Initial Catalog=MigratorTestEmpty; Integrated Security=True; Connect Timeout=15;Encrypt=False;TrustServerCertificate=False;MultipleActiveResultSets=True;App=SimpleSoft.Database.Migrator.Tests.SqlServer",
             "MigratorTestEmpty", true)
         {
-            Context = new MigratorTestContext(Connection);
+            Context = new SqlServerMigratorTestContext(Options);
         }
 
-        public MigratorTestContext Context { get; private set; }
+        public SqlServerMigratorTestContext Context { get; private set; }
 
         #region Overrides of SqlServerDatabaseFixture
 

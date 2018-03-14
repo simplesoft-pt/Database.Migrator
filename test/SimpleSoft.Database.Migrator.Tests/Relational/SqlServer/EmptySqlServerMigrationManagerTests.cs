@@ -18,14 +18,13 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
         {
             var ct = CancellationToken.None;
 
-            var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                _fixture.Context, new DefaultNamingNormalizer<MigratorTestContext>(),
-                LoggingManager.LoggerFactory);
+            var manager = new SqlServerMigrationManager<SqlServerMigratorTestContext>(
+                _fixture.Context, LoggingManager.LoggerFactory);
 
             await manager.PrepareDatabaseAsync(ct);
 
-            var tableId = await manager.Context.RunAsync(async () =>
-                await manager.Context.QuerySingleAsync<long>(@"
+            var tableId = await _fixture.Context.RunAsync(async () =>
+                await _fixture.Context.QuerySingleAsync<long>(@"
 select count(*) as Total
 from (
 	select 

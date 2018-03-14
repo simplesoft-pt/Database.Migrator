@@ -16,13 +16,13 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
             _databaseName = databaseName;
             _dropDatabase = dropDatabase;
 
-            MasterConnectionString = masterConnectionString;
-            MasterConnection = new SqlConnection(masterConnectionString);
+            MasterOptions = new SqlServerMigrationOptions<SqlServerMigratorTestContext>(masterConnectionString);
+            MasterConnection = new SqlConnection(MasterOptions.ConnectionString);
 
             PrepareDatabase();
 
-            ConnectionString = connectionString;
-            Connection = new SqlConnection(connectionString);
+            Options = new SqlServerMigrationOptions<SqlServerMigratorTestContext>(connectionString);
+            Connection = new SqlConnection(Options.ConnectionString);
         }
 
         ~SqlServerDatabaseFixture()
@@ -30,11 +30,15 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
             Dispose(false);
         }
 
-        public string MasterConnectionString { get; }
+        public SqlServerMigrationOptions MasterOptions { get; }
+
+        public string MasterConnectionString => MasterOptions.ConnectionString;
 
         public DbConnection MasterConnection { get; private set; }
 
-        public string ConnectionString { get; }
+        public SqlServerMigrationOptions Options { get; }
+
+        public string ConnectionString => Options.ConnectionString;
 
         public DbConnection Connection { get; private set; }
 

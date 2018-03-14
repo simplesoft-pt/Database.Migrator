@@ -27,12 +27,11 @@ namespace SimpleSoft.Database.Migrator
     /// <summary>
     /// The Oracle migration context
     /// </summary>
-    public interface IOracleMigrationContext<out TOptions> : IRelationalMigrationContext
-        where TOptions : OracleContextOptions
+    public interface IOracleMigrationContext : IRelationalMigrationContext
     {
         /// <summary>
-        /// The database options
+        /// The Oracle migration options.
         /// </summary>
-        TOptions Options { get; }
+        new IOracleMigrationOptions Options { get; }
     }
 }

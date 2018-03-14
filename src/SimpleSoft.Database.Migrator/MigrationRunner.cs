@@ -46,16 +46,14 @@ namespace SimpleSoft.Database.Migrator
         /// <exception cref="ArgumentNullException"></exception>
         public MigrationRunner(
             IMigrationInstanceScopeFactory instanceScopeFactory, INamingNormalizer<TContext> namingNormalizer, 
-            IEnumerable<MigrationNormalizedMeta> migrations, IMigrationLoggerFactory loggerFactory)
+            IEnumerable<MigrationNormalizedMeta> migrations, IMigrationLoggerFactory loggerFactory = null)
         {
             if (namingNormalizer == null)
                 throw new ArgumentNullException(nameof(namingNormalizer));
             if (migrations == null)
                 throw new ArgumentNullException(nameof(migrations));
-            if (loggerFactory == null)
-                throw new ArgumentNullException(nameof(loggerFactory));
 
-            Logger = loggerFactory.Get(GetType().FullName) ?? NullMigrationLogger.Default;
+            Logger = loggerFactory?.Get(GetType().FullName) ?? NullMigrationLogger.Default;
             ContextName = namingNormalizer.Normalize(typeof(TContext).Name);
             NamingNormalizer = namingNormalizer;
             InstanceScopeFactory = instanceScopeFactory ?? throw new ArgumentNullException(nameof(instanceScopeFactory));

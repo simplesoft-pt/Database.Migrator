@@ -35,6 +35,11 @@ namespace SimpleSoft.Database.Migrator
     public interface IRelationalMigrationContext : IMigrationContext
     {
         /// <summary>
+        /// The migration options.
+        /// </summary>
+        new IRelationalMigrationOptions Options { get; }
+
+        /// <summary>
         /// The database connection
         /// </summary>
         IDbConnection Connection { get; }

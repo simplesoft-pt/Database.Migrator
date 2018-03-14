@@ -17,26 +17,15 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
         [Fact]
         public void GivenANewManagerWhenPassingNullParametersThenArgumentNullExceptionMustBeThrown()
         {
+            SqlServerMigrationManager<SqlServerMigratorTestContext> manager;
             Assert.Throws<ArgumentNullException>(() =>
             {
-                var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                    null, new DefaultNamingNormalizer<MigratorTestContext>(), LoggingManager.LoggerFactory);
+                manager = new SqlServerMigrationManager<SqlServerMigratorTestContext>(null, LoggingManager.LoggerFactory);
                 Assert.NotNull(manager);
             });
 
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                    _fixture.Context, null, LoggingManager.LoggerFactory);
-                Assert.NotNull(manager);
-            });
-
-            Assert.Throws<ArgumentNullException>(() =>
-            {
-                var manager = new SqlServerMigrationManager<MigratorTestContext>(
-                    _fixture.Context, new DefaultNamingNormalizer<MigratorTestContext>(), null);
-                Assert.NotNull(manager);
-            });
+            manager = new SqlServerMigrationManager<SqlServerMigratorTestContext>(_fixture.Context);
+            Assert.NotNull(manager);
         }
 
         [Fact]
@@ -52,10 +41,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
         public async Task GivenADatabaseWithMigrationsWhenGettingAllThenSomeMustBeReturned()
         {
             var ct = CancellationToken.None;
-
-            string migrationId;
-            string className;
-            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+            MigrationsTestHelper.GenerateMigrationInfo(out string migrationId, out string className);
             await _fixture.Manager.AddMigrationAsync(
                 migrationId, className, $"Description for migration {migrationId}", ct);
 
@@ -116,9 +102,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
         [Fact]
         public async Task GivenADatabaseWithMigrationsWhenAddingANewOneThenNoExceptionIsThrown()
         {
-            string migrationId;
-            string className;
-            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+            MigrationsTestHelper.GenerateMigrationInfo(out string migrationId, out string className);
 
             await _fixture.Manager.AddMigrationAsync(
                 migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
@@ -127,9 +111,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
         [Fact]
         public async Task GivenADatabaseWithMigrationsWhenAddingAnOlderOneThenAnInvalidOperationExceptionMustBeThrown()
         {
-            string migrationId;
-            string className;
-            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+            MigrationsTestHelper.GenerateMigrationInfo(out string migrationId, out string className);
 
             await _fixture.Manager.AddMigrationAsync(
                 migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
@@ -147,9 +129,7 @@ namespace SimpleSoft.Database.Migrator.Tests.Relational.SqlServer
         [Fact]
         public async Task GivenADatabaseWithMigrationsWhenAddingAnExistingOneThenAnInvalidOperationExceptionMustBeThrown()
         {
-            string migrationId;
-            string className;
-            MigrationsTestHelper.GenerateMigrationInfo(out migrationId, out className);
+            MigrationsTestHelper.GenerateMigrationInfo(out string migrationId, out string className);
 
             await _fixture.Manager.AddMigrationAsync(
                 migrationId, className, $"Description for migration {migrationId}", CancellationToken.None);
